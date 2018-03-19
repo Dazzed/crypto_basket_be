@@ -1,0 +1,21 @@
+kind: DefaultScaffold
+version: 1.0.0-alpha.1
+spec:
+  name: melotic
+  environments:
+    - name: prod
+    - name: staging
+  services:
+    - name: api
+      endpoint: api
+      servicePath: ./
+      container_port: "3000"
+      provider: gigster-network
+  providers:
+    - name: gigster-network
+      kind: aws
+      spec:
+        account_id: "569325332953"
+        region: "us-east-1"
+        zone_id: "Z3QI565UI7SFFQ"
+        acm_certificate_arn: "arn:aws:acm:us-east-1:569325332953:certificate/7b022e1a-33c3-4c3b-bd17-667f87a25b5b"

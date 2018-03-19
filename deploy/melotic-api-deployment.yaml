@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: melotic-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: melotic-api
+    spec:
+      containers:
+        - name: melotic-api
+          image: 569325332953.dkr.ecr.us-east-1.amazonaws.com/melotic-api:__TAG__
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: melotic-api-secrets
+            - configMapRef:
+                name: melotic-api-configmap
+          ports:
+            - containerPort: 3000

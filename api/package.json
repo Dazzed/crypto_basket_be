@@ -1,0 +1,52 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "main": "server/server.js",
+  "engines": {
+    "node": ">=4"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "start": "node .",
+    "posttest": "npm run lint && nsp check"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "compression": "^1.0.3",
+    "connect-ensure-login": "^0.1.1",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.5.2",
+    "debug": "^3.1.0",
+    "ejs": "^2.5.7",
+    "express-flash": "0.0.2",
+    "express-session": "^1.7.6",
+    "helmet": "^3.10.0",
+    "jade": "^1.7.0",
+    "loopback": "^3.15.0",
+    "loopback-boot": "^2.26.2",
+    "loopback-component-explorer": "^5.2.0",
+    "loopback-component-passport": "^2.3.0",
+    "loopback-connector-postgresql": "^3.2.0",
+    "loopback-setup-remote-methods-mixin": "^1.0.4",
+    "passport": "^0.2.2",
+    "passport-facebook": "^1.0.3",
+    "passport-google-oauth": "^0.1.5",
+    "passport-ldapauth": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "passport-oauth2": "^1.4.0",
+    "passport-twitter": "^1.0.4",
+    "serve-favicon": "^2.4.5",
+    "strong-error-handler": "^2.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.17.1",
+    "eslint-config-loopback": "^8.0.0",
+    "nsp": "^2.1.0"
+  },
+  "repository": {
+    "type": "",
+    "url": ""
+  },
+  "license": "UNLICENSED",
+  "description": "api"
+}

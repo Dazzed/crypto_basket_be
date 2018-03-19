@@ -1,0 +1,91 @@
+{
+  "name": "user",
+  "properties": {
+    "email": {
+      "required": true,
+      "type": "string"
+    },
+    "password": {
+      "required": true,
+      "type": "string"
+    },
+    "firstName": {
+      "required": true,
+      "type": "string"
+    },
+    "lastName": {
+      "required": true,
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "emailVerified": {
+      "type": "boolean"
+    },
+    "verificationToken": {
+      "type": "string"
+    },
+    "createdAt": {
+      "defaultFn": "now",
+      "type": "date"
+    },
+    "updatedAt": {
+      "defaultFn": "now",
+      "type": "date"
+    },
+    "username": {
+      "type": "string"
+    },
+    "profilePictureUrl": {
+      "type": "string"
+    }
+  },
+  "hidden": [
+    "emailVerified",
+    "verificationToken"
+  ],
+  "relations": {
+    "accessTokens": {
+      "foreignKey": "userId",
+      "model": "accessToken",
+      "type": "hasMany"
+    },
+    "identities": {
+      "foreignKey": "userId",
+      "model": "userIdentity",
+      "type": "hasMany"
+    },
+    "credentials": {
+      "foreignKey": "userId",
+      "model": "userCredential",
+      "type": "hasMany"
+    }
+  },
+  "indexes": {
+    "email": {
+      "keys": {
+        "email": 1
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
+  "methods": {},
+  "acls": [],
+  "mixins": {
+    "SetupRemoteMethods": {}
+  },
+  "plural": "users",
+  "base": "User",
+  "options": {
+    "emailVerificationRequired": false
+  }
+}

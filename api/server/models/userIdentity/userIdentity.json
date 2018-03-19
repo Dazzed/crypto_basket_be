@@ -1,0 +1,45 @@
+{
+  "name": "userIdentity",
+  "properties": {
+    "provider": {
+      "description": "facebook, google, twitter, linkedin",
+      "type": "string"
+    },
+    "authScheme": {
+      "description": "oAuth, oAuth 2.0, OpenID, OpenID Connect",
+      "type": "string"
+    },
+    "externalId": {
+      "description": "The provider specific id",
+      "type": "string"
+    },
+    "profile": {
+      "type": "object"
+    },
+    "credentials": {
+      "type": "object"
+    },
+    "created": {
+      "type": "date"
+    },
+    "modified": {
+      "type": "date"
+    }
+  },
+  "hidden": [],
+  "relations": {
+    "user": {
+      "foreignKey": "userId",
+      "model": "user",
+      "type": "belongsTo"
+    }
+  },
+  "indexes": {},
+  "methods": {},
+  "acls": [],
+  "mixins": {
+    "SetupRemoteMethods": {}
+  },
+  "plural": "userIdentities",
+  "base": "UserIdentity"
+}

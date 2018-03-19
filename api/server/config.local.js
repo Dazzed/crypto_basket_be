@@ -1,0 +1,7 @@
+module.exports = {
+  providers: {
+    local: {
+    },
+  },
+};
+

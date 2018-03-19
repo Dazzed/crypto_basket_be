@@ -1,0 +1,210 @@
+schema: 'https://schema.gigster.com/schemas/cli/2.0.0/gig.yaml'
+version: 2.0.0
+name: melotic
+description: melotic api
+blocks:
+  - name: api
+    location: 'npm:@gigster/block-loopback@1.2.3'
+    spec: {}
+    modules:
+      - name: loopback-models
+        location: 'npm:@gigster/module-loopback-models@1.1.3'
+        spec:
+          defaultDatasource: postgresqlDs
+      - name: loopback-authentication
+        location: 'npm:@gigster/module-loopback-authentication@1.1.3'
+        spec:
+          webEnabled: true
+          emailVerificationRequired: false
+          providers:
+            local: {}
+datasources:
+  - name: postgresqlDs
+    type: postgresql
+    spec:
+      host: DATABASE_POSTGRESQL_HOST
+      port: DATABASE_POSTGRESQL_PORT
+      database: DATABASE_POSTGRESQL_DATABASE
+      user: DATABASE_POSTGRESQL_USER
+      password: DATABASE_POSTGRESQL_PASSWORD
+models:
+  - name: user
+    properties:
+      - name: email
+        type: string
+        required: true
+      - name: password
+        type: string
+        required: true
+      - name: firstName
+        type: string
+        required: true
+      - name: lastName
+        type: string
+        required: true
+      - name: city
+        type: string
+      - name: state
+        type: string
+      - name: country
+        type: string
+      - name: emailVerified
+        type: boolean
+        hidden: true
+      - name: verificationToken
+        type: string
+        hidden: true
+      - name: createdAt
+        type: date
+        defaultFn: now
+      - name: updatedAt
+        type: date
+        defaultFn: now
+      - name: username
+        type: string
+      - name: profilePictureUrl
+        type: string
+    indexes:
+      - name: email
+        keys:
+          - property: email
+            order: ascending
+        unique: true
+    relations:
+      - name: accessTokens
+        type: hasMany
+        model: accessToken
+        foreignKey: userId
+      - name: identities
+        type: hasMany
+        model: userIdentity
+        foreignKey: userId
+      - name: credentials
+        type: hasMany
+        model: userCredential
+        foreignKey: userId
+  - name: accessToken
+    properties:
+      - name: id
+        type: string
+        id: true
+      - name: ttl
+        type: number
+        default: 1209600
+        description: time to live in seconds (2 weeks by default)
+      - name: created
+        type: date
+        defaultFn: now
+    relations:
+      - name: user
+        type: belongsTo
+        model: user
+        foreignKey: userId
+  - name: role
+    properties:
+      - name: name
+        type: string
+        required: true
+      - name: description
+        type: string
+      - name: created
+        type: date
+        defaultFn: now
+      - name: modified
+        type: date
+        defaultFn: now
+      - name: id
+        type: string
+        id: true
+    relations:
+      - name: principals
+        type: hasMany
+        model: roleMapping
+        foreignKey: roleId
+  - name: roleMapping
+    properties:
+      - name: principalType
+        type: string
+        description: >-
+          The principal type, such as USER, APPLICATION, ROLE, or user model
+          name in case of multiple user models
+      - name: principalId
+        type: string
+      - name: id
+        type: string
+        id: true
+    relations:
+      - name: role
+        type: belongsTo
+        model: role
+        foreignKey: roleId
+  - name: userCredential
+    properties:
+      - name: provider
+        type: string
+        description: 'facebook, google, twitter, linkedin'
+      - name: authScheme
+        type: string
+        description: 'oAuth, oAuth 2.0, OpenID, OpenID Connect'
+      - name: externalId
+        type: string
+        description: The provider specific id
+      - name: profile
+        type: object
+      - name: credentials
+        type: object
+      - name: created
+        type: date
+      - name: modified
+        type: date
+    relations:
+      - name: user
+        type: belongsTo
+        model: user
+        foreignKey: userId
+  - name: userIdentity
+    properties:
+      - name: provider
+        type: string
+        description: 'facebook, google, twitter, linkedin'
+      - name: authScheme
+        type: string
+        description: 'oAuth, oAuth 2.0, OpenID, OpenID Connect'
+      - name: externalId
+        type: string
+        description: The provider specific id
+      - name: profile
+        type: object
+      - name: credentials
+        type: object
+      - name: created
+        type: date
+      - name: modified
+        type: date
+    relations:
+      - name: user
+        type: belongsTo
+        model: user
+        foreignKey: userId
+modules: []
+environments:
+  - name: DATABASE_POSTGRESQL_HOST
+    required: true
+    blocks:
+      - api
+  - name: DATABASE_POSTGRESQL_PORT
+    required: true
+    blocks:
+      - api
+  - name: DATABASE_POSTGRESQL_DATABASE
+    required: true
+    blocks:
+      - api
+  - name: DATABASE_POSTGRESQL_USER
+    required: true
+    blocks:
+      - api
+  - name: DATABASE_POSTGRESQL_PASSWORD
+    required: true
+    blocks:
+      - api

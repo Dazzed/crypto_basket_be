@@ -1,0 +1,56 @@
+{
+  "_meta": {
+    "sources": [
+      "../node_modules/loopback-component-passport/lib/models",
+      "loopback/common/models",
+      "loopback/server/models",
+      "../common/models",
+      "./models",
+      "./models/user",
+      "./models/accessToken",
+      "./models/role",
+      "./models/roleMapping",
+      "./models/userCredential",
+      "./models/userIdentity"
+    ],
+    "mixins": [
+      "loopback/common/mixins",
+      "loopback/server/mixins",
+      "../common/mixins",
+      "./mixins",
+      "../node_modules/loopback-setup-remote-methods-mixin"
+    ]
+  },
+  "user": {
+    "dataSource": "postgresqlDs",
+    "public": true
+  },
+  "accessToken": {
+    "dataSource": "postgresqlDs",
+    "public": false
+  },
+  "role": {
+    "dataSource": "postgresqlDs",
+    "public": false
+  },
+  "roleMapping": {
+    "dataSource": "postgresqlDs",
+    "public": false
+  },
+  "userCredential": {
+    "dataSource": "postgresqlDs",
+    "public": false
+  },
+  "userIdentity": {
+    "dataSource": "postgresqlDs",
+    "public": false
+  },
+  "ACL": {
+    "dataSource": "db",
+    "public": false
+  },
+  "Email": {
+    "dataSource": "email",
+    "public": false
+  }
+}

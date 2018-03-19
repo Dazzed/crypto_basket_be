@@ -1,0 +1,31 @@
+{
+  "name": "roleMapping",
+  "properties": {
+    "principalType": {
+      "description": "The principal type, such as USER, APPLICATION, ROLE, or user model name in case of multiple user models",
+      "type": "string"
+    },
+    "principalId": {
+      "type": "string"
+    },
+    "id": {
+      "id": true,
+      "type": "string"
+    }
+  },
+  "hidden": [],
+  "relations": {
+    "role": {
+      "foreignKey": "roleId",
+      "model": "role",
+      "type": "belongsTo"
+    }
+  },
+  "indexes": {},
+  "methods": {},
+  "acls": [],
+  "mixins": {
+    "SetupRemoteMethods": {}
+  },
+  "base": "RoleMapping"
+}

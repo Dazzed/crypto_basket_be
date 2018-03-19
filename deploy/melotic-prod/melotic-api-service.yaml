@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: melotic-api
+  annotations:
+    dns.alpha.kubernetes.io/external: "melotic-api-prod.aws.gigsternetwork.com"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:569325332953:certificate/7b022e1a-33c3-4c3b-bd17-667f87a25b5b
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+spec:
+  ports:
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 3000
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    run: melotic-api
+  type: LoadBalancer
