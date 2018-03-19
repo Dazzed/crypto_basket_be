@@ -1,0 +1,23 @@
+{
+  "db": {
+    "connector": "memory"
+  },
+  "email": {
+    "connector": "mail",
+    "transports": [
+      {
+        "type": "smtp",
+        "host": "localhost",
+        "secure": true,
+        "port": 587,
+        "tls": {
+          "rejectUnauthorized": false
+        },
+        "auth": {
+          "user": "",
+          "pass": ""
+        }
+      }
+    ]
+  }
+}

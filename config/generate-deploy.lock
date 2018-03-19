@@ -2,7 +2,7 @@
 # generate-deploy.lock
 
 version: 2.0.0
-commit_hash: 1e2402d395fc2cd66ab3999df1bc137fe6f69179
+commit_hash: be6462a81489524546cee8d4319b1926f278c289
 tree:
   name: deploy
   children:

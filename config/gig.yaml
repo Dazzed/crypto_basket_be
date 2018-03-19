@@ -18,6 +18,9 @@ blocks:
           emailVerificationRequired: false
           providers:
             local: {}
+      - name: loopback-jest
+        location: 'npm:@gigster/module-loopback-jest@1.0.0'
+        spec: {}
 datasources:
   - name: postgresqlDs
     type: postgresql

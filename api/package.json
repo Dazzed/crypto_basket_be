@@ -8,7 +8,8 @@
   "scripts": {
     "lint": "eslint .",
     "start": "node .",
-    "posttest": "npm run lint && nsp check"
+    "check": "npm run lint && nsp check",
+    "test": "jest"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
@@ -41,7 +42,12 @@
   "devDependencies": {
     "eslint": "^3.17.1",
     "eslint-config-loopback": "^8.0.0",
-    "nsp": "^2.1.0"
+    "jest": "^21.2.1",
+    "jest-plugins": "^2.6.0",
+    "jest-plugins-recommended": "^2.6.0",
+    "jest-preset-loopback": "^1.0.0",
+    "nsp": "^2.1.0",
+    "supertest": "^3.0.0"
   },
   "repository": {
     "type": "",
