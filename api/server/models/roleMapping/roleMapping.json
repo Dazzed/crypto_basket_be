@@ -7,10 +7,6 @@
     },
     "principalId": {
       "type": "string"
-    },
-    "id": {
-      "id": true,
-      "type": "string"
     }
   },
   "hidden": [],

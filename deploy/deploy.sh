@@ -21,7 +21,7 @@ CONFIGMAP_NAME=melotic-$SERVICE-configmap
 DEPLOY_PATH=$PROJECT_PATH/deploy
 
 eval $(aws ecr get-login --no-include-email --region us-east-1 --profile gigster-network)
-docker build -f $DOCKERFILE -t $SERVICE_TAG $SERVICE_ROOT
+docker build -f $DOCKERFILE -t $SERVICE_TAG $SERVICE_ROOT --build-arg NODE_ENV=$ENVIRONMENT
 docker tag $SERVICE_TAG $SERVICE_URL
 docker push $SERVICE_URL
 

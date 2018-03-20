@@ -36,6 +36,8 @@ models:
       - name: email
         type: string
         required: true
+      - name: username
+        type: string
       - name: password
         type: string
         required: true
@@ -45,12 +47,30 @@ models:
       - name: lastName
         type: string
         required: true
+      - name: isDeleted
+        type: boolean
+        default: false
+      - name: dob
+        type: date
+        required: true
+      - name: address
+        type: string
+        required: true
+      - name: phone
+        type: string
+        required: true
+      - name: twoFactorEnabled
+        type: boolean
+        default: false
       - name: city
         type: string
+        required: true
       - name: state
         type: string
+        required: true
       - name: country
         type: string
+        required: true
       - name: emailVerified
         type: boolean
         hidden: true
@@ -63,8 +83,6 @@ models:
       - name: updatedAt
         type: date
         defaultFn: now
-      - name: username
-        type: string
       - name: profilePictureUrl
         type: string
     indexes:

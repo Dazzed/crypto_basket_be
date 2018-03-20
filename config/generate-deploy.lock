@@ -2,7 +2,7 @@
 # generate-deploy.lock
 
 version: 2.0.0
-commit_hash: be6462a81489524546cee8d4319b1926f278c289
+commit_hash: e85c888063bef9f011b58e6ee56eab3db9a168dc
 tree:
   name: deploy
   children:
@@ -36,13 +36,25 @@ tree:
       type: directory
     - name: melotic-staging
       children:
+        - name: .config
+          size: 0
+          extension: ''
+          type: file
+          hash: da39a3ee5e6b4b0d3255bfef95601890afd80709
+          relative: ./melotic-staging/.config
+        - name: .env
+          size: 222
+          extension: ''
+          type: file
+          hash: e60dfe8946b9caee7f1b61f30e817d4a1e539618
+          relative: ./melotic-staging/.env
         - name: melotic-api-service.yaml
           size: 659
           extension: .yaml
           type: file
           hash: e2c1f2f6f0dda692b2bf994e58a92214496228ba
           relative: ./melotic-staging/melotic-api-service.yaml
-      size: 659
+      size: 881
       type: directory
     - name: terraform
       children:
@@ -60,5 +72,5 @@ tree:
           relative: ./terraform/ecr.tf
       size: 305
       type: directory
-  size: 4188
+  size: 4410
   type: directory
