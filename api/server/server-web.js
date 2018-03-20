@@ -116,4 +116,25 @@ module.exports = function(app) {
     req.logout();
     res.redirect('/');
   });
+
+  app.get('/verify_email_temp', async (req, res) => {
+    const { token } = req.query;
+    const {user} = app.models;
+    if (!token) {
+      return res.send(`<script type="text/javascript">alert('Error!')</script>`);
+    }
+    const thizUser = await user.findOne({
+      where: {
+        verificationToken: token
+      }
+    });
+    if (!thizUser) {
+      return res.send(`<script type="text/javascript">alert('Error!')</script>`);
+    }
+    await thizUser.updateAttributes({
+      emailVerified: true,
+      verificationToken: null
+    });
+    res.send(`<script type="text/javascript">var a = confirm('Your email is verified!')</script>`);
+  });
 };

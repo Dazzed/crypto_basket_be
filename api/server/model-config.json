@@ -46,11 +46,7 @@
     "public": false
   },
   "ACL": {
-    "dataSource": "db",
-    "public": false
-  },
-  "Email": {
-    "dataSource": "email",
+    "dataSource": "postgresqlDs",
     "public": false
   }
 }

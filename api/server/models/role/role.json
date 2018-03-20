@@ -15,10 +15,6 @@
     "modified": {
       "defaultFn": "now",
       "type": "date"
-    },
-    "id": {
-      "id": true,
-      "type": "string"
     }
   },
   "hidden": [],
