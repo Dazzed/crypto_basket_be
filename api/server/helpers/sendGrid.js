@@ -10,9 +10,9 @@ const APPLICATION_TEMPLATE_PATH = `${__dirname}/../../template/application/`;
 const fromEmail = new sendgrid.Email('info@melotic.com');
 
 function sendMail(mail) {
-  // if (process.env.ENVIRONMENT_TYPE === 'development') {
-  //   return true;
-  // }
+  if (process.env.ENVIRONMENT_TYPE === 'development') {
+    return true;
+  }
 
   const request = sg.emptyRequest({
     method: 'POST',

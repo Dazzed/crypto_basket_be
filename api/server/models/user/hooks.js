@@ -37,9 +37,19 @@ module.exports = function (user) {
       await userInstance.updateAttribute('verificationToken', verificationToken);
       postSignupEmail(userInstance, verificationToken);
 
-      // 2. Check If admin creation requested
-
-      // 3. Check If super admin creation requested
+      const {options} = context.args;
+      if (options.accessToken) {
+        // 2. Check If admin creation requested
+        if (userInstance.isCreatingAdmin) {
+          const isSuperAdmin = await user.isSuperAdmin(
+            options.accessToken.userId
+          );
+          if (isSuperAdmin) {
+            await userInstance.promoteAdmin();
+          }
+        }
+        // 3. Check If super admin creation requested
+      }
     } catch (error) {
       console.log('Error in user.afterRemote create', error);
       return next(internalError());

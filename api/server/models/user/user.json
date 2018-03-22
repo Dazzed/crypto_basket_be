@@ -165,6 +165,55 @@
       "permission": "ALLOW"
     },
     {
+      "property": "find",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "property": "find",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "super_admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "find",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "findById",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "property": "findById",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "super_admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "findById",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "findById",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    },
+    {
       "property": "createSuperAdmin",
       "accessType": "EXECUTE",
       "principalType": "ROLE",
@@ -182,21 +231,22 @@
       "property": "createSuperAdmin",
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "$super_admin",
+      "principalId": "super_admin",
       "permission": "ALLOW"
     },
     {
       "property": "createAdmin",
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "$super_admin",
+      "principalId": "super_admin",
       "permission": "ALLOW"
     }
   ],
   "mixins": {
     "SetupRemoteMethods": {
       "disableAllExcept": [
-        "create"
+        "create",
+        "find"
       ]
     }
   },
