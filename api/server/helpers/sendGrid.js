@@ -35,7 +35,7 @@ function postSignupEmail(user, token) {
   const content = new sendgrid.Content(
     'text/html', template({
       user,
-      domain: `${config[process.env.NODE_ENV]}/verify?token=${token}`
+      domain: `${config[process.env.NODE_ENV]}/verify_email_temp?token=${token}`
     })
   );
   const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
