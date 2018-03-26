@@ -20,8 +20,10 @@ module.exports = function(transfer){
     }).then(trans=>{
         return trans.outputs[0];
     }).then(opt=>{
-        return transfer.app.models.wallet.findOne({address: opt.account}).then(wallet => {
-          transfer.app.models.wallet.upsert({id: wallet.id, balance: wallet.balance+opt.value});
+      return transfer.app.models.wallet.findOne({address: opt.account}).then(wallet => {
+        console.log('bew balance', parseFloat(wallet.balance)+parseFloat(opt.value), wallet.balance, opt.value);
+        return wallet.updateAttribute('balance', parseFloat(wallet.balance)+parseFloat(opt.value)).then(wall=>{
+          console.log('wall', wall);
           return transfer.create({
             coin: "BTC",
             txid: hash,
@@ -31,7 +33,8 @@ module.exports = function(transfer){
             value: opt.value,
             usdValue: opt.value/1e8*UsdBtcRatio
           });
-    });
+        });
+      });
   });
 
     ctx.res.status(200).send(null);

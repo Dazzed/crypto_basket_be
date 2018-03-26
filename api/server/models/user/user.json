@@ -96,6 +96,18 @@
         "columnName": "profilePictureUrl"
       }
     },
+    "ethAddress":{
+      "type": "string",
+      "postgresql":{
+        "columnName": "ethAddress"
+      }
+    },
+    "btcAddress":{
+      "type": "string",
+      "postgresql":{
+        "columnName": "btcAddress"
+      }
+    },
     "realm": false
   },
   "hidden": [
