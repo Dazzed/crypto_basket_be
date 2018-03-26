@@ -1,12 +1,12 @@
-<p>Hello,</p>
+<p>Hello <strong><%= user.firstName + ' ' + user.lastName%></strong>,</p>
 <p>We have have received a password reset request for your account.</p>
 
 Click
-<a href='http://<%=host%>:<%=port%>/reset-password?access_token=<%=accessToken%>'>here</a>
+<a href='<%=domain%>'>here</a>
 to reset your password.
 
 <p>If you did not request this password reset, please let us know.</p>
 
 <p>Sincerely,</p>
 
-<p>The Marketplace Team</p>
+<p>The Melotic Team</p>

@@ -76,6 +76,13 @@
         "columnName": "verificationToken"
       }
     },
+    "verificationStatus": {
+      "default": "unverified",
+      "type": "string",
+      "postgresql": {
+        "columnName": "verificationStatus"
+      }
+    },
     "createdAt": {
       "defaultFn": "now",
       "type": "date",
@@ -240,13 +247,28 @@
       "principalType": "ROLE",
       "principalId": "super_admin",
       "permission": "ALLOW"
+    },
+    {
+      "property": "search",
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "super_admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "search",
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
     }
   ],
   "mixins": {
     "SetupRemoteMethods": {
       "disableAllExcept": [
         "create",
-        "find"
+        "find",
+        "search"
       ]
     }
   },
