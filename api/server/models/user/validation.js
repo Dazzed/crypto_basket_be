@@ -15,4 +15,7 @@ module.exports = function(user) {
   user.validatesPresenceOf('city');
   user.validatesPresenceOf('state');
   user.validatesPresenceOf('country');
+  user.validatesInclusionOf('verificationStatus', {
+    in: ['fully_verified', 'partially_verified', 'unverified', 'verification_pending'],
+  });
 };

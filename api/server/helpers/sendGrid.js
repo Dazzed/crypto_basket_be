@@ -10,9 +10,9 @@ const APPLICATION_TEMPLATE_PATH = `${__dirname}/../../template/application/`;
 const fromEmail = new sendgrid.Email('info@melotic.com');
 
 function sendMail(mail) {
-  if (process.env.ENVIRONMENT_TYPE === 'development') {
-    return true;
-  }
+  // if (process.env.ENVIRONMENT_TYPE === 'development') {
+  //   return true;
+  // }
 
   const request = sg.emptyRequest({
     method: 'POST',
@@ -27,21 +27,46 @@ function sendMail(mail) {
   });
 }
 
-function postSignupEmail(user, token) {
-  const templateString = fs.readFileSync(__dirname + '/../../template/verify.ejs', 'utf-8');
-  const template = ejs.compile(templateString);
-  const toEmail = new sendgrid.Email(user.email);
-  const subject = 'Welcome to Melotic!';
-  const content = new sendgrid.Content(
-    'text/html', template({
-      user,
-      domain: `${config[process.env.NODE_ENV]}/verify_email_temp?token=${token}`
-    })
-  );
-  const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
-  sendMail(mail);
-}
-
 module.exports = {
-  postSignupEmail
+  postSignupEmail(user, token) {
+    const templateString = fs.readFileSync(__dirname + '/../../template/verify.ejs', 'utf-8');
+    const template = ejs.compile(templateString);
+    const toEmail = new sendgrid.Email(user.email);
+    const subject = 'Welcome to Melotic!';
+    const content = new sendgrid.Content(
+      'text/html', template({
+        user,
+        domain: `${config[process.env.NODE_ENV]}/verify_email_temp?token=${token}`
+      })
+    );
+    const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
+    sendMail(mail);
+  },
+  resetPasswordEmail(user, accessToken) {
+    const templateString = fs.readFileSync(__dirname + '/../../template/reset.ejs', 'utf-8');
+    const template = ejs.compile(templateString);
+    const toEmail = new sendgrid.Email(user.email);
+    const subject = 'Reset Melotic password';
+    const content = new sendgrid.Content(
+      'text/html', template({
+        user,
+        domain: `${config[process.env.NODE_ENV]}/reset_password?access_token=${accessToken}`
+      })
+    );
+    const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
+    sendMail(mail);
+  },
+  postNotifyChangePassword(user) {
+    const templateString = fs.readFileSync(__dirname + '/../../template/post_change_password_notification.ejs', 'utf-8');
+    const template = ejs.compile(templateString);
+    const toEmail = new sendgrid.Email(user.email);
+    const subject = 'Your password has been changed';
+    const content = new sendgrid.Content(
+      'text/html', template({
+        user
+      })
+    );
+    const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
+    sendMail(mail);
+  }
 };
