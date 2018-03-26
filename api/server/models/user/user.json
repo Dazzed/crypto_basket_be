@@ -136,6 +136,22 @@
       "options": {
         "unique": true
       }
+    },
+    "btcAddress": {
+      "keys": {
+        "btcAddress": 1
+      },
+      "options": {
+        "unique": true
+      }
+    },
+    "ethAddress": {
+      "keys": {
+        "ethAddress": 1
+      },
+      "options": {
+        "unique": true
+      }
     }
   },
   "methods": {},

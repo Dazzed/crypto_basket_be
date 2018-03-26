@@ -1,0 +1,47 @@
+{
+  "name": "wallet",
+  "plural": "wallets",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "balance": {
+      "type": "number",
+      "required": true,
+      "default": 0.0,
+      "postgresql": {
+        "dataType": "NUMERIC(10,2)"
+      }
+    },
+    "address": {
+      "type": "string",
+      "default": "\"\""
+    },
+    "updatedAt": {
+      "type": "date",
+      "required": true,
+      "defaultFn": "now"
+    }
+  },
+  "validations": [],
+  "relations": {
+    "user": {
+      "primaryKey": "id",
+      "model": "user",
+      "type": "belongsTo"
+    },
+    "asset": {
+      "primaryKey": "ticker",
+      "model": "asset",
+      "type": "belongsTo"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

@@ -11,7 +11,10 @@
       "./models/role",
       "./models/roleMapping",
       "./models/userCredential",
-      "./models/userIdentity"
+      "./models/userIdentity",
+      "./models/transfer",
+      "./models/wallet",
+      "./models/asset"
     ],
     "mixins": [
       "loopback/common/mixins",
@@ -48,5 +51,17 @@
   "ACL": {
     "dataSource": "postgresqlDs",
     "public": false
+  },
+  "transfer": {
+    "dataSource": "postgresqlDs",
+    "public": true
+  },
+  "wallet": {
+    "dataSource": "postgresqlDs",
+    "public": true
+  },
+  "asset": {
+    "dataSource": "postgresqlDs",
+    "public": true
   }
 }
