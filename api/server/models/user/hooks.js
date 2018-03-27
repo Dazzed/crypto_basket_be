@@ -87,6 +87,27 @@ module.exports = function (user) {
     postNotifyChangePassword(targetUser);
   });
 
+  /* before resetPassword
+   * 1. if username is passed, Then validate it and add the email property in the options.
+   */
+  user.beforeRemote('resetPassword', async (context, _, next) => {
+    try {
+      // 1
+      const { username, email } = context.args.options;
+      if (username && !email) {
+        const thizUser = await user.findOne({ where: { username } });
+        if (thizUser) {
+          context.args.options.email = thizUser.email;
+        } else {
+          return next(badRequest('Invalid username'));
+        }
+      }
+    } catch (error) {
+      console.log('Error in user.beforeRemote resetPassword', error);
+      return next(internalError());
+    }
+  });
+
   user.afterRemote('resetPassword', async (context, _, next) => {
     context.result = {};
   });
@@ -102,16 +123,15 @@ module.exports = function (user) {
   user.beforeRemote('find', async (context, _, next) => {
     try {
       const { custom_include = [] } = context.args.filter;
+      // 1
       if (custom_include.includes('only_community')) {
         const { roleMapping } = user.app.models;
         const privledgedIds = await roleMapping.find({ fields: 'principalId' })
           .map(({ principalId }) => principalId);
-        context.args.filter = {
-          where: {
-            ...context.args.filter.where,
-            id: {
-              nin: privledgedIds
-            }
+        context.args.filter.where = {
+          ...context.args.filter.where,
+          id: {
+            nin: privledgedIds
           }
         };
       }
@@ -134,6 +154,24 @@ module.exports = function (user) {
           return next(unauthorized('verificationStatus cannot be changed by you'));
         }
       }
+    } catch (error) {
+      console.log('Error in user.beforeRemote patchAttributes', error);
+      return next(internalError());
+    }
+  });
+
+  /* before patchAttributes
+   * 1. If updating email, set emailVerified to false and generate verfication token to send a new email.
+   */
+  user.afterRemote('prototype.patchAttributes', async (context, userInstance, next) => {
+    try {
+      // 1
+      const verificationToken = uuidv4();
+      await userInstance.updateAttributes({
+        verificationToken,
+        emailVerified: false
+      });
+      postSignupEmail(userInstance, verificationToken);
     } catch (error) {
       console.log('Error in user.beforeRemote patchAttributes', error);
       return next(internalError());

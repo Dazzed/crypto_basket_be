@@ -106,7 +106,6 @@
     "realm": false
   },
   "hidden": [
-    "emailVerified",
     "verificationToken",
     "password"
   ],
@@ -125,6 +124,11 @@
       "foreignKey": "userId",
       "model": "userCredential",
       "type": "hasMany"
+    },
+    "roleMapping": {
+      "foreignKey": "principalId",
+      "model": "roleMapping",
+      "type": "hasOne"
     }
   },
   "indexes": {
@@ -261,6 +265,20 @@
       "principalType": "ROLE",
       "principalId": "admin",
       "permission": "ALLOW"
+    },
+    {
+      "property": "filterByVerification",
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "super_admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "filterByVerification",
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
     }
   ],
   "mixins": {
@@ -268,7 +286,8 @@
       "disableAllExcept": [
         "create",
         "find",
-        "search"
+        "search",
+        "filterByVerification"
       ]
     }
   },
