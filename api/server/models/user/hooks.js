@@ -77,6 +77,21 @@ module.exports = function (user) {
     }
   });
 
+  user.afterRemote('login', async (context, tokenInstance, next) => {
+    try {
+      const thizUser = await user.findById(tokenInstance.userId, {
+        include: { roleMapping: 'role' }
+      });
+      context.result = {
+        ...context.result.toJSON(),
+        user: thizUser.toJSON()
+      };
+    } catch (error) {
+      console.log('Error in user.afterRemote login', error);
+      return next(internalError());
+    }
+  });
+
   user.afterRemote('logout', async (context, _, next) => {
     context.result = {};
   });
