@@ -152,4 +152,17 @@ models:
         type: belongsTo
         model: role
         foreignKey: roleId
+  - name: twoFactorTemp
+    properties:
+      - name: secret
+        type: string
+        required: true
+      - name: createdAt
+        type: date
+        defaultFn: now
+    relations:
+      - name: user
+        type: belongsTo
+        model: user
+        foreignKey: userId
 modules: []

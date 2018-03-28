@@ -1,4 +1,6 @@
 /* eslint-disable quotes */
+const QRCode = require('qrcode');
+
 module.exports = {
   validateEmail(email) {
     const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -24,5 +26,13 @@ module.exports = {
     } else {
       throw 'Internal server error in password';
     }
+  },
+  generateQrCode(secret) {
+    return new Promise((resolve, reject) => {
+      QRCode.toDataURL(secret.otpauth_url, function (err, data_url) {
+        if (err) return reject(err);
+        return resolve(data_url);
+      });
+    });
   }
 };

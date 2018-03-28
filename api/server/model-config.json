@@ -11,7 +11,8 @@
       "./models/role",
       "./models/roleMapping",
       "./models/userCredential",
-      "./models/userIdentity"
+      "./models/userIdentity",
+      "./models/twoFactorTemp"
     ],
     "mixins": [
       "loopback/common/mixins",
@@ -46,6 +47,10 @@
     "public": false
   },
   "ACL": {
+    "dataSource": "postgresqlDs",
+    "public": false
+  },
+  "twoFactorTemp": {
     "dataSource": "postgresqlDs",
     "public": false
   }

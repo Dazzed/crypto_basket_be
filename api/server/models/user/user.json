@@ -45,11 +45,18 @@
       "required": true,
       "type": "string"
     },
-    "twoFactorEnabled": {
+    "twoFactorLoginEnabled": {
       "default": false,
       "type": "boolean",
       "postgresql": {
-        "columnName": "twoFactorEnabled"
+        "columnName": "twoFactorLoginEnabled"
+      }
+    },
+    "twoFactorWithdrawalEnabled": {
+      "default": false,
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "twoFactorWithdrawalEnabled"
       }
     },
     "city": {
@@ -103,6 +110,12 @@
         "columnName": "profilePictureUrl"
       }
     },
+    "twoFactorSecret": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "twoFactorSecret"
+      }
+    },
     "realm": false
   },
   "hidden": [
@@ -128,6 +141,11 @@
     "roleMapping": {
       "foreignKey": "principalId",
       "model": "roleMapping",
+      "type": "hasOne"
+    },
+    "temporaryTwoFactorSecret": {
+      "foreignKey": "userId",
+      "model": "twoFactorTemp",
       "type": "hasOne"
     }
   },
@@ -279,6 +297,20 @@
       "principalType": "ROLE",
       "principalId": "admin",
       "permission": "ALLOW"
+    },
+    {
+      "property": "initiateTwoFactor",
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "verifyTwoFactor",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
     }
   ],
   "mixins": {
@@ -287,7 +319,9 @@
         "create",
         "find",
         "search",
-        "filterByVerification"
+        "filterByVerification",
+        "initiateTwoFactor",
+        "verifyTwoFactor"
       ]
     }
   },
