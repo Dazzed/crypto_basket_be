@@ -15,4 +15,18 @@ module.exports = function (user) {
     const count = await roleMapping.count({ principalId: this.id });
     return count === 0;
   };
+
+  user.prototype.isAdmin = async function () {
+    const { roleMapping, role } = server.models;
+    const adminRole = await role.getAdminRole();
+    const count = await roleMapping.count({ principalId: this.id, roleId: adminRole.id });
+    return count > 0;
+  };
+
+  user.prototype.isSuperAdmin = async function () {
+    const { roleMapping, role } = server.models;
+    const superAdminRole = await role.getSuperAdminRole();
+    const count = await roleMapping.count({ principalId: this.id, roleId: superAdminRole.id });
+    return count > 0;
+  };
 };

@@ -104,6 +104,12 @@
         "columnName": "updatedAt"
       }
     },
+    "deletedAt": {
+      "type": "date",
+      "postgresql": {
+        "columnName": "deletedAt"
+      }
+    },
     "profilePictureUrl": {
       "type": "string",
       "postgresql": {
@@ -120,7 +126,8 @@
   },
   "hidden": [
     "verificationToken",
-    "password"
+    "password",
+    "twoFactorSecret"
   ],
   "relations": {
     "accessTokens": {
@@ -311,6 +318,20 @@
       "principalType": "ROLE",
       "principalId": "$authenticated",
       "permission": "ALLOW"
+    },
+    {
+      "property": "archive",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "archive",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "super_admin",
+      "permission": "ALLOW"
     }
   ],
   "mixins": {
@@ -321,7 +342,8 @@
         "search",
         "filterByVerification",
         "initiateTwoFactor",
-        "verifyTwoFactor"
+        "verifyTwoFactor",
+        "archive"
       ]
     }
   },

@@ -157,11 +157,23 @@ module.exports = function (user) {
   });
 
   /* before patchAttributes
-   * 1. community_member / normal user cannot update his verificationStatus
+   * 1. Do not allow to patch isDeleted or deletedAt
+   * 2. Do not allow to patch emailVerified
+   * 3. community_member / normal user cannot update his verificationStatus
    */
   user.beforeRemote('prototype.patchAttributes', async (context, _, next) => {
     try {
       // 1
+      if (context.args.options.isDeleted || context.args.options.deletedAt) {
+        return next(badRequest('isDeletedAt or deletedAt cannot be patched'));
+      }
+
+      // 2
+      if (context.args.options.emailVerified) {
+        return next(badRequest('emailVerified cannot be patched'));
+      }
+
+      // 3
       const { authorizedRoles, accessToken: thizAccessToken } = context.args.options;
       const verificationStatusPresent = 'verificationStatus' in context.args.data;
       if (verificationStatusPresent) {
