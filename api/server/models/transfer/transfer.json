@@ -2,8 +2,8 @@
   "name": "transfer",
   "properties": {
     "id": {
-      "id": true,
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "coin": {
       "required": true,
@@ -39,8 +39,17 @@
       "required": true,
       "type": "number",
       "postgresql": {
-        "dataType": "NUMERIC(10,2)"
+        "dataType": "BIGINT"
       }
+    },
+    "txHash":{
+      "required":false,
+      "type": "string"
+    },
+    "confirmed":{
+      "required": false,
+      "type": "boolean",
+      "default": false
     }
   },
   "hidden": [],
@@ -48,6 +57,11 @@
     "wallet": {
       "primaryKey": "id",
       "model": "wallet",
+      "type": "belongsTo"
+    },
+    "user":{
+      "primaryKey": "id",
+      "model": "user",
       "type": "belongsTo"
     }
   },
@@ -81,8 +95,9 @@
     },
     {
       "accessType": "READ",
+      "property": "find",
       "principalType": "ROLE",
-      "principalId": "$owner",
+      "principalId": "$authenticated",
       "permission": "ALLOW"
     }
   ],

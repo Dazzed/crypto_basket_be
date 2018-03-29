@@ -96,18 +96,6 @@
         "columnName": "profilePictureUrl"
       }
     },
-    "ethAddress":{
-      "type": "string",
-      "postgresql":{
-        "columnName": "ethAddress"
-      }
-    },
-    "btcAddress":{
-      "type": "string",
-      "postgresql":{
-        "columnName": "btcAddress"
-      }
-    },
     "realm": false
   },
   "hidden": [
@@ -144,22 +132,6 @@
     "username": {
       "keys": {
         "username": 1
-      },
-      "options": {
-        "unique": true
-      }
-    },
-    "btcAddress": {
-      "keys": {
-        "btcAddress": 1
-      },
-      "options": {
-        "unique": true
-      }
-    },
-    "ethAddress": {
-      "keys": {
-        "ethAddress": 1
       },
       "options": {
         "unique": true

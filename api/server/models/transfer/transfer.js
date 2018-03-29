@@ -7,6 +7,7 @@ module.exports = function(transfer) {
   validation(transfer);
   webhook(transfer);
 
+  require('./hooks')(transfer);
   transfer.disableRemoteMethodByName('deleteById');
   transfer.disableRemoteMethodByName('exists');
   transfer.disableRemoteMethodByName('patchOrCreate');
