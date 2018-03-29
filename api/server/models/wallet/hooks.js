@@ -42,8 +42,8 @@ module.exports = function (Wallet) {
     next();
   });
   Wallet.observe('loaded', async (context, next) => {
+    var bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
     if(context.data.assetId==='eth' && !context.data.address.startsWith('0x') && !!context.data.address && context.data.address!=="\"\""){
-        var bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
         const wallet = await bitgo.coin('teth').wallets().get({ id: process.env.ETH_WALLET});
         const address = await wallet.getAddress({address: context.data.address});
         if(address.address){
@@ -54,9 +54,19 @@ module.exports = function (Wallet) {
                 await instance.updateAttribute('address', address.address);
                 console.log('updated attribute');
             }, 1000);
-            
             context.data.address = address.address;
         }
+    }
+    const latestETH = await bitgo.coin('teth').markets().latest();
+    const priceEth = latestETH.latest.currencies.USD.last;
+    const latestBTC = await bitgo.coin('tbtc').markets().latest();
+    const priceBtc = latestBTC.latest.currencies.USD.last;
+    if(context.data.assetId==='eth'){
+        context.data.usdPrice = context.data.balance/1e18*priceEth;
+        context.data.btcPrice = context.data.usdPrice/priceBtc;
+    }else if(context.data.assetId==='btc'){
+        context.data.usdPrice = context.data.balance/1e8*priceBtc;
+        context.data.ethPrice = context.data.usdPrice/priceEth;
     }
     next();
   });
