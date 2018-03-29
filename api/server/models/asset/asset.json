@@ -1,0 +1,60 @@
+{
+  "name": "asset",
+  "plural": "assets",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true,
+      "default": "Bitcoin",
+      "unique": true
+    },
+    "ticker": {
+      "type": "string",
+      "required": true,
+      "default": "btc",
+      "unique": true
+    },
+    "minPurchaseAmount": {
+      "type": "number",
+      "required": true,
+      "default": 0.0,
+      "postgresql": {
+        "dataType": "NUMERIC(10,2)"
+      }
+    },
+    "maxPurchaseAmount": {
+      "type": "number",
+      "required": true,
+      "default": 100000.0,
+      "postgresql": {
+        "dataType": "NUMERIC(10,2)"
+      }
+    },
+    "maxSaleAmount": {
+      "type": "number",
+      "required": true,
+      "default": 1000.0,
+      "postgresql": {
+        "dataType": "NUMERIC(10,2)"
+      }
+    },
+    "updatedAt": {
+      "type": "date",
+      "required": true,
+      "defaultFn": "now"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

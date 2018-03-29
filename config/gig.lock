@@ -159,6 +159,42 @@ models:
         type: belongsTo
         model: role
         foreignKey: roleId
+  - name: transfer
+    properties:
+      - name: id
+        type: string
+        id: true
+      - name: coin
+        type: string
+        enum:
+          - ETH
+          - BTC
+        required: true
+      - name: txid
+        type: string
+        required: true
+      - name: createdAt
+        type: date
+        defaultFn: now
+      - name: confirmedTime
+        type: date
+      - name: usdValue
+        type: number
+        required: true
+      - name: sourceAddress
+        type: string
+        required: true
+      - name: destAddress
+        type: string
+        required: true
+      - name: value
+        type: number
+        required: true
+    relations:
+      - name: user
+        type: belongsTo
+        model: user
+        primaryKey: id
   - name: userCredential
     properties:
       - name: provider
