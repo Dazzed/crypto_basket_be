@@ -15,6 +15,7 @@
       "./models/transfer",
       "./models/wallet",
       "./models/asset"
+      "./models/twoFactorTemp"
     ],
     "mixins": [
       "loopback/common/mixins",
@@ -63,5 +64,9 @@
   "asset": {
     "dataSource": "postgresqlDs",
     "public": true
+  },
+  "twoFactorTemp": {
+    "dataSource": "postgresqlDs",
+    "public": false
   }
 }

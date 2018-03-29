@@ -45,11 +45,18 @@
       "required": true,
       "type": "string"
     },
-    "twoFactorEnabled": {
+    "twoFactorLoginEnabled": {
       "default": false,
       "type": "boolean",
       "postgresql": {
-        "columnName": "twoFactorEnabled"
+        "columnName": "twoFactorLoginEnabled"
+      }
+    },
+    "twoFactorWithdrawalEnabled": {
+      "default": false,
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "twoFactorWithdrawalEnabled"
       }
     },
     "city": {
@@ -76,6 +83,13 @@
         "columnName": "verificationToken"
       }
     },
+    "verificationStatus": {
+      "default": "unverified",
+      "type": "string",
+      "postgresql": {
+        "columnName": "verificationStatus"
+      }
+    },
     "createdAt": {
       "defaultFn": "now",
       "type": "date",
@@ -90,18 +104,30 @@
         "columnName": "updatedAt"
       }
     },
+    "deletedAt": {
+      "type": "date",
+      "postgresql": {
+        "columnName": "deletedAt"
+      }
+    },
     "profilePictureUrl": {
       "type": "string",
       "postgresql": {
         "columnName": "profilePictureUrl"
       }
     },
+    "twoFactorSecret": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "twoFactorSecret"
+      }
+    },
     "realm": false
   },
   "hidden": [
-    "emailVerified",
     "verificationToken",
-    "password"
+    "password",
+    "twoFactorSecret"
   ],
   "relations": {
     "accessTokens": {
@@ -118,6 +144,16 @@
       "foreignKey": "userId",
       "model": "userCredential",
       "type": "hasMany"
+    },
+    "roleMapping": {
+      "foreignKey": "principalId",
+      "model": "roleMapping",
+      "type": "hasOne"
+    },
+    "temporaryTwoFactorSecret": {
+      "foreignKey": "userId",
+      "model": "twoFactorTemp",
+      "type": "hasOne"
     }
   },
   "indexes": {
@@ -165,6 +201,55 @@
       "permission": "ALLOW"
     },
     {
+      "property": "find",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "property": "find",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "super_admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "find",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "findById",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "property": "findById",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "super_admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "findById",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "findById",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    },
+    {
       "property": "createSuperAdmin",
       "accessType": "EXECUTE",
       "principalType": "ROLE",
@@ -182,21 +267,83 @@
       "property": "createSuperAdmin",
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "$super_admin",
+      "principalId": "super_admin",
       "permission": "ALLOW"
     },
     {
       "property": "createAdmin",
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "$super_admin",
+      "principalId": "super_admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "search",
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "super_admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "search",
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "filterByVerification",
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "super_admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "filterByVerification",
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "initiateTwoFactor",
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "verifyTwoFactor",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "archive",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "archive",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "super_admin",
       "permission": "ALLOW"
     }
   ],
   "mixins": {
     "SetupRemoteMethods": {
       "disableAllExcept": [
-        "create"
+        "create",
+        "find",
+        "search",
+        "filterByVerification",
+        "initiateTwoFactor",
+        "verifyTwoFactor",
+        "archive"
       ]
     }
   },

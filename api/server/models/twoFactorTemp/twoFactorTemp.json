@@ -1,0 +1,51 @@
+{
+  "name": "twoFactorTemp",
+  "options": {
+    "postgresql": {
+      "table": "twoFactorTemp"
+    }
+  },
+  "properties": {
+    "secret": {
+      "required": true,
+      "type": "string"
+    },
+    "createdAt": {
+      "defaultFn": "now",
+      "type": "date",
+      "postgresql": {
+        "columnName": "createdAt"
+      }
+    },
+    "updatedAt": {
+      "defaultFn": "now",
+      "type": "date",
+      "postgresql": {
+        "columnName": "updatedAt"
+      }
+    }
+  },
+  "hidden": [],
+  "relations": {
+    "user": {
+      "foreignKey": "userId",
+      "model": "user",
+      "type": "belongsTo"
+    }
+  },
+  "indexes": {
+    "unique_userId_twoFactorTemp": {
+      "keys": {
+        "userId": 1
+      },
+      "options": {
+        "unique": true
+      }
+    }
+  },
+  "methods": {},
+  "acls": [],
+  "mixins": {
+    "SetupRemoteMethods": {}
+  }
+}
