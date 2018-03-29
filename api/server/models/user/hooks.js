@@ -137,7 +137,7 @@ module.exports = function (user) {
    */
   user.beforeRemote('find', async (context, _, next) => {
     try {
-      const { custom_include = [] } = context.args.filter;
+      const { custom_include = [] } = context.args.filter || {};
       // 1
       if (custom_include.includes('only_community')) {
         const { roleMapping } = user.app.models;
