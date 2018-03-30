@@ -4,4 +4,5 @@ module.exports = function (user) {
   require('./initiateTwoFactor')(user);
   require('./verifyTwoFactor')(user);
   require('./archiveUser')(user);
+  require('./forgotUsername')(user);
 };

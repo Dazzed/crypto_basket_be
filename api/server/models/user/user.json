@@ -122,6 +122,12 @@
         "columnName": "twoFactorSecret"
       }
     },
+    "twoFactorToken": {
+      "type": "string",
+      "postgresql": {
+        "columnName": "twoFactorToken"
+      }
+    },
     "realm": false
   },
   "hidden": [
@@ -309,14 +315,14 @@
       "property": "initiateTwoFactor",
       "accessType": "READ",
       "principalType": "ROLE",
-      "principalId": "$authenticated",
+      "principalId": "$everyone",
       "permission": "ALLOW"
     },
     {
       "property": "verifyTwoFactor",
       "accessType": "EXECUTE",
       "principalType": "ROLE",
-      "principalId": "$authenticated",
+      "principalId": "$everyone",
       "permission": "ALLOW"
     },
     {
@@ -332,6 +338,13 @@
       "principalType": "ROLE",
       "principalId": "super_admin",
       "permission": "ALLOW"
+    },
+    {
+      "property": "forgotUsername",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW"
     }
   ],
   "mixins": {
@@ -343,7 +356,8 @@
         "filterByVerification",
         "initiateTwoFactor",
         "verifyTwoFactor",
-        "archive"
+        "archive",
+        "forgotUsername"
       ]
     }
   },

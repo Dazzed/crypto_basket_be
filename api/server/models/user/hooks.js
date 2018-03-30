@@ -1,6 +1,10 @@
 const uuidv4 = require('uuid/v4');
 
-const { validateEmail, validatePassword } = require('../../utils');
+const {
+  validateEmail,
+  validatePassword,
+  sortArrayByParam
+} = require('../../utils');
 const {
   badRequest,
   unauthorized,
@@ -82,10 +86,18 @@ module.exports = function (user) {
       const thizUser = await user.findById(tokenInstance.userId, {
         include: { roleMapping: 'role' }
       });
-      context.result = {
-        ...context.result.toJSON(),
-        user: thizUser.toJSON()
-      };
+      if (thizUser.twoFactorLoginEnabled) {
+        await thizUser.updateAttribute('twoFactorToken', uuidv4());
+        context.result = {
+          user: thizUser.toJSON(),
+          twoFactorRequired: true
+        };
+      } else {
+        context.result = {
+          ...context.result.toJSON(),
+          user: thizUser.toJSON()
+        };
+      }
     } catch (error) {
       console.log('Error in user.afterRemote login', error);
       return next(internalError());
@@ -152,6 +164,33 @@ module.exports = function (user) {
       }
     } catch (error) {
       console.log('Error in user.beforeRemote find', error);
+      return next(internalError());
+    }
+  });
+
+  /* after find
+   * 1. If ordering by email, firstName, lastName sort it in case insensitive manner and present to FE
+   */
+  user.afterRemote('find', async (context, foundUsers, next) => {
+    try {
+      const { filter } = context.args;
+      if (filter) {
+        switch (filter.order) {
+          case 'firstName ASC':
+            context.result = sortArrayByParam(context.result, 'firstName');
+            break;
+          case 'lastName ASC':
+            context.result = sortArrayByParam(context.result, 'lastName');
+            break;
+          case 'email ASC':
+            context.result = sortArrayByParam(context.result, 'email');
+            break;
+          default:
+            break;
+        }
+      }
+    } catch (error) {
+      console.log('Error in user.afterRemote find', error);
       return next(internalError());
     }
   });

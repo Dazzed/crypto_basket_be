@@ -22,7 +22,7 @@ function sendMail(mail) {
 
   sg.API(request, (error, response) => {
     if (error) {
-      console.log(error.response.body);
+      console.log('SENDGRID ERROR', error.response.body);
     }
   });
 }
@@ -61,6 +61,19 @@ module.exports = {
     const template = ejs.compile(templateString);
     const toEmail = new sendgrid.Email(user.email);
     const subject = 'Your password has been changed';
+    const content = new sendgrid.Content(
+      'text/html', template({
+        user
+      })
+    );
+    const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
+    sendMail(mail);
+  },
+  forgotUsername(user) {
+    const templateString = fs.readFileSync(__dirname + '/../../template/forgot_username.ejs', 'utf-8');
+    const template = ejs.compile(templateString);
+    const toEmail = new sendgrid.Email(user.email);
+    const subject = 'Your melotic account username';
     const content = new sendgrid.Content(
       'text/html', template({
         user

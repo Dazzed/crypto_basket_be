@@ -34,5 +34,13 @@ module.exports = {
         return resolve(data_url);
       });
     });
+  },
+  sortArrayByParam(targetArray, param) {
+    return targetArray.sort((obj1, obj2) => {
+      if (obj1[param].toLowerCase() > obj2[param].toLowerCase()) {
+        return 1;
+      }
+      return -1;
+    });
   }
 };

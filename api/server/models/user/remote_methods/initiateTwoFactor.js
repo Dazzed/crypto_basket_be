@@ -8,11 +8,13 @@ module.exports = user => {
   createRemoteMethod({
     model: user,
     name: 'initiateTwoFactor',
-    accepts: [],
+    accepts: [
+      { arg: 'twoFactorToken', type: 'string', required: true, description: 'temporary twoFactortoken received at login' }
+    ],
     description: 'Initiate Two factor authentication for an user',
     httpOptions: {
       errorStatus: 400,
-      path: '/initiateTwoFactor',
+      path: '/initiateTwoFactor/:twoFactorToken',
       status: 200,
       verb: 'get',
     }
@@ -20,7 +22,10 @@ module.exports = user => {
 
   user.beforeRemote('initiateTwoFactor', async (context, _, next) => {
     try {
-      const currentUser = await user.findById(context.args.request.accessToken.userId);
+      const currentUser = await user.findOne({ where: { twoFactorToken: context.args.twoFactorToken } });
+      if (!currentUser) {
+        return next(badRequest('Invalid twoFactorToken'));
+      }
       if (currentUser.twoFactorSecret) {
         return next(badRequest('You have already opted for Two Factor authentication'));
       }
@@ -46,7 +51,7 @@ module.exports = user => {
           secret: secret.base32,
         });
       }
-      return response.status(200).send({qrCode});
+      return response.status(200).send({ qrCode, manual: secret.otpauth_url });
     } catch (error) {
       console.log('Error in remote method user.initiateTwoFactor ', error);
       return response.status(500).send('Internal Server error');

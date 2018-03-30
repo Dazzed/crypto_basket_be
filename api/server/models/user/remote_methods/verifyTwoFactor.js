@@ -8,7 +8,8 @@ module.exports = user => {
     model: user,
     name: 'verifyTwoFactor',
     accepts: [
-      { arg: 'otp', type: 'number', required: true }
+      { arg: 'otp', type: 'number', required: true },
+      { arg: 'twoFactorToken', type: 'string', required: true, description: 'temporary twoFactortoken received at login' }
     ],
     description: 'verify Two factor authentication for an user',
     httpOptions: {
@@ -21,7 +22,15 @@ module.exports = user => {
 
   user.beforeRemote('verifyTwoFactor', async (context, _, next) => {
     try {
-      const currentUser = await user.findById(context.args.request.accessToken.userId);
+      const currentUser = await user.findOne({
+        where: {
+          twoFactorToken: context.args.twoFactorToken
+        },
+        include: { roleMapping: 'role' }
+      });
+      if (!currentUser) {
+        return next(badRequest('Invalid twoFactorToken'));
+      }
       const currentTemporarySecret = await currentUser.temporaryTwoFactorSecret.get();
       if (!currentTemporarySecret && !currentUser.twoFactorSecret) {
         return next(badRequest('You have not opted for Two Factor authentication'));
@@ -45,14 +54,19 @@ module.exports = user => {
         token: otp
       });
       if (!verified) {
-        return response.status(400).send({message: 'Invalid OTP'});
+        return response.status(400).send({ message: 'Invalid OTP' });
       }
       if (currentTemporarySecret.secret) {
         currentUser.twoFactorSecret = currentTemporarySecret.secret;
         await currentUser.save();
         await currentTemporarySecret.destroy();
       }
-      return response.status(200).send({message: 'success'});
+      await currentUser.updateAttribute('twoFactorToken', null);
+      const thizToken = await currentUser.createAccessToken('1209600');
+      return response.status(200).send({
+        ...currentUser.toJSON(),
+        accessToken: thizToken.toJSON()
+      });
     } catch (error) {
       console.log('Error in remote method user.verifyTwoFactor ', error);
       return response.status(500).send('Internal Server error');
