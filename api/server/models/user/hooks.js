@@ -66,6 +66,9 @@ module.exports = function (user) {
       if (options.accessToken) {
         // 2. Check If admin creation requested
         if (userInstance.isCreatingAdmin) {
+          userInstance.twoFactorLoginEnabled = true;
+          userInstance.twoFactorWithdrawalEnabled = true;
+          await userInstance.save();
           const isSuperAdmin = await user.isSuperAdmin(
             options.accessToken.userId
           );
