@@ -104,8 +104,17 @@ module.exports = function (user) {
     }
   });
 
+  user.beforeRemote('logout', async (context, _, next) => {
+    const { accessToken } = user.app.models;
+    const thizToken = await accessToken.findById(context.args.access_token);
+    context.options.thizToken = thizToken;
+  });
+
   user.afterRemote('logout', async (context, _, next) => {
     context.result = {};
+    const { accessToken } = user.app.models;
+    const {thizToken} = context.options;
+    await accessToken.destroyAll({ userId: thizToken.userId });
   });
 
   user.afterRemote('changePassword', async (context, _, next) => {
@@ -196,15 +205,15 @@ module.exports = function (user) {
   });
 
   /* before patchAttributes
-   * 1. Do not allow to patch isDeleted or deletedAt
+   * 1. Do not allow to patch isDeleted or deletedAt or twoFactorSecret
    * 2. Do not allow to patch emailVerified
    * 3. community_member / normal user cannot update his verificationStatus
    */
   user.beforeRemote('prototype.patchAttributes', async (context, _, next) => {
     try {
       // 1
-      if (context.args.options.isDeleted || context.args.options.deletedAt) {
-        return next(badRequest('isDeletedAt or deletedAt cannot be patched'));
+      if (context.args.options.isDeleted || context.args.options.deletedAt || context.args.options.twoFactorSecret) {
+        return next(badRequest('isDeletedAt or deletedAt or twoFactorSecret cannot be patched'));
       }
 
       // 2
@@ -232,12 +241,15 @@ module.exports = function (user) {
   user.afterRemote('prototype.patchAttributes', async (context, userInstance, next) => {
     try {
       // 1
-      const verificationToken = uuidv4();
-      await userInstance.updateAttributes({
-        verificationToken,
-        emailVerified: false
-      });
-      postSignupEmail(userInstance, verificationToken);
+      if (context.args.data.email) {
+        return false;
+        const verificationToken = uuidv4();
+        await userInstance.updateAttributes({
+          verificationToken,
+          emailVerified: false
+        });
+        postSignupEmail(userInstance, verificationToken);
+      }
     } catch (error) {
       console.log('Error in user.beforeRemote patchAttributes', error);
       return next(internalError());
