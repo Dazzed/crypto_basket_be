@@ -6,9 +6,9 @@ module.exports = user => {
     model: user,
     name: 'filterByVerification',
     accepts: [
-      { arg: 'verificationStatus', type: 'string', required: true, description: "['fully_verified', 'partially_verified', 'unverified', 'verification_pending']" }
+      { arg: 'verificationStatus', type: 'string', required: true, description: "['fully_verified', 'unverified', 'verification_pending']" }
     ],
-    description: 'filter the community members list by: fully_verified, partially_verified, unverified, and verification_pending',
+    description: 'filter the community members list by: fully_verified, unverified, and verification_pending',
     httpOptions: {
       errorStatus: 400,
       path: '/filterByVerification/:verificationStatus',
@@ -19,7 +19,7 @@ module.exports = user => {
 
   user.beforeRemote('filterByVerification', async (context, _, next) => {
     try {
-      const VALID_VERIFICATION_STATUSES = ['fully_verified', 'partially_verified', 'unverified', 'verification_pending'];
+      const VALID_VERIFICATION_STATUSES = ['fully_verified', 'unverified', 'verification_pending'];
       const { verificationStatus } = context.args;
       if (!VALID_VERIFICATION_STATUSES.includes(verificationStatus)) {
         return next(

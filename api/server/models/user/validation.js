@@ -16,6 +16,6 @@ module.exports = function(user) {
   user.validatesPresenceOf('state');
   user.validatesPresenceOf('country');
   user.validatesInclusionOf('verificationStatus', {
-    in: ['fully_verified', 'partially_verified', 'unverified', 'verification_pending'],
+    in: ['fully_verified', 'unverified', 'verification_pending'],
   });
 };

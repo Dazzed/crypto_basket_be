@@ -1,6 +1,10 @@
 const uuidv4 = require('uuid/v4');
 
-const { validateEmail, validatePassword } = require('../../utils');
+const {
+  validateEmail,
+  validatePassword,
+  sortArrayByParam
+} = require('../../utils');
 const {
   badRequest,
   unauthorized,
@@ -62,6 +66,9 @@ module.exports = function (user) {
       if (options.accessToken) {
         // 2. Check If admin creation requested
         if (userInstance.isCreatingAdmin) {
+          userInstance.twoFactorLoginEnabled = true;
+          userInstance.twoFactorWithdrawalEnabled = true;
+          await userInstance.save();
           const isSuperAdmin = await user.isSuperAdmin(
             options.accessToken.userId
           );
@@ -82,18 +89,35 @@ module.exports = function (user) {
       const thizUser = await user.findById(tokenInstance.userId, {
         include: { roleMapping: 'role' }
       });
-      context.result = {
-        ...context.result.toJSON(),
-        user: thizUser.toJSON()
-      };
+      if (thizUser.twoFactorLoginEnabled) {
+        await thizUser.updateAttribute('twoFactorToken', uuidv4());
+        context.result = {
+          user: thizUser.toJSON(),
+          twoFactorRequired: true
+        };
+      } else {
+        context.result = {
+          ...context.result.toJSON(),
+          user: thizUser.toJSON()
+        };
+      }
     } catch (error) {
       console.log('Error in user.afterRemote login', error);
       return next(internalError());
     }
   });
 
+  user.beforeRemote('logout', async (context, _, next) => {
+    const { accessToken } = user.app.models;
+    const thizToken = await accessToken.findById(context.args.access_token);
+    context.options.thizToken = thizToken;
+  });
+
   user.afterRemote('logout', async (context, _, next) => {
     context.result = {};
+    const { accessToken } = user.app.models;
+    const {thizToken} = context.options;
+    await accessToken.destroyAll({ userId: thizToken.userId });
   });
 
   user.afterRemote('changePassword', async (context, _, next) => {
@@ -137,7 +161,7 @@ module.exports = function (user) {
    */
   user.beforeRemote('find', async (context, _, next) => {
     try {
-      const { custom_include = [] } = context.args.filter;
+      const { custom_include = [] } = context.args.filter || {};
       // 1
       if (custom_include.includes('only_community')) {
         const { roleMapping } = user.app.models;
@@ -156,16 +180,43 @@ module.exports = function (user) {
     }
   });
 
+  /* after find
+   * 1. If ordering by email, firstName, lastName sort it in case insensitive manner and present to FE
+   */
+  user.afterRemote('find', async (context, foundUsers, next) => {
+    try {
+      const { filter } = context.args;
+      if (filter) {
+        switch (filter.order) {
+          case 'firstName ASC':
+            context.result = sortArrayByParam(context.result, 'firstName');
+            break;
+          case 'lastName ASC':
+            context.result = sortArrayByParam(context.result, 'lastName');
+            break;
+          case 'email ASC':
+            context.result = sortArrayByParam(context.result, 'email');
+            break;
+          default:
+            break;
+        }
+      }
+    } catch (error) {
+      console.log('Error in user.afterRemote find', error);
+      return next(internalError());
+    }
+  });
+
   /* before patchAttributes
-   * 1. Do not allow to patch isDeleted or deletedAt
+   * 1. Do not allow to patch isDeleted or deletedAt or twoFactorSecret
    * 2. Do not allow to patch emailVerified
    * 3. community_member / normal user cannot update his verificationStatus
    */
   user.beforeRemote('prototype.patchAttributes', async (context, _, next) => {
     try {
       // 1
-      if (context.args.options.isDeleted || context.args.options.deletedAt) {
-        return next(badRequest('isDeletedAt or deletedAt cannot be patched'));
+      if (context.args.options.isDeleted || context.args.options.deletedAt || context.args.options.twoFactorSecret) {
+        return next(badRequest('isDeletedAt or deletedAt or twoFactorSecret cannot be patched'));
       }
 
       // 2
@@ -193,12 +244,15 @@ module.exports = function (user) {
   user.afterRemote('prototype.patchAttributes', async (context, userInstance, next) => {
     try {
       // 1
-      const verificationToken = uuidv4();
-      await userInstance.updateAttributes({
-        verificationToken,
-        emailVerified: false
-      });
-      postSignupEmail(userInstance, verificationToken);
+      if (context.args.data.email) {
+        return false;
+        const verificationToken = uuidv4();
+        await userInstance.updateAttributes({
+          verificationToken,
+          emailVerified: false
+        });
+        postSignupEmail(userInstance, verificationToken);
+      }
     } catch (error) {
       console.log('Error in user.beforeRemote patchAttributes', error);
       return next(internalError());
