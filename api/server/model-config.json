@@ -14,7 +14,7 @@
       "./models/userIdentity",
       "./models/transfer",
       "./models/wallet",
-      "./models/asset"
+      "./models/asset",
       "./models/twoFactorTemp"
     ],
     "mixins": [

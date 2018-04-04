@@ -37,8 +37,13 @@ module.exports = function (Wallet) {
   Wallet.observe('access', async (context, next) => {
     if(!context.query.where)
         context.query.where = {};
-    if(context.options && context.options.accessToken)
-        context.query.where.userId = context.options.accessToken.userId;
+    if(context.options && context.options.accessToken){
+        const userID = context.options.accessToken.userId;
+        const user = await Wallet.app.models.user.findOne({where: {id: userID}});
+        if(!(await user.isAdmin() || await user.isSuperAdmin())){
+            context.query.where.userId = userID;
+        }
+    }
     next();
   });
   Wallet.observe('loaded', async (context, next) => {
