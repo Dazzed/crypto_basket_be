@@ -81,5 +81,46 @@ module.exports = {
     );
     const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
     sendMail(mail);
+  },
+  notifyChangeEmail(user, oldEmail) {
+    const templateString = fs.readFileSync(__dirname + '/../../template/notify_change_email.ejs', 'utf-8');
+    const template = ejs.compile(templateString);
+    const toEmail = new sendgrid.Email(oldEmail);
+    const subject = 'Your Melotic email changed';
+    const content = new sendgrid.Content(
+      'text/html', template({
+        user,
+        oldEmail
+      })
+    );
+    const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
+    sendMail(mail);
+  },
+  notifyVerificationStatusChange(user) {
+    const templateString = fs.readFileSync(__dirname + '/../../template/notify_verification_status_change.ejs', 'utf-8');
+    const template = ejs.compile(templateString);
+    const toEmail = new sendgrid.Email(user.email);
+    const subject = 'Your Melotic verification status updated';
+    const content = new sendgrid.Content(
+      'text/html', template({
+        user
+      })
+    );
+    const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
+    sendMail(mail);
+  },
+  adminWelcomeEmail(user, token) {
+    const templateString = fs.readFileSync(__dirname + '/../../template/admin_welcome.ejs', 'utf-8');
+    const template = ejs.compile(templateString);
+    const toEmail = new sendgrid.Email(user.email);
+    const subject = 'Welcome to Melotic!';
+    const content = new sendgrid.Content(
+      'text/html', template({
+        user,
+        domain: `${config[process.env.NODE_ENV]}/verify_email_temp?token=${token}`
+      })
+    );
+    const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
+    sendMail(mail);
   }
 };

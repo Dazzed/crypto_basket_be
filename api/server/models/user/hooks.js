@@ -3,16 +3,22 @@ const uuidv4 = require('uuid/v4');
 const {
   validateEmail,
   validatePassword,
-  sortArrayByParam
+  sortArrayByParam,
+  isValidTFAOtp
 } = require('../../utils');
+
 const {
   badRequest,
   unauthorized,
   internalError
 } = require('../../helpers/errorFormatter');
+
 const {
   postSignupEmail,
-  postNotifyChangePassword
+  postNotifyChangePassword,
+  notifyChangeEmail,
+  notifyVerificationStatusChange,
+  adminWelcomeEmail
 } = require('../../helpers/sendGrid');
 
 module.exports = function (user) {
@@ -38,6 +44,7 @@ module.exports = function (user) {
   /* before create
    * 1. validate email
    * 2. validate password
+   * 3. validate TFA OTP if a super admin is creating admin
    */
   user.beforeRemote('create', async (context, _, next) => {
     try {
@@ -45,9 +52,28 @@ module.exports = function (user) {
       const isEmailValid = validateEmail(email);
       const validPassword = validatePassword(thizPassword);
       if (!isEmailValid) {
+        // 1
         return next(badRequest('Invalid Email'));
       } else if (validPassword.error) {
+        // 2
         return next(badRequest(validPassword.message));
+      } else if (context.args.data.isCreatingAdmin) {
+        // 3
+        if (!context.args.options.accessToken) {
+          return next(unauthorized());
+        }
+        const { otp } = context.args.data;
+        const currentUser = await context.args.options.accessToken.user.get();
+        const isSuperAdmin = await user.isSuperAdmin(
+          currentUser.id
+        );
+        if (!isSuperAdmin) {
+          return next(unauthorized());
+        }
+        const isOtpValid = isValidTFAOtp(otp, currentUser.twoFactorSecret);
+        if (!isOtpValid) {
+          return next(badRequest('Invalid OTP'));
+        }
       }
     } catch (error) {
       console.log('Error in user.beforeRemote create', error);
@@ -55,28 +81,26 @@ module.exports = function (user) {
     }
   });
 
+  /* after create
+   * 1. set the verificationToken for email
+   * 2. If a super admin is creating admin force TFA and send admin welcome email
+   */
   user.afterRemote('create', async (context, userInstance, next) => {
     try {
-      // 1. Send confirmation
+      // 1
       const verificationToken = uuidv4();
       await userInstance.updateAttribute('verificationToken', verificationToken);
-      postSignupEmail(userInstance, verificationToken);
 
       const { options } = context.args;
-      if (options.accessToken) {
-        // 2. Check If admin creation requested
-        if (userInstance.isCreatingAdmin) {
-          userInstance.twoFactorLoginEnabled = true;
-          userInstance.twoFactorWithdrawalEnabled = true;
-          await userInstance.save();
-          const isSuperAdmin = await user.isSuperAdmin(
-            options.accessToken.userId
-          );
-          if (isSuperAdmin) {
-            await userInstance.promoteAdmin();
-          }
-        }
-        // 3. Check If super admin creation requested
+      // 2
+      if (userInstance.isCreatingAdmin) {
+        userInstance.twoFactorLoginEnabled = true;
+        userInstance.twoFactorWithdrawalEnabled = true;
+        await userInstance.save();
+        await userInstance.promoteAdmin();
+        adminWelcomeEmail(userInstance, verificationToken);
+      } else {
+        postSignupEmail(userInstance, verificationToken);
       }
     } catch (error) {
       console.log('Error in user.afterRemote create', error);
@@ -116,7 +140,7 @@ module.exports = function (user) {
   user.afterRemote('logout', async (context, _, next) => {
     context.result = {};
     const { accessToken } = user.app.models;
-    const {thizToken} = context.options;
+    const { thizToken } = context.options;
     await accessToken.destroyAll({ userId: thizToken.userId });
   });
 
@@ -211,11 +235,12 @@ module.exports = function (user) {
    * 1. Do not allow to patch isDeleted or deletedAt or twoFactorSecret
    * 2. Do not allow to patch emailVerified
    * 3. community_member / normal user cannot update his verificationStatus
+   * 4. Keep track of old email if it's changed
    */
   user.beforeRemote('prototype.patchAttributes', async (context, _, next) => {
     try {
       // 1
-      if (context.args.options.isDeleted || context.args.options.deletedAt || context.args.options.twoFactorSecret) {
+      if (context.args.data.isDeleted || context.args.data.deletedAt || context.args.data.twoFactorSecret) {
         return next(badRequest('isDeletedAt or deletedAt or twoFactorSecret cannot be patched'));
       }
 
@@ -232,6 +257,11 @@ module.exports = function (user) {
           return next(unauthorized('verificationStatus cannot be changed by you'));
         }
       }
+
+      // 4
+      if (context.args.data.email) {
+        context.options.oldEmail = context.instance.email;
+      }
     } catch (error) {
       console.log('Error in user.beforeRemote patchAttributes', error);
       return next(internalError());
@@ -240,18 +270,24 @@ module.exports = function (user) {
 
   /* before patchAttributes
    * 1. If updating email, set emailVerified to false and generate verfication token to send a new email.
+   * 2. If updating verificationStatus, notify the target user about the update
    */
   user.afterRemote('prototype.patchAttributes', async (context, userInstance, next) => {
     try {
       // 1
       if (context.args.data.email) {
-        return false;
         const verificationToken = uuidv4();
         await userInstance.updateAttributes({
           verificationToken,
           emailVerified: false
         });
         postSignupEmail(userInstance, verificationToken);
+        notifyChangeEmail(userInstance, context.options.oldEmail);
+      }
+
+      // 2
+      if (context.args.data.verificationStatus) {
+        notifyVerificationStatusChange(userInstance);
       }
     } catch (error) {
       console.log('Error in user.beforeRemote patchAttributes', error);

@@ -1,5 +1,6 @@
 /* eslint-disable quotes */
 const QRCode = require('qrcode');
+const speakeasy = require('speakeasy');
 
 module.exports = {
   validateEmail(email) {
@@ -42,5 +43,19 @@ module.exports = {
       }
       return -1;
     });
+  },
+  isValidTFAOtp(otp, secret) {
+    if (!otp || !secret) {
+      return false;
+    }
+    const valid = speakeasy.totp.verify({
+      secret,
+      encoding: 'base32',
+      token: otp
+    });
+    if (!valid) {
+      return false;
+    }
+    return true;
   }
 };

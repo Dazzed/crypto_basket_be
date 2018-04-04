@@ -160,6 +160,16 @@
       "foreignKey": "userId",
       "model": "twoFactorTemp",
       "type": "hasOne"
+    },
+    "wallets": {
+      "foreignKey": "userId",
+      "model": "wallet",
+      "type": "hasMany"
+    },
+    "transfers": {
+      "foreignKey": "userId",
+      "model": "transfer",
+      "type": "hasMany"
     }
   },
   "indexes": {
