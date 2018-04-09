@@ -1,5 +1,5 @@
 'use strict';
 
-module.exports = function(Asset) {
-
+module.exports = function(asset) {
+  require('./hooks')(asset);
 };
