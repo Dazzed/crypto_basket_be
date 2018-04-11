@@ -236,6 +236,7 @@ module.exports = function (user) {
    * 2. Do not allow to patch emailVerified
    * 3. community_member / normal user cannot update his verificationStatus
    * 4. Keep track of old email if it's changed
+   * 5. If patching two factor loginEnabled or twoFactorWithdrawalEnabled, validate the otp
    */
   user.beforeRemote('prototype.patchAttributes', async (context, _, next) => {
     try {
@@ -261,6 +262,20 @@ module.exports = function (user) {
       // 4
       if (context.args.data.email) {
         context.options.oldEmail = context.instance.email;
+      }
+
+      // 5
+      if (context.args.data.twoFactorLoginEnabled === false || context.args.data.twoFactorWithdrawalEnabled === false) {
+        const { otp } = context.args.data;
+        if (otp) {
+          const currentUser = await context.args.options.accessToken.user.get();
+          const isOtpValid = isValidTFAOtp(otp, currentUser.twoFactorSecret);
+          if (!isOtpValid) {
+            return next(badRequest('Invalid otp'));
+          }
+        } else {
+          return next(badRequest('otp is needed when updating twoFactorLoginEnabled or twoFactorWithdrawalEnabled'))
+        }
       }
     } catch (error) {
       console.log('Error in user.beforeRemote patchAttributes', error);

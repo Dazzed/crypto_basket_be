@@ -17,6 +17,10 @@
       "default": "Bitcoin",
       "unique": true
     },
+    "hidden": {
+      "type": "boolean",
+      "default": false
+    },
     "ticker": {
       "type": "string",
       "required": true,
@@ -28,14 +32,16 @@
       "required": true,
       "default": 0.0,
       "postgresql": {
+        "columnName": "minPurchaseAmount",
         "dataType": "NUMERIC(10,2)"
       }
     },
-    "maxPurchaseAmount": {
+    "minSaleAmount": {
       "type": "number",
       "required": true,
-      "default": 100000.0,
+      "default": 0.0,
       "postgresql": {
+        "columnName": "minSaleAmount",
         "dataType": "NUMERIC(10,2)"
       }
     },
@@ -44,17 +50,89 @@
       "required": true,
       "default": 1000.0,
       "postgresql": {
+        "columnName": "maxSaleAmount",
         "dataType": "NUMERIC(10,2)"
+      }
+    },
+    "buyMargin": {
+      "type": "number",
+      "required": true,
+      "default": 0,
+      "postgresql": {
+        "columnName": "buyMargin",
+        "dataType": "NUMERIC(10,2)"
+      }
+    },
+    "saleMargin": {
+      "type": "number",
+      "required": true,
+      "default": 0,
+      "postgresql": {
+        "columnName": "saleMargin",
+        "dataType": "NUMERIC(10,2)"
+      }
+    },
+    "quantity": {
+      "type": "number",
+      "required": true,
+      "default": 0,
+      "postgresql": {
+        "dataType": "NUMERIC(10,2)"
+      }
+    },
+    "createdAt": {
+      "type": "date",
+      "defaultFn": "now",
+      "postgresql": {
+        "columnName": "createdAt"
       }
     },
     "updatedAt": {
       "type": "date",
       "required": true,
-      "defaultFn": "now"
+      "defaultFn": "now",
+      "postgresql": {
+        "columnName": "updatedAt"
+      }
     }
   },
   "validations": [],
   "relations": {},
-  "acls": [],
-  "methods": {}
+  "acls": [
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "super_admin",
+      "permission": "ALLOW"
+    },
+    {
+      "accessType": "READ",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": {},
+  "mixins": {
+    "SetupRemoteMethods": {
+      "disableAllExcept": [
+        "create",
+        "find",
+        "findById",
+        "prototype.patchAttributes"
+      ]
+    }
+  }
 }
