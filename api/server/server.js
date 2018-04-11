@@ -3,7 +3,7 @@
 require('dotenv').config();
 var loopback = require('loopback');
 var boot = require('loopback-boot');
-
+var schedule = require('node-schedule');
 var app = module.exports = loopback();
 
 global.log = console.log;
@@ -29,6 +29,11 @@ boot(app, __dirname, function(err) {
   if (app.get('webEnabled')) require('./server-web')(app);
 
   // start the server if `$ node server.js`
-  if (require.main === module)
+  if (require.main === module){
     app.start();
+    var j = schedule.scheduleJob('*/30 * * * * *', async function(){
+      const Asset = await app.models.asset.findOne({});
+      console.log('function called', Asset);
+    });
+  }
 });
