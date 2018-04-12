@@ -5,7 +5,7 @@ var loopback = require('loopback');
 var boot = require('loopback-boot');
 var schedule = require('node-schedule');
 var app = module.exports = loopback();
-
+var updateAssets = require('./models/asset/updateAssetRates');
 global.log = console.log;
 
 app.start = function() {
@@ -32,8 +32,7 @@ boot(app, __dirname, function(err) {
   if (require.main === module){
     app.start();
     var j = schedule.scheduleJob('*/30 * * * * *', async function(){
-      const Asset = await app.models.asset.findOne({});
-      console.log('function called', Asset);
+      await updateAssets(app);
     });
   }
 });
