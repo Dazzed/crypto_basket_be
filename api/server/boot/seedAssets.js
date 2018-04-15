@@ -7,62 +7,12 @@ const BASE_ASSETS = [
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
-    maxSaleAmount: 0,
+    maxSaleAmount: 10000,
+    maxPurchaseAmount: 10000,
     buyMargin: 0.01,
     saleMargin: 0.01,
     quantity: 10000,
-    exchangeRates: {
-      usd: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      eth: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xrp: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      bch: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ltc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ada: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xlm: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xmr: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      dash: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      zec: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      }
-    }
+    exchangeRates: {}
   },
   {
     name: "Ethereum",
@@ -70,62 +20,12 @@ const BASE_ASSETS = [
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
-    maxSaleAmount: 0,
+    maxSaleAmount: 10000,
+    maxPurchaseAmount: 10000,
     buyMargin: 0.01,
     saleMargin: 0.01,
     quantity: 10000,
-    exchangeRates: {
-      usd: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      btc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xrp: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      bch: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ltc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ada: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xlm: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xmr: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      dash: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      zec: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      }
-    }
+    exchangeRates: {}
   },
   {
     name: "Ripple",
@@ -133,62 +33,12 @@ const BASE_ASSETS = [
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
-    maxSaleAmount: 0,
+    maxSaleAmount: 10000,
+    maxPurchaseAmount: 10000,
     buyMargin: 0.01,
     saleMargin: 0.01,
     quantity: 10000,
-    exchangeRates: {
-      usd: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      eth: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      btc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      bch: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ltc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ada: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xlm: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xmr: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      dash: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      zec: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      }
-    }
+    exchangeRates: {}
   },
   {
     name: "Bitcoin Cash",
@@ -196,62 +46,12 @@ const BASE_ASSETS = [
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
-    maxSaleAmount: 0,
+    maxSaleAmount: 10000,
+    maxPurchaseAmount: 10000,
     buyMargin: 0.01,
     saleMargin: 0.01,
     quantity: 10000,
-    exchangeRates: {
-      usd: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      eth: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xrp: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      btc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ltc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ada: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xlm: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xmr: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      dash: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      zec: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      }
-    }
+    exchangeRates: {}
   },
   {
     name: "Litecoin",
@@ -259,62 +59,12 @@ const BASE_ASSETS = [
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
-    maxSaleAmount: 0,
+    maxSaleAmount: 10000,
+    maxPurchaseAmount: 10000,
     buyMargin: 0.01,
     saleMargin: 0.01,
     quantity: 10000,
-    exchangeRates: {
-      usd: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      eth: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xrp: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      bch: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      btc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ada: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xlm: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xmr: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      dash: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      zec: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      }
-    }
+    exchangeRates: {}
   },
   {
     name: "Stellar",
@@ -322,62 +72,12 @@ const BASE_ASSETS = [
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
-    maxSaleAmount: 0,
+    maxSaleAmount: 10000,
+    maxPurchaseAmount: 10000,
     buyMargin: 0.01,
     saleMargin: 0.01,
     quantity: 10000,
-    exchangeRates: {
-      usd: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      eth: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xrp: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      bch: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ltc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ada: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      btc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xmr: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      dash: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      zec: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      }
-    }
+    exchangeRates: {}
   },
   {
     name: "Monero",
@@ -385,62 +85,12 @@ const BASE_ASSETS = [
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
-    maxSaleAmount: 0,
+    maxSaleAmount: 10000,
+    maxPurchaseAmount: 10000,
     buyMargin: 0.01,
     saleMargin: 0.01,
     quantity: 10000,
-    exchangeRates: {
-      usd: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      eth: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xrp: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      bch: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ltc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ada: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xlm: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      btc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      dash: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      zec: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      }
-    }
+    exchangeRates: {}
   },
   {
     name: "ZCash",
@@ -448,62 +98,12 @@ const BASE_ASSETS = [
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
-    maxSaleAmount: 0,
+    maxSaleAmount: 10000,
+    maxPurchaseAmount: 10000,
     buyMargin: 0.01,
     saleMargin: 0.01,
     quantity: 10000,
-    exchangeRates: {
-      usd: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      eth: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xrp: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      bch: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ltc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ada: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xlm: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xmr: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      dash: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      btc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      }
-    }
+    exchangeRates: {}
   },
   {
     name: "Dash",
@@ -511,62 +111,12 @@ const BASE_ASSETS = [
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
-    maxSaleAmount: 0,
+    maxSaleAmount: 10000,
+    maxPurchaseAmount: 10000,
     buyMargin: 0.01,
     saleMargin: 0.01,
     quantity: 10000,
-    exchangeRates: {
-      usd: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      eth: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xrp: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      bch: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ltc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ada: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xlm: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xmr: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      btc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      zec: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      }
-    }
+    exchangeRates: {}
   },
   {
     name: "Cardano",
@@ -574,62 +124,12 @@ const BASE_ASSETS = [
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
-    maxSaleAmount: 0,
+    maxSaleAmount: 10000,
+    maxPurchaseAmount: 10000,
     buyMargin: 0.01,
     saleMargin: 0.01,
     quantity: 10000,
-    exchangeRates: {
-      usd: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      eth: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xrp: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      bch: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      ltc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      btc: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xlm: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      xmr: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      dash: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-      zec: {
-        bid: 1.0,
-        price: 1.0,
-        ask: 1.0
-      },
-    }
+    exchangeRates: {}
   }
 ];
 

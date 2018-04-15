@@ -122,5 +122,18 @@ module.exports = {
     );
     const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
     sendMail(mail);
+  },
+  tradeEmail(user, trade, fromAsset, toAsset, fromWallet, toWallet){
+    const templateString = fs.readFileSync(__dirname + '/../../template/trade_completed.ejs', 'utf-8');
+    const template = ejs.compile(templateString);
+    const toEmail = new sendgrid.Email(user.email);
+    const subject = 'Trade Completed!';
+    const content = new sendgrid.Content(
+      'text/html', template({
+        trade, fromAsset, toAsset, fromWallet, toWallet
+      })
+    );
+    const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
+    sendMail(mail);
   }
 };

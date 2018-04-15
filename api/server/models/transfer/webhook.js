@@ -19,7 +19,6 @@ module.exports = function (transfer) {
         } catch (e) {
           transactionList = await wallet.transfers();
         }
-        console.log('transactionList', transactionList);
         let transaction = null;
         transactionList.transfers.forEach(elem => {
           if (elem.txid === hash) {
@@ -29,7 +28,6 @@ module.exports = function (transfer) {
         if (!transaction) {
           return false;
         }
-        console.log('transaction retrieved', transaction);
         let optRecieve = null;
         let optSend = null;
         transaction.entries.forEach(elem => {
@@ -42,7 +40,11 @@ module.exports = function (transfer) {
           }
         });
         const Wallet = await transfer.app.models.wallet.findOne({ where: { address: optRecieve.address } });
-        console.log('wallet retrieved', Wallet);
+        if(coin==='tbtc'){
+          transaction.value/=1e18;
+        }else if(coin === 'teth'){
+          transaction.value/=1e8;
+        }
         const updatedWallet = await Wallet.updateAttribute('balance', parseFloat(Wallet.balance) + parseFloat(transaction.value));
         let data = {
           coin: coin === 'tbtc' ? 'BTC' : 'ETH',
@@ -60,7 +62,6 @@ module.exports = function (transfer) {
           data.confirmedTime = new Date();
           data.confirmed = true;
         }
-        console.log('creating transfer');
         await transfer.create(data);
         console.log('created transfer');
       }
