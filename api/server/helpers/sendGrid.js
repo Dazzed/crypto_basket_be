@@ -135,5 +135,18 @@ module.exports = {
     );
     const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
     sendMail(mail);
+  },
+  notifyDownTime(user) {
+    const templateString = fs.readFileSync(__dirname + '/../../template/notify_downtime.ejs', 'utf-8');
+    const template = ejs.compile(templateString);
+    const toEmail = new sendgrid.Email(user.email);
+    const subject = 'Melotic Downtime';
+    const content = new sendgrid.Content(
+      'text/html', template({
+        user
+      })
+    );
+    const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
+    sendMail(mail);
   }
 };

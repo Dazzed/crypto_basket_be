@@ -126,18 +126,26 @@ const binanceData = async () => {
 };
 
 module.exports = async function(app) {
-  const assets = await app.models.asset.find({});
-  const krakDat = await krakenData();
-  const binanceDat = await binanceData();
-  const mergedData = _.mergeWith(krakDat, binanceDat, (objValue, srcValue, key) => {
-    if (key === 'ask') {
-      return objValue < srcValue ? objValue : srcValue;
-    } else if (key === 'bid') {
-      return objValue > srcValue ? objValue : srcValue;
-    } else if (key === 'price') {
-      return objValue > srcValue ? objValue : srcValue;
-    } else {
-      return undefined;
+    const assets = await app.models.asset.find({});
+    const krakDat = await krakenData();
+    const binanceDat = await binanceData();
+    const mergedData = _.mergeWith(krakDat, binanceDat, (objValue, srcValue, key) => {
+        if(key==='ask'){
+            return objValue < srcValue ? objValue : srcValue;
+        }else if(key === 'bid'){
+            return objValue > srcValue ? objValue : srcValue;
+        }else if(key === 'price'){
+            // return objValue > srcValue ? objValue : srcValue;
+            return (Number(objValue) + Number(srcValue)) / 2;
+        }else{
+            return undefined;
+        }
+    });
+    for(assetIndex in assets){
+        const currentAsset = assets[assetIndex];
+        const exchangeRates = currentAsset.exchangeRates;
+        const newRates = _.merge(exchangeRates, mergedData[currentAsset.ticker]);
+        await currentAsset.updateAttribute('exchangeRates', newRates);
     }
   });
   for (assetIndex in assets) {

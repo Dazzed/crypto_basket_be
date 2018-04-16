@@ -58,6 +58,7 @@ const convert = async (amount, fromAsset, toAsset, method) => {
 const price = async (amount, fromAsset, toAsset) => {
   return await convert(amount, fromAsset, toAsset, 'price');
 };
+
 const buy = async (amount, fromAsset, toAsset) => {
   return await convert(amount, fromAsset, toAsset, 'buy');
 };

@@ -20,6 +20,27 @@ module.exports = function (asset) {
               )
             );
           }
+          if (custom_include.includes('populateCommunityValues')) {
+            await Promise.all(
+              assetInstances.map(
+                thizInstance => thizInstance.populateCommunityValue()
+              )
+            );
+          }
+          if (custom_include.includes('populateCommunityQuantity')) {
+            await Promise.all(
+              assetInstances.map(
+                thizInstance => thizInstance.populateCommunityQuantity()
+              )
+            );
+          }
+          if (custom_include.includes('populatePrices')) {
+            await Promise.all(
+              assetInstances.map(
+                thizInstance => thizInstance.populatePrices()
+              )
+            );
+          }
         }
       }
     } catch (error) {
@@ -39,6 +60,15 @@ module.exports = function (asset) {
           }
           if (custom_include.includes('populateValueAndMinimumPurchase')) {
             await instance.populateValueAndMinimumPurchase();
+          }
+          if (custom_include.includes('populateCommunityValues')) {
+            await instance.populateCommunityValue();
+          }
+          if (custom_include.includes('populateCommunityQuantity')) {
+            await instance.populateCommunityQuantity();
+          }
+          if (custom_include.includes('populatePrices')) {
+            await instance.populatePrices();
           }
         }
       }
