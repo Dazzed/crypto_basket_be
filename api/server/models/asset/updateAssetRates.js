@@ -1,8 +1,8 @@
-const key           = process.env.KRAKEN_API_KEY; // API Key
-const secret        = process.env.KRAKEN_SECRET_KEY; // API Private Key
-const KrakenClient  = require('kraken-api');
-const kraken        = new KrakenClient(key, secret);
-const Binance       = require('binance-api-node').default;
+const key = process.env.KRAKEN_API_KEY; // API Key
+const secret = process.env.KRAKEN_SECRET_KEY; // API Private Key
+const KrakenClient = require('kraken-api');
+const kraken = new KrakenClient(key, secret);
+const Binance = require('binance-api-node').default;
 const binanceClient = Binance();
 const _ = require('lodash');
 // Ethereum
@@ -56,7 +56,7 @@ const nonBTCETHAssets = [
 
 const krakenData = async () => {
   let krakenData = {};
-  const krakData = await kraken.api('Ticker', { pair: 'BCHUSD,BCHXBT,DASHUSD,DASHXBT,XETHXXBT,XETHZUSD,XLTCXXBT,XLTCZUSD,XXBTZUSD,XXLMXXBT,XXLMZUSD,XXMRXXBT,XXMRZUSD,XXRPXXBT,XXRPZUSD,XZECXXBT,XZECZUSD'});
+  const krakData = await kraken.api('Ticker', { pair: 'BCHUSD,BCHXBT,DASHUSD,DASHXBT,XETHXXBT,XETHZUSD,XLTCXXBT,XLTCZUSD,XXBTZUSD,XXLMXXBT,XXLMZUSD,XXMRXXBT,XXMRZUSD,XXRPXXBT,XXRPZUSD,XZECXXBT,XZECZUSD' });
   const keys = Object.keys(krakenMap);
   for (const key in keys) {
     const properKey = keys[key];
@@ -101,7 +101,7 @@ const binanceData = async () => {
   const binanceBidAsk = await binanceClient.allBookTickers();
   const tickers = _.keys(binancePrices);
   const tickersIncluded = _.filter(tickers, ticker => {
-    return (ticker.startsWith('ETH') || ticker.startsWith('BTC') || ticker.endsWith('ETH') || ticker.endsWith('BTC') || ticker.endsWith('USDT') || ticker.endsWith('USDT')) && nonBTCETHAssets.some(tick=>{
+    return (ticker.startsWith('ETH') || ticker.startsWith('BTC') || ticker.endsWith('ETH') || ticker.endsWith('BTC') || ticker.endsWith('USDT') || ticker.endsWith('USDT')) && nonBTCETHAssets.some(tick => {
       const lowerCase = ticker.toLowerCase();
       return lowerCase.includes(tick);
     });
@@ -125,30 +125,23 @@ const binanceData = async () => {
   return binanceDats;
 };
 
-module.exports = async function(app) {
-    const assets = await app.models.asset.find({});
-    const krakDat = await krakenData();
-    const binanceDat = await binanceData();
-    const mergedData = _.mergeWith(krakDat, binanceDat, (objValue, srcValue, key) => {
-        if(key==='ask'){
-            return objValue < srcValue ? objValue : srcValue;
-        }else if(key === 'bid'){
-            return objValue > srcValue ? objValue : srcValue;
-        }else if(key === 'price'){
-            // return objValue > srcValue ? objValue : srcValue;
-            return (Number(objValue) + Number(srcValue)) / 2;
-        }else{
-            return undefined;
-        }
-    });
-    for(assetIndex in assets){
-        const currentAsset = assets[assetIndex];
-        const exchangeRates = currentAsset.exchangeRates;
-        const newRates = _.merge(exchangeRates, mergedData[currentAsset.ticker]);
-        await currentAsset.updateAttribute('exchangeRates', newRates);
+module.exports = async function (app) {
+  const assets = await app.models.asset.find({});
+  const krakDat = await krakenData();
+  const binanceDat = await binanceData();
+  const mergedData = _.mergeWith(krakDat, binanceDat, (objValue, srcValue, key) => {
+    if (key === 'ask') {
+      return objValue < srcValue ? objValue : srcValue;
+    } else if (key === 'bid') {
+      return objValue > srcValue ? objValue : srcValue;
+    } else if (key === 'price') {
+      // return objValue > srcValue ? objValue : srcValue;
+      return (Number(objValue) + Number(srcValue)) / 2;
+    } else {
+      return undefined;
     }
   });
-  for (assetIndex in assets) {
+  for (const assetIndex in assets) {
     const currentAsset = assets[assetIndex];
     const exchangeRates = currentAsset.exchangeRates;
     const newRates = _.merge(exchangeRates, mergedData[currentAsset.ticker]);
