@@ -17,7 +17,10 @@ module.exports = function(Trade) {
         
         const fromWallet = await Trade.app.models.wallet.findOne({where: {userId: userId, assetId: fromAsset.ticker}});
         const toWallet = await Trade.app.models.wallet.findOne({where: {userId: userId, assetId: toAsset.ticker}});
-
+        if(!fromWallet)
+          return response.status(400).send('You do not have a wallet for ' + fromAsset.name);
+        if(!toWallet)
+          return response.status(400).send('You do not have a wallet for ' + toAsset.name);
         if(tradeType==='buy'){
             const truePrice = await priceConvert.buy((1-parseFloat(toAsset.buyMargin))*toAssetAmount, fromAsset.ticker, toAsset.ticker);
             if(Math.abs(truePrice-fromAssetAmount)/truePrice>0.05){
@@ -121,6 +124,10 @@ module.exports = function(Trade) {
         
         const fromWallet = await Trade.app.models.wallet.findOne({where: {userId: userId, assetId: fromAsset.ticker}});
         const toWallet = await Trade.app.models.wallet.findOne({where: {userId: userId, assetId: toAsset.ticker}});
+        if(!fromWallet)
+          return response.status(400).send('You do not have a wallet for ' + fromAsset.name);
+        if(!toWallet)
+          return response.status(400).send('You do not have a wallet for ' + toAsset.name);
 
         if(tradeType==='buy'){
             const truePrice = await priceConvert.buy(toAssetAmount, fromAsset.ticker, toAsset.ticker);
