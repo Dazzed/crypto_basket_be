@@ -1,4 +1,5 @@
 'use strict';
+process.setMaxListeners(0);
 
 require('dotenv').config();
 var loopback = require('loopback');
@@ -7,6 +8,7 @@ var schedule = require('node-schedule');
 var app = module.exports = loopback();
 var updateAssets = require('./models/asset/updateAssetRates');
 global.log = console.log;
+global.sleep = millis => new Promise(resolve => setTimeout(resolve.bind(null, millis), millis));
 
 app.start = function() {
   // start the web server

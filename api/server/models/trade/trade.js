@@ -1,5 +1,5 @@
-'use strict';
-
-module.exports = function(Trade) {
-  require('./hooks')(Trade);
+module.exports = function (trade) {
+  require('./validation')(trade);
+  require('./remote_methods')(trade);
+  require('./hooks')(trade);
 };

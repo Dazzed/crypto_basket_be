@@ -1,7 +1,7 @@
 const {
-  badRequest,
-  unauthorized,
-  internalError
+    badRequest,
+    unauthorized,
+    internalError
 } = require('../../helpers/errorFormatter');
 const BitGoJS = require('bitgo');
 const uuidv4 = require('uuid/v4');
@@ -55,27 +55,27 @@ const observe = async(context) => {
 }
 
 module.exports = function (Wallet) {
-  Wallet.beforeRemote('create', async (context, _, next) => {
+    Wallet.beforeRemote('create', async (context, _, next) => {
         const assetId = context.args.data.assetId;
         const userId = context.args.options.accessToken.userId;
         context.args.data.userId = userId;
-        const foundWallet = await Wallet.findOne({where: {userId: userId, assetId: assetId}});
-        if(foundWallet){
+        const foundWallet = await Wallet.findOne({ where: { userId: userId, assetId: assetId } });
+        if (foundWallet) {
             return next(badRequest('Already have a wallet of this type.'));
         }
         var bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
-        if(assetId === 'btc' || assetId == 'eth'){
+        if (assetId === 'btc' || assetId == 'eth') {
             const testCoin = "t" + assetId;
-            try{
-                const wallet = await bitgo.coin(testCoin).wallets().get({ id: testCoin === 'tbtc' ? process.env.BTC_WALLET : process.env.ETH_WALLET});
+            try {
+                const wallet = await bitgo.coin(testCoin).wallets().get({ id: testCoin === 'tbtc' ? process.env.BTC_WALLET : process.env.ETH_WALLET });
                 const address = await wallet.createAddress({ label: uuidv4() });
-                if(assetId === 'btc'){
+                if (assetId === 'btc') {
                     context.args.data.address = address.address;
-                }else{
+                } else {
                     context.args.data.address = address.id;
                 }
             }
-            catch(e){
+            catch (e) {
                 console.log('Error creating wallet');
             }
         }
