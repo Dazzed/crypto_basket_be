@@ -18,10 +18,6 @@ COPY ./deploy/melotic-${NODE_ENV}/.env .
 COPY ./deploy/melotic-${NODE_ENV}/.env api
 COPY ./api .
 RUN node database/update
-# RUN node database/update.js
-# ENV ESHOST=https://api:tE7h7NdTBmM44d8IKxEde7Kk4DfQVeiP@aws-us-east-1-portal.11.dblayer.com:16140/
-# # If you are building your code for production
-# # RUN npm install --only=production
 
 CMD [ "npm", "start" ]
 EXPOSE 3000
