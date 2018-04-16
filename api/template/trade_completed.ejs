@@ -1,0 +1,9 @@
+<h3>Trade Completed <strong></strong></h3>
+<p>You have traded <%= trade.fromAssetAmount + ' ' + fromAsset.name %> for <%= trade.toAssetAmount + ' ' + toAsset.name %></p>
+<p>You now have <%= '$' + fromWallet.usdPrice + '(' + fromWallet.btcPrice + ' btc, ' + fromWallet.ethPrice + ' eth) ' + fromAsset.name %> and 
+You now have <%= '$' + toWallet.usdPrice + '(' + toWallet.btcPrice + ' btc, ' + toWallet.ethPrice + ' eth) ' + toAsset.name %> </p>
+<p>Your order number is <%= trade.id %>, on <%= trade.createdAt %></p>
+
+<p>Sincerely,</p>
+
+<p>The Melotic Team</p>

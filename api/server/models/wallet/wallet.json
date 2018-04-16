@@ -16,7 +16,7 @@
       "required": true,
       "default": 0.0,
       "postgresql": {
-        "dataType": "BIGINT"
+        "dataType": "NUMERIC(10,2)"
       }
     },
     "address": {

@@ -7,13 +7,16 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 # Bundle app source
 
-COPY ./api .
 
+COPY ./api/package-checkpoint.json ./package.json
+RUN npm install
+COPY ./api/package.json ./package.json
+RUN npm install
 ARG NODE_ENV
 RUN echo ${NODE_ENV}
 COPY ./deploy/melotic-${NODE_ENV}/.env .
 COPY ./deploy/melotic-${NODE_ENV}/.env api
-RUN npm install
+COPY ./api .
 RUN node database/update
 # RUN node database/update.js
 # ENV ESHOST=https://api:tE7h7NdTBmM44d8IKxEde7Kk4DfQVeiP@aws-us-east-1-portal.11.dblayer.com:16140/
