@@ -36,6 +36,15 @@
         "dataType": "NUMERIC(10,2)"
       }
     },
+    "maxPurchaseAmount": {
+      "type": "number",
+      "required": true,
+      "default": 0.0,
+      "postgresql": {
+        "columnName": "maxPurchaseAmount",
+        "dataType": "NUMERIC(10,2)"
+      }
+    },
     "minSaleAmount": {
       "type": "number",
       "required": true,
@@ -131,7 +140,8 @@
         "create",
         "find",
         "findById",
-        "prototype.patchAttributes"
+        "prototype.patchAttributes",
+        "communityAssets"
       ]
     }
   }
