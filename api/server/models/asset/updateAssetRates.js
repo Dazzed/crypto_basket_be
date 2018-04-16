@@ -136,7 +136,8 @@ module.exports = async function(app) {
         }else if(key === 'bid'){
             return objValue > srcValue ? objValue : srcValue;
         }else if(key === 'price'){
-            return objValue > srcValue ? objValue : srcValue;
+            // return objValue > srcValue ? objValue : srcValue;
+            return (Number(objValue) + Number(srcValue)) / 2;
         }else{
             return undefined;
         }

@@ -1,9 +1,10 @@
 module.exports = async function (server) {
   try {
     // test code here
-    // const {user, wallet} = server.models;
-    // const thiz = await wallet.findById(2, {include: 'asset'});
-    // log(thiz)
+    // const {user, wallet, asset} = server.models;
+    // const thiz = await asset.findById(1);
+    // const wal = await thiz.wallets.find()
+    // log(wal)
   } catch (error) {
     console.log(error);
     throw error;

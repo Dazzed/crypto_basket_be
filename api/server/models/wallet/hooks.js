@@ -10,14 +10,14 @@ const priceConvert = require('../asset/priceConversion');
 
 const loaded = async (context) => {
     var bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
-    if(!context.data.assetId){
-
+    if (!context.data.assetId) {
         return true;
     }
-    if(context.data.assetId==='eth' && !context.data.address.startsWith('0x') && !!context.data.address && context.data.address!=="\"\""){
-        const wallet = await bitgo.coin('teth').wallets().get({ id: process.env.ETH_WALLET});
-        const address = await wallet.getAddress({address: context.data.address});
-        if(address.address){
+
+    if (context.data.assetId === 'eth' && !context.data.address.startsWith('0x') && !!context.data.address && context.data.address !== "\"\"") {
+        const wallet = await bitgo.coin('teth').wallets().get({ id: process.env.ETH_WALLET });
+        const address = await wallet.getAddress({ address: context.data.address });
+        if (address.address) {
             setTimeout(async () => {
                 const instance = await Wallet.findOne({ where: { id: context.data.id } });
                 await instance.updateAttribute('address', address.address);
@@ -25,15 +25,15 @@ const loaded = async (context) => {
             context.data.address = address.address;
         }
     }
-    if(context.data.assetId==='eth'){
+    if (context.data.assetId === 'eth') {
         context.data.usdPrice = await priceConvert.price(context.data.balance, 'eth', 'usd');
         context.data.btcPrice = await priceConvert.price(context.data.balance, 'eth', 'btc');
         context.data.ethPrice = parseFloat(context.data.balance);
-    }else if(context.data.assetId==='btc'){
+    } else if (context.data.assetId === 'btc') {
         context.data.usdPrice = await priceConvert.price(context.data.balance, 'btc', 'usd');
         context.data.ethPrice = await priceConvert.price(context.data.balance, 'btc', 'eth');
         context.data.btcPrice = parseFloat(context.data.balance);
-    }else{
+    } else {
         context.data.btcPrice = await priceConvert.price(context.data.balance, context.data.assetId, 'btc');
         context.data.ethPrice = await priceConvert.price(context.data.balance, context.data.assetId, 'eth');
         context.data.usdPrice = await priceConvert.price(context.data.balance, context.data.assetId, 'usd');
@@ -41,13 +41,13 @@ const loaded = async (context) => {
     return true;
 }
 
-const observe = async(context) => {
-    if(!context.query.where)
+const observe = async (context) => {
+    if (!context.query.where)
         context.query.where = {};
-    if(context.options && context.options.accessToken){
+    if (context.options && context.options.accessToken) {
         const userID = context.options.accessToken.userId;
-        const user = await Wallet.app.models.user.findOne({where: {id: userID}});
-        if(!(await user.isAdmin() || await user.isSuperAdmin())){
+        const user = await Wallet.app.models.user.findOne({ where: { id: userID } });
+        if (!(await user.isAdmin() || await user.isSuperAdmin())) {
             context.query.where.userId = userID;
         }
     }
@@ -80,19 +80,27 @@ module.exports = function (Wallet) {
             }
         }
 
-  });
-  Wallet.observe('access', async (context, next) => {
-    observe(context).then(n=>{
-        next();
-    }).catch(e=>{
-        next(e);
     });
-  });
-  Wallet.observe('loaded', (context, next) => {
-    loaded(context).then(n=>{
-        next();
-    }).catch(e=>{
-        next(e);
+    Wallet.observe('access', async (context, next) => {
+        if (context.options.skipAllHooks) {
+            next();
+        } else {
+            observe(context).then(n => {
+                next();
+            }).catch(e => {
+                next(e);
+            });
+        }
     });
-  });
+    Wallet.observe('loaded', (context, next) => {
+        if (context.options.skipAllHooks) {
+            next();
+        } else {
+            loaded(context).then(n => {
+                next();
+            }).catch(e => {
+                next(e);
+            });
+        }
+    });
 };

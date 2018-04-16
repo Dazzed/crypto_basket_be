@@ -2,8 +2,8 @@
 
 const BASE_ASSETS = [
   {
-    name: "Bitcoin",
-    ticker: "btc",
+    name: 'Bitcoin',
+    ticker: 'btc',
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
@@ -15,8 +15,8 @@ const BASE_ASSETS = [
     exchangeRates: {}
   },
   {
-    name: "Ethereum",
-    ticker: "eth",
+    name: 'Ethereum',
+    ticker: 'eth',
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
@@ -28,8 +28,8 @@ const BASE_ASSETS = [
     exchangeRates: {}
   },
   {
-    name: "Ripple",
-    ticker: "xrp",
+    name: 'Ripple',
+    ticker: 'xrp',
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
@@ -41,8 +41,8 @@ const BASE_ASSETS = [
     exchangeRates: {}
   },
   {
-    name: "Bitcoin Cash",
-    ticker: "bch",
+    name: 'Bitcoin Cash',
+    ticker: 'bch',
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
@@ -54,8 +54,8 @@ const BASE_ASSETS = [
     exchangeRates: {}
   },
   {
-    name: "Litecoin",
-    ticker: "ltc",
+    name: 'Litecoin',
+    ticker: 'ltc',
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
@@ -67,8 +67,8 @@ const BASE_ASSETS = [
     exchangeRates: {}
   },
   {
-    name: "Stellar",
-    ticker: "xlm",
+    name: 'Stellar',
+    ticker: 'xlm',
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
@@ -80,8 +80,8 @@ const BASE_ASSETS = [
     exchangeRates: {}
   },
   {
-    name: "Monero",
-    ticker: "xmr",
+    name: 'Monero',
+    ticker: 'xmr',
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
@@ -93,8 +93,8 @@ const BASE_ASSETS = [
     exchangeRates: {}
   },
   {
-    name: "ZCash",
-    ticker: "xmr",
+    name: 'ZCash',
+    ticker: 'xmr',
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
@@ -106,8 +106,8 @@ const BASE_ASSETS = [
     exchangeRates: {}
   },
   {
-    name: "Dash",
-    ticker: "dash",
+    name: 'Dash',
+    ticker: 'dash',
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
@@ -119,8 +119,8 @@ const BASE_ASSETS = [
     exchangeRates: {}
   },
   {
-    name: "Cardano",
-    ticker: "ada",
+    name: 'Cardano',
+    ticker: 'ada',
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,
@@ -136,13 +136,12 @@ const BASE_ASSETS = [
 module.exports = async server => {
   try {
     const { asset } = server.models;
-    for(const index in BASE_ASSETS){
-      const assetInstance = await asset.findOne({ where: { ticker: BASE_ASSETS[index].ticker }});
-      if(!assetInstance){
+    for (const index in BASE_ASSETS) {
+      const assetInstance = await asset.findOne({ where: { ticker: BASE_ASSETS[index].ticker } });
+      if (!assetInstance) {
         await asset.create(BASE_ASSETS[index]);
       }
     }
-
   } catch (e) {
     console.error(e);
   }

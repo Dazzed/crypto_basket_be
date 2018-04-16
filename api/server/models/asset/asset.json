@@ -63,15 +63,6 @@
         "dataType": "NUMERIC(10,2)"
       }
     },
-    "maxPurchaseAmount": {
-      "type": "number",
-      "required": false,
-      "default": 0.0,
-      "postgresql": {
-        "columnName": "maxPurchaseAmount",
-        "dataType": "NUMERIC(10,2)"
-      }
-    },
     "buyMargin": {
       "type": "number",
       "required": false,
@@ -121,7 +112,14 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "wallets": {
+      "foreignKey": "assetId",
+      "primaryKey": "ticker",
+      "model": "wallet",
+      "type": "hasMany"
+    }
+  },
   "acls": [
     {
       "accessType": "*",

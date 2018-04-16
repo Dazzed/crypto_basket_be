@@ -56,6 +56,7 @@ const convert = async (amount, fromAsset, toAsset, method) => {
     return null;
 }
 const price = async (amount, fromAsset, toAsset) => {
+    log({amount, fromAsset, toAsset})
     return await convert(amount, fromAsset, toAsset, 'price');
 }
 const buy = async (amount, fromAsset, toAsset) => {

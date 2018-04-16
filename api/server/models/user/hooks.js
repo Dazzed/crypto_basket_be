@@ -231,6 +231,30 @@ module.exports = function (user) {
     }
   });
 
+  /* before findById
+   * 1. As a user I can view the total overall value of all the assets in my asset portfolio (BTC, USD, ETH)
+  */
+  user.afterRemote('findById', async (context, thizUser, next) => {
+    try {
+      const { filter } = context.args;
+      if (filter) {
+        // 1
+        const { custom_include } = filter;
+        if (custom_include) {
+          if (!Array.isArray(custom_include)) {
+            return next(badRequest('custom_include must be an Array'));
+          }
+          if (custom_include.includes('populateAssetValue')) {
+            await thizUser.populateAssetValue();
+          }
+        }
+      }
+    } catch (error) {
+      console.log('Error in user.afterRemote findById', error);
+      return next(internalError());
+    }
+  });
+
   /* before patchAttributes
    * 1. Do not allow to patch isDeleted or deletedAt or twoFactorSecret
    * 2. Do not allow to patch emailVerified
