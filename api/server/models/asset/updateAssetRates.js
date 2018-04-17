@@ -80,9 +80,14 @@ const getBinanceKeys = ticker => {
   if (ticker.startsWith('BTC') || ticker.startsWith('ETH') || ticker.startsWith('LTC')) {
     firstTicker = ticker.slice(0, 3).toLowerCase();
     secondTicker = ticker.slice(3, 10).toLowerCase();
-  } else if (ticker.endsWith('BTC') || ticker.endsWith('ETH')) {
-    firstTicker = ticker.slice(0, -3).toLowerCase();
-    secondTicker = ticker.slice(-3).toLowerCase();
+  } else if (ticker.endsWith('BTC') || ticker.endsWith('ETH') || ticker.endsWith('USDT')) {
+    if(ticker.endsWith('USDT')){
+      firstTicker = ticker.slice(0, -4).toLowerCase();
+      secondTicker = ticker.slice(-4).toLowerCase();
+    }else{
+      firstTicker = ticker.slice(0, -3).toLowerCase();
+      secondTicker = ticker.slice(-3).toLowerCase();
+    }
   } else {
     return null;
   }
@@ -136,7 +141,10 @@ module.exports = async function (app) {
       return objValue > srcValue ? objValue : srcValue;
     } else if (key === 'price') {
       // return objValue > srcValue ? objValue : srcValue;
-      return (Number(objValue) + Number(srcValue)) / 2;
+      if(!objValue || !srcValue){
+        return objValue || srcValue;
+      }
+      return (parseFloat(objValue) + parseFloat(srcValue)) / 2.0;
     } else {
       return undefined;
     }
@@ -147,4 +155,5 @@ module.exports = async function (app) {
     const newRates = _.merge(exchangeRates, mergedData[currentAsset.ticker]);
     await currentAsset.updateAttribute('exchangeRates', newRates);
   }
+  console.log('updated assets');
 };

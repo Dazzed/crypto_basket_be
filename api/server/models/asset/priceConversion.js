@@ -47,7 +47,6 @@ const convert = async (amount, fromAsset, toAsset, method) => {
         if (priceEthToAsset) {
           return priceEthToAsset;
         } else {
-          console.log('returning null');
           return null;
         }
       }

@@ -36,6 +36,7 @@ const loaded = async (context, Wallet) => {
     } else {
         context.data.btcPrice = await priceConvert.price(context.data.balance, context.data.assetId, 'btc');
         context.data.ethPrice = await priceConvert.price(context.data.balance, context.data.assetId, 'eth');
+        console.log('ethPrice other', context.data.ethPrice);
         context.data.usdPrice = await priceConvert.price(context.data.balance, context.data.assetId, 'usd');
     }
     return true;
