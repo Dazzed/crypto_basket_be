@@ -8,7 +8,7 @@ const uuidv4 = require('uuid/v4');
 const loopback = require('loopback');
 const priceConvert = require('../asset/priceConversion');
 
-const loaded = async (context) => {
+const loaded = async (context, Wallet) => {
     var bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
     if (!context.data.assetId) {
         return true;
@@ -41,7 +41,7 @@ const loaded = async (context) => {
     return true;
 }
 
-const observe = async (context) => {
+const observe = async (context, Wallet) => {
     if (!context.query.where)
         context.query.where = {};
     if (context.options && context.options.accessToken) {
@@ -83,23 +83,23 @@ module.exports = function (Wallet) {
     });
     Wallet.observe('access', async (context, next) => {
         if (context.options.skipAllHooks) {
-            next();
+            return next();
         } else {
-            observe(context).then(n => {
-                next();
+            return observe(context, Wallet).then(n => {
+                return next();
             }).catch(e => {
-                next(e);
+                return next(e);
             });
         }
     });
     Wallet.observe('loaded', (context, next) => {
         if (context.options.skipAllHooks) {
-            next();
+            return next();
         } else {
-            loaded(context).then(n => {
-                next();
+            return loaded(context, Wallet).then(n => {
+                return next();
             }).catch(e => {
-                next(e);
+                return next(e);
             });
         }
     });
