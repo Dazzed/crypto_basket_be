@@ -36,7 +36,6 @@ const convert = async (amount, fromAsset, toAsset, method) => {
         return amount / toAssetInstance.exchangeRates[fromAsset][method];
       }
     } else {
-            // attempt through BTC
       const priceBTC = await convert(amount, fromAsset, 'btc', method);
       const priceToAsset = await convert(priceBTC, 'btc', toAsset, method);
       if (priceBTC && priceToAsset) {

@@ -24,14 +24,14 @@ module.exports = function(Trade) {
         if(!toWallet)
           return response.status(400).send('You do not have a wallet for ' + toAsset.name);
         if(tradeType==='buy'){
-            const truePrice = await priceConvert.buy((1-parseFloat(toAsset.buyMargin))*toAssetAmount, fromAsset.ticker, toAsset.ticker);
+            const truePrice = await priceConvert.buy((1-parseFloat(toAsset.buyMargin))*parseFloat(toAssetAmount), fromAsset.ticker, toAsset.ticker);
             if(Math.abs(truePrice-fromAssetAmount)/truePrice>0.05){
                 return response.status(400).send('Price has varied too drastically from original transaction price, please try transaction again and complete it in a timely fashion');
             }else{
                 fromAssetAmount = truePrice;
             }
         }else{
-            const truePrice = await priceConvert.sell((1-parseFloat(fromAsset.sellMargin))*fromAssetAmount, fromAsset.ticker, toAsset.ticker);
+            const truePrice = await priceConvert.sell((1-parseFloat(fromAsset.saleMargin))*parseFloat(fromAssetAmount), fromAsset.ticker, toAsset.ticker);
             if(Math.abs(truePrice-toAssetAmount)/truePrice>0.05){
                 return response.status(400).send('Price has varied too drastically from original transaction price, please try transaction again and complete it in a timely fashion');
             }else{
@@ -123,7 +123,7 @@ module.exports = function(Trade) {
         }
         const fromAsset = await Trade.app.models.asset.findOne({ where: { id: fromAssetId } });
         const toAsset = await Trade.app.models.asset.findOne({ where: { id: toAssetId } });
-        
+
         if(fromAsset.hidden || toAsset.hidden){
           return response.status(400).send('One or both assets unavailable for trading');
         }
@@ -136,14 +136,12 @@ module.exports = function(Trade) {
           return response.status(400).send('You do not have a wallet for ' + toAsset.name);
 
         if(tradeType==='buy'){
-            const truePrice = await priceConvert.buy(toAssetAmount, fromAsset.ticker, toAsset.ticker);
+            const truePrice = await priceConvert.buy((1-parseFloat(toAsset.buyMargin))*parseFloat(toAssetAmount), fromAsset.ticker, toAsset.ticker);
             fromAssetAmount = truePrice;
-            console.log('fromAssetAmount', fromAssetAmount, 'toAssetAmount', toAssetAmount, 'truePrice', truePrice);
         }else{
-            const truePrice = await priceConvert.sell(fromAssetAmount, fromAsset.ticker, toAsset.ticker);
+            const truePrice = await priceConvert.sell((1-parseFloat(fromAsset.saleMargin))*parseFloat(fromAssetAmount), fromAsset.ticker, toAsset.ticker);
             toAssetAmount = truePrice;
         }
-        console.log('fromAssetAmount', fromAssetAmount);
         if(fromAssetAmount>fromWallet.balance){
             return response.status(400).send('Source wallet has insufficient balanace');
         }
