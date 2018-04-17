@@ -14,7 +14,9 @@ module.exports = function(Trade) {
         }
         const fromAsset = await Trade.app.models.asset.findOne({ where: { id: fromAssetId } });
         const toAsset = await Trade.app.models.asset.findOne({ where: { id: toAssetId } });
-        
+        if(fromAsset.hidden || toAsset.hidden){
+          return response.status(400).send('One or both assets unavailable for trading');
+        }
         const fromWallet = await Trade.app.models.wallet.findOne({where: {userId: userId, assetId: fromAsset.ticker}});
         const toWallet = await Trade.app.models.wallet.findOne({where: {userId: userId, assetId: toAsset.ticker}});
         if(!fromWallet)
@@ -121,6 +123,10 @@ module.exports = function(Trade) {
         }
         const fromAsset = await Trade.app.models.asset.findOne({ where: { id: fromAssetId } });
         const toAsset = await Trade.app.models.asset.findOne({ where: { id: toAssetId } });
+        
+        if(fromAsset.hidden || toAsset.hidden){
+          return response.status(400).send('One or both assets unavailable for trading');
+        }
         
         const fromWallet = await Trade.app.models.wallet.findOne({where: {userId: userId, assetId: fromAsset.ticker}});
         const toWallet = await Trade.app.models.wallet.findOne({where: {userId: userId, assetId: toAsset.ticker}});
