@@ -237,7 +237,7 @@ module.exports = function (user) {
   user.afterRemote('findById', async (context, thizUser, next) => {
     try {
       const { filter } = context.args;
-      if (filter) {
+      if (filter && thizUser) {
         // 1
         const { custom_include } = filter;
         if (custom_include) {

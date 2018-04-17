@@ -9,7 +9,7 @@ module.exports = function (asset) {
     try {
       if (context.args.filter) {
         const { custom_include } = context.args.filter;
-        if (custom_include) {
+        if (custom_include && assetInstances && assetInstances.length) {
           if (!Array.isArray(custom_include)) {
             return next(badRequest('custom_include must be an Array'));
           }
@@ -52,7 +52,7 @@ module.exports = function (asset) {
 
   asset.afterRemote('findById', async (context, instance, next) => {
     try {
-      if (context.args.filter) {
+      if (context.args.filter && instance) {
         const { custom_include } = context.args.filter;
         if (custom_include) {
           if (!Array.isArray(custom_include)) {
