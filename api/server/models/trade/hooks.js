@@ -14,6 +14,9 @@ module.exports = function(Trade) {
         }
         const fromAsset = await Trade.app.models.asset.findOne({ where: { id: fromAssetId } });
         const toAsset = await Trade.app.models.asset.findOne({ where: { id: toAssetId } });
+        if(!(fromAsset.ticker==='btc' || fromAsset.ticker === 'eth' || toAsset.ticker==='btc' || toAsset.ticker==='eth')){
+          return response.status(400).send('At least one of the assets must be ETH or BTC');
+        }
         if(fromAsset.hidden || toAsset.hidden){
           return response.status(400).send('One or both assets unavailable for trading');
         }
@@ -38,12 +41,24 @@ module.exports = function(Trade) {
                 toAssetAmount = truePrice;
             }
         }
-        if(toAssetAmount > toAsset.maxPurchaseAmount || toAssetAmount < toAsset.minPurchaseAmount || fromAssetAmount > toAsset.maxSaleAmount || toAssetAmount < toAsset.minSaleAmount){
-            return response.status(400).send('Purchase bounds exceeded');
+
+        if(toAssetAmount > toAsset.maxPurchaseAmount){
+            return response.status(400).send('Maximum purchase amount exceeded');
         }
+        else if(toAssetAmount < toAsset.minPurchaseAmount){
+            return response.status(400).send('Minimum purchase amount not met');
+        }
+        else if(fromAssetAmount > toAsset.maxSaleAmount){
+            return response.status(400).send('Maximum sale amount exceeded');
+        }
+        else if(toAssetAmount < toAsset.minSaleAmount){
+            return response.status(400).send('Minimum sale amount not met');
+        }
+
         if(fromAssetAmount>fromWallet.balance){
             return response.status(400).send('Source wallet has insufficient balanace');
         }
+
         const data = {
             userId: userId,
             fromAssetId: fromAssetId,
@@ -51,7 +66,8 @@ module.exports = function(Trade) {
             fromWalletId: fromWallet.id,
             toWalletId: toWallet.id,
             fromAssetAmount: fromAssetAmount, 
-            toAssetAmount: toAssetAmount
+            toAssetAmount: toAssetAmount,
+            isBuy: tradeType === 'buy'
         };
 
         const trade = await Trade.create(data);

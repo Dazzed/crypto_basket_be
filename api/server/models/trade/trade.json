@@ -30,6 +30,13 @@
       "postgresql": {
         "columnName": "updatedAt"
       }
+    },
+    "isBuy": {
+      "type": "boolean",
+      "default": false,
+      "postgresql":{
+        "columnName": "isBuy"
+      }
     }
   },
   "hidden": [],
