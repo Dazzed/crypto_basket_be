@@ -97,9 +97,9 @@ module.exports = function (asset) {
       // 1
       const thizWallets = await this.wallets.find({}, { skipAllHooks: true });
       if (thizWallets.length === 0) {
-        this.availableQuantityWithCommunity = 0;
+        this.availableQuantityWithCommunity = -this.quantity;
       } else {
-        this.availableQuantityWithCommunity = thizWallets
+        this.availableQuantityWithCommunity = this.quantity - thizWallets
           .reduce((acc, thizWallet) => acc + Number(thizWallet.balance), 0);
       }
     } catch (error) {
