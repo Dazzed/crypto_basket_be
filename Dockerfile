@@ -15,8 +15,8 @@ RUN npm install
 ARG NODE_ENV
 RUN echo ${NODE_ENV}
 COPY ./deploy/melotic-${NODE_ENV}/.env .
-COPY ./deploy/melotic-${NODE_ENV}/.env api
 COPY ./api .
+COPY ./deploy/melotic-${NODE_ENV}/.env api
 RUN node database/update
 
 CMD [ "npm", "start" ]
