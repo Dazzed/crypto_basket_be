@@ -4,6 +4,10 @@ const {
   internalError
 } = require('../../helpers/errorFormatter');
 
+const {
+  validateMinMaxValues
+} = require('./validations');
+
 module.exports = function (asset) {
   asset.afterRemote('find', async (context, assetInstances, next) => {
     try {
@@ -74,6 +78,19 @@ module.exports = function (asset) {
       }
     } catch (error) {
       console.log('Error in asset.afterRemote findById');
+      console.log(error);
+      next(internalError());
+    }
+  });
+
+  asset.beforeRemote('prototype.patchAttributes', async (context, instance, next) => {
+    try {
+      const minMaxValidation = validateMinMaxValues(context.args.data, context.instance);
+      if (minMaxValidation.error) {
+        return next(badRequest(minMaxValidation.message));
+      }
+    } catch (error) {
+      console.log('Error in asset.beforeRemote prototype.patchAttributes');
       console.log(error);
       next(internalError());
     }
