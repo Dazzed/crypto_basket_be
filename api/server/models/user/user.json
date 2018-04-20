@@ -170,6 +170,11 @@
       "foreignKey": "userId",
       "model": "transfer",
       "type": "hasMany"
+    },
+    "trades": {
+      "foreignKey": "userId",
+      "model": "trade",
+      "type": "hasMany"
     }
   },
   "indexes": {

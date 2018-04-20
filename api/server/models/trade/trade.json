@@ -107,6 +107,27 @@
       "principalType": "ROLE",
       "principalId": "$authenticated",
       "permission": "ALLOW",
+      "property": "search"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "admin",
+      "permission": "ALLOW",
+      "property": "search"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "super_admin",
+      "permission": "ALLOW",
+      "property": "search"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
       "property": "estimateTrade"
     },
     {
@@ -122,7 +143,8 @@
         "initiateTrade",
         "find",
         "findOne",
-        "estimateTrade"
+        "estimateTrade",
+        "search"
       ]
     }
   }
