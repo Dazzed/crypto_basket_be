@@ -9,12 +9,6 @@ module.exports = function(user) {
   user.validatesFormatOf('username', {
     with: /^[a-zA-Z0-9]+$/
   });
-  user.validatesPresenceOf('dob');
-  user.validatesPresenceOf('address');
-  user.validatesPresenceOf('phone');
-  user.validatesPresenceOf('city');
-  user.validatesPresenceOf('state');
-  user.validatesPresenceOf('country');
   user.validatesInclusionOf('verificationStatus', {
     in: ['fully_verified', 'unverified', 'verification_pending'],
   });

@@ -6,6 +6,7 @@
       "type": "string"
     },
     "username": {
+      "required": true,
       "type": "string"
     },
     "password": {
@@ -34,15 +35,15 @@
       }
     },
     "dob": {
-      "required": true,
+      "required": false,
       "type": "date"
     },
     "address": {
-      "required": true,
+      "required": false,
       "type": "string"
     },
     "phone": {
-      "required": true,
+      "required": false,
       "type": "string"
     },
     "twoFactorLoginEnabled": {
@@ -60,15 +61,15 @@
       }
     },
     "city": {
-      "required": true,
+      "required": false,
       "type": "string"
     },
     "state": {
-      "required": true,
+      "required": false,
       "type": "string"
     },
     "country": {
-      "required": true,
+      "required": false,
       "type": "string"
     },
     "emailVerified": {
@@ -360,6 +361,13 @@
       "principalType": "ROLE",
       "principalId": "$everyone",
       "permission": "ALLOW"
+    },
+    {
+      "property": "checkUsername",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW"
     }
   ],
   "mixins": {
@@ -372,7 +380,8 @@
         "initiateTwoFactor",
         "verifyTwoFactor",
         "archive",
-        "forgotUsername"
+        "forgotUsername",
+        "checkUsername"
       ]
     }
   },
