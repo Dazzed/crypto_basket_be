@@ -368,6 +368,13 @@
       "principalType": "ROLE",
       "principalId": "$everyone",
       "permission": "ALLOW"
+    },
+    {
+      "property": "verifyEmail",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW"
     }
   ],
   "mixins": {
@@ -381,7 +388,8 @@
         "verifyTwoFactor",
         "archive",
         "forgotUsername",
-        "checkUsername"
+        "checkUsername",
+        "verifyEmail"
       ]
     }
   },

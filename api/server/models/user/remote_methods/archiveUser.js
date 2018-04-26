@@ -39,7 +39,7 @@ module.exports = user => {
       await targetUser.save();
       return response.status(200).send(targetUser);
     } catch (error) {
-      console.log('Error in remote method user.archive ', error);
+      console.log('Error in remote method user.archive', error);
       return response.status(500).send('Internal Server error');
     }
   };
