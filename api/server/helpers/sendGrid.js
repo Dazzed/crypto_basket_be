@@ -36,7 +36,7 @@ module.exports = {
     const content = new sendgrid.Content(
       'text/html', template({
         user,
-        domain: `${config[process.env.NODE_ENV]}/verify_email_temp?token=${token}`
+        domain: `${config[process.env.NODE_ENV]}/user_register?confirm_token=${token}`
       })
     );
     const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
