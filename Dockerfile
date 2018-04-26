@@ -1,21 +1,17 @@
 FROM node:carbon
-# Create app directory
+
 WORKDIR /usr/src/app
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-# Bundle app source
+RUN npm i -g yarn
+COPY ./api/package.json /tmp/package.json
+RUN cd /tmp && yarn
+RUN cp -a /tmp/node_modules .
 
-
-COPY ./api/package-checkpoint.json ./package.json
-RUN npm install
-COPY ./api/package.json ./package.json
-RUN npm install
+COPY ./api .
 ARG NODE_ENV
 RUN echo ${NODE_ENV}
-COPY ./api .
 COPY ./deploy/melotic-${NODE_ENV}/.env .
+COPY ./deploy/melotic-${NODE_ENV}/.env api
 RUN node database/update
 
 CMD [ "npm", "start" ]
