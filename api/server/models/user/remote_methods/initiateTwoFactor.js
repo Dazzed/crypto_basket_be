@@ -39,7 +39,7 @@ module.exports = user => {
   user.initiateTwoFactor = async (request, response) => {
     try {
       const { currentUser } = request;
-      const secret = speakeasy.generateSecret({ issuer: 'melotic', name: 'melotic', length: 64 });
+      const secret = speakeasy.generateSecret({ issuer: 'melotic', name: 'melotic', length: 16 });
       const qrCode = await generateQrCode(secret);
       const currentTemporarySecret = await currentUser.temporaryTwoFactorSecret.get();
       if (currentTemporarySecret) {
@@ -51,7 +51,7 @@ module.exports = user => {
           secret: secret.base32,
         });
       }
-      return response.status(200).send({ qrCode, manual: secret.otpauth_url });
+      return response.status(200).send({ qrCode, manualCode: secret.base32 });
     } catch (error) {
       console.log('Error in remote method user.initiateTwoFactor ', error);
       return response.status(500).send('Internal Server error');
