@@ -21,6 +21,17 @@ const {
   adminWelcomeEmail
 } = require('../../helpers/sendGrid');
 
+const UNPERMITTED_PARAMS = [
+  'isDeleted',
+  'emailVerified',
+  'verificationToken',
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'twoFactorSecret',
+  'twoFactorToken'
+];
+
 module.exports = function (user) {
   user.beforeRemote('login', async (context, _, next) => {
     try {
@@ -89,7 +100,10 @@ module.exports = function (user) {
     try {
       // 1
       const verificationToken = uuidv4();
-      await userInstance.updateAttribute('verificationToken', verificationToken);
+      await userInstance.updateAttributes({
+        verificationToken,
+        twoFactorToken: uuidv4()
+      });
 
       const { options } = context.args;
       // 2
@@ -114,7 +128,6 @@ module.exports = function (user) {
         include: { roleMapping: 'role' }
       });
       if (thizUser.twoFactorLoginEnabled) {
-        await thizUser.updateAttribute('twoFactorToken', uuidv4());
         context.result = {
           user: thizUser.toJSON(),
           twoFactorRequired: true
@@ -256,25 +269,21 @@ module.exports = function (user) {
   });
 
   /* before patchAttributes
-   * 1. Do not allow to patch isDeleted or deletedAt or twoFactorSecret
-   * 2. Do not allow to patch emailVerified
-   * 3. community_member / normal user cannot update his verificationStatus
-   * 4. Keep track of old email if it's changed
-   * 5. If patching two factor loginEnabled or twoFactorWithdrawalEnabled, validate the otp
+   * 1. Do not allow to patch UNPERMITTED_PARAMS
+   * 2. community_member / normal user cannot update his verificationStatus
+   * 3. Keep track of old email if it's changed
+   * 4. If patching two factor loginEnabled or twoFactorWithdrawalEnabled, validate the otp
    */
   user.beforeRemote('prototype.patchAttributes', async (context, _, next) => {
     try {
       // 1
-      if (context.args.data.isDeleted || context.args.data.deletedAt || context.args.data.twoFactorSecret) {
-        return next(badRequest('isDeletedAt or deletedAt or twoFactorSecret cannot be patched'));
+      for (const updateKey in context.args.data) {
+        if (UNPERMITTED_PARAMS.includes(updateKey)) {
+          return next(badRequest(`${updateKey} cannot be patched`));
+        }
       }
 
       // 2
-      if (context.args.options.emailVerified) {
-        return next(badRequest('emailVerified cannot be patched'));
-      }
-
-      // 3
       const { authorizedRoles, accessToken: thizAccessToken } = context.args.options;
       const verificationStatusPresent = 'verificationStatus' in context.args.data;
       if (verificationStatusPresent) {
@@ -283,22 +292,22 @@ module.exports = function (user) {
         }
       }
 
-      // 4
+      // 3
       if (context.args.data.email) {
         context.options.oldEmail = context.instance.email;
       }
 
-      // 5
-      if (context.args.data.twoFactorLoginEnabled === false || context.args.data.twoFactorWithdrawalEnabled === false) {
+      // 4
+      if ('twoFactorLoginEnabled' in context.args.data || 'twoFactorWithdrawalEnabled' in context.args.data) {
         const { otp } = context.args.data;
         if (otp) {
           const currentUser = await context.args.options.accessToken.user.get();
           const isOtpValid = isValidTFAOtp(otp, currentUser.twoFactorSecret);
           if (!isOtpValid) {
-            return next(badRequest('Invalid otp'));
+            return next(badRequest('Invalid OTP'));
           }
         } else {
-          return next(badRequest('otp is needed when updating twoFactorLoginEnabled or twoFactorWithdrawalEnabled'))
+          return next(badRequest('otp is needed when patching twoFactorLoginEnabled or twoFactorWithdrawalEnabled'));
         }
       }
     } catch (error) {
@@ -310,16 +319,18 @@ module.exports = function (user) {
   /* before patchAttributes
    * 1. If updating email, set emailVerified to false and generate verfication token to send a new email.
    * 2. If updating verificationStatus, notify the target user about the update
+   * 3. Clear twoFactorSecret if the user has disabled TFA for both login and withdrawal
    */
   user.afterRemote('prototype.patchAttributes', async (context, userInstance, next) => {
     try {
+      const attributesToUpdate = {};
+
       // 1
       if (context.args.data.email) {
         const verificationToken = uuidv4();
-        await userInstance.updateAttributes({
-          verificationToken,
-          emailVerified: false
-        });
+        attributesToUpdate.verificationToken = verificationToken;
+        attributesToUpdate.emailVerified = false;
+
         postSignupEmail(userInstance, verificationToken);
         notifyChangeEmail(userInstance, context.options.oldEmail);
       }
@@ -327,6 +338,17 @@ module.exports = function (user) {
       // 2
       if (context.args.data.verificationStatus) {
         notifyVerificationStatusChange(userInstance);
+      }
+
+      // 3
+      if (!userInstance.twoFactorLoginEnabled && !userInstance.twoFactorWithdrawalEnabled) {
+        if (userInstance.twoFactorSecret) {
+          attributesToUpdate.twoFactorSecret = null;
+        }
+      }
+
+      if (Object.keys(attributesToUpdate).length) {
+        await userInstance.updateAttributes(attributesToUpdate);
       }
     } catch (error) {
       console.log('Error in user.beforeRemote patchAttributes', error);

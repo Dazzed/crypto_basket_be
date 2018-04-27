@@ -9,7 +9,8 @@ module.exports = user => {
     name: 'verifyTwoFactor',
     accepts: [
       { arg: 'otp', type: 'number', required: true },
-      { arg: 'twoFactorToken', type: 'string', required: true, description: 'temporary twoFactortoken received at login' }
+      { arg: 'twoFactorToken', type: 'string', required: true, description: 'temporary twoFactortoken received at login' },
+      { arg: 'type', type: 'string', required: false, description: '(login, withdrawal) Whether verifying OTP to enable TFA for login or withdrawal' }
     ],
     description: 'verify Two factor authentication for an user',
     httpOptions: {
@@ -35,6 +36,9 @@ module.exports = user => {
       if (!currentTemporarySecret && !currentUser.twoFactorSecret) {
         return next(badRequest('You have not opted for Two Factor authentication'));
       }
+      if (context.args.type && !['login', 'withdrawal'].includes(context.args.type)) {
+        return next(badRequest('type must be either login or withdrawal'));
+      }
       if (currentTemporarySecret) {
         context.args.request.currentTemporarySecret = currentTemporarySecret;
       }
@@ -45,7 +49,7 @@ module.exports = user => {
     }
   });
 
-  user.verifyTwoFactor = async (request, response, otp) => {
+  user.verifyTwoFactor = async (request, response, otp, twoFactorToken, type) => {
     try {
       const { currentUser, currentTemporarySecret = {} } = request;
       const verified = speakeasy.totp.verify({
@@ -61,7 +65,14 @@ module.exports = user => {
         await currentUser.save();
         await currentTemporarySecret.destroy();
       }
-      await currentUser.updateAttribute('twoFactorToken', null);
+      if (type) {
+        if (type === 'login') {
+          currentUser.twoFactorLoginEnabled = true;
+        } else {
+          currentUser.twoFactorWithdrawalEnabled = true;
+        }
+        await currentUser.save();
+      }
       const thizToken = await currentUser.createAccessToken('1209600');
       return response.status(200).send({
         ...currentUser.toJSON(),
