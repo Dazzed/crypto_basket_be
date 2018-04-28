@@ -42,7 +42,7 @@ module.exports = function (user) {
       const isEmail = validateEmail(email);
       if (!isEmail) {
         context.args.credentials = {
-          username: email,
+          username: email.toLowerCase(),
           password
         };
       }
@@ -56,6 +56,7 @@ module.exports = function (user) {
    * 1. validate email
    * 2. validate password
    * 3. validate TFA OTP if a super admin is creating admin
+   * 4. Transform username to lowerCase
    */
   user.beforeRemote('create', async (context, _, next) => {
     try {
@@ -86,6 +87,8 @@ module.exports = function (user) {
           return next(badRequest('Invalid OTP'));
         }
       }
+      // 4
+      context.args.data.username = context.args.data.username.toLowerCase();
     } catch (error) {
       console.log('Error in user.beforeRemote create', error);
       return next(internalError());
