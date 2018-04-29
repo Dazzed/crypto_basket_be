@@ -8,25 +8,27 @@ module.exports = {
     return re.test(email);
   },
   validatePassword(password) {
-    const strongPassword = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#\$%\^&\*])(?=.{8,})");
-    const eightLettersLength = new RegExp("^(?=.{8,})");
-    const oneLowerCase = new RegExp("^(?=.*[a-z])");
-    const oneUpperCase = new RegExp("^(?=.*[A-Z])");
-    const oneSymbol = new RegExp("^(?=.*[!@#\$%\^&\*])");
+    const strongPassword = new RegExp('^(?=.*[0-9])^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#\$%\^&\*])(?=.{8,})');
+    const eightLettersLength = new RegExp('^(?=.{8,})');
+    const oneLowerCase = new RegExp('^(?=.*[a-z])');
+    const oneUpperCase = new RegExp('^(?=.*[A-Z])');
+    const oneSymbol = new RegExp('^(?=.*[!@#\$%\^&\*])');
+    const oneNumber = new RegExp('[0-9]', 'g');
 
     if (strongPassword.test(password)) {
       return { error: false };
     } else if (!eightLettersLength.test(password)) {
       return { error: true, message: 'Password must be atleast 8 characters in length' };
     } else if (!oneLowerCase.test(password)) {
-      return { error: true, message: 'Password must contain atleast one Lower case alphabet' };
+      return { error: true, message: 'Your password must include at least one lower case letter' };
     } else if (!oneUpperCase.test(password)) {
-      return { error: true, message: 'Password must contain atleast one Upper case alphabet' };
+      return { error: true, message: 'Your password must include at least one upper case letter' };
     } else if (!oneSymbol.test(password)) {
-      return { error: true, message: 'Password must contain atleast one Symbol character (!@#$%^&*)' };
-    } else {
-      throw 'Internal server error in password';
+      return { error: true, message: 'Your password must include at least one symbol (!@#$%^&*)' };
+    } else if (!oneNumber.test(password)) {
+      return { error: true, message: 'Your password must include at least one numeric value' };
     }
+    return { error: false };
   },
   generateQrCode(secret) {
     return new Promise((resolve, reject) => {

@@ -60,6 +60,14 @@
         "columnName": "twoFactorWithdrawalEnabled"
       }
     },
+    "twoFactorCreateAdminEnabled": {
+      "description": "A flag for super admins to create new admins",
+      "default": false,
+      "type": "boolean",
+      "postgresql": {
+        "columnName": "twoFactorCreateAdminEnabled"
+      }
+    },
     "city": {
       "required": false,
       "type": "string"

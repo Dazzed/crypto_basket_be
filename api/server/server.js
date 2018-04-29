@@ -33,8 +33,8 @@ boot(app, __dirname, function(err) {
   // start the server if `$ node server.js`
   if (require.main === module){
     app.start();
-    var j = schedule.scheduleJob('*/30 * * * * *', async function(){
-      await updateAssets(app);
-    });
+    // var j = schedule.scheduleJob('*/30 * * * * *', async function(){
+    //   await updateAssets(app);
+    // });
   }
 });
