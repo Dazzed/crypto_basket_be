@@ -153,6 +153,13 @@ module.exports = function (user) {
           twoFactorRequired: true
         };
       } else {
+        const {accessToken} = user.app.models;
+        await accessToken.destroyAll({
+          userId: thizUser.id,
+          id: {
+            neq: context.result.id
+          }
+        });
         context.result = {
           ...context.result.toJSON(),
           user: thizUser.toJSON()
