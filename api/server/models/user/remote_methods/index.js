@@ -6,5 +6,7 @@ module.exports = function (user) {
   require('./archiveUser')(user);
   require('./forgotUsername')(user);
   require('./checkUsername')(user);
-  require('./isValidEmailToken')(user);
+  require('./verifyEmail')(user);
+  require('./initiateAdminOnboarding')(user);
+  require('./completeAdminOnboarding')(user);
 };

@@ -6,11 +6,11 @@
       "type": "string"
     },
     "username": {
-      "required": true,
+      "required": false,
       "type": "string"
     },
     "password": {
-      "required": true,
+      "required": false,
       "type": "string"
     },
     "firstName": {
@@ -383,6 +383,20 @@
       "principalType": "ROLE",
       "principalId": "$everyone",
       "permission": "ALLOW"
+    },
+    {
+      "property": "initiateAdminOnboarding",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "completeAdminOnboarding",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW"
     }
   ],
   "mixins": {
@@ -397,7 +411,9 @@
         "archive",
         "forgotUsername",
         "checkUsername",
-        "verifyEmail"
+        "verifyEmail",
+        "initiateAdminOnboarding",
+        "completeAdminOnboarding"
       ]
     }
   },

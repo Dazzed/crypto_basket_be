@@ -29,6 +29,12 @@ module.exports = user => {
           valid: false
         });
       }
+      // admins must use the initiateAdminOnboarding API
+      if (await thizUser.isAdmin()) {
+        return response.status(400).send({
+          valid: false
+        });
+      }
       await thizUser.updateAttributes({
         emailVerified: true,
         verificationToken: null

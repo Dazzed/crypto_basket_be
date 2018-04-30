@@ -117,13 +117,13 @@ module.exports = {
     const content = new sendgrid.Content(
       'text/html', template({
         user,
-        domain: `${config[process.env.NODE_ENV]}/verify_email_temp?token=${token}`
+        domain: `${config[process.env.NODE_ENV]}/admin_setup?token=${token}`
       })
     );
     const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
     sendMail(mail);
   },
-  tradeEmail(user, trade, fromAsset, toAsset, fromWallet, toWallet){
+  tradeEmail(user, trade, fromAsset, toAsset, fromWallet, toWallet) {
     const templateString = fs.readFileSync(__dirname + '/../../template/trade_completed.ejs', 'utf-8');
     const template = ejs.compile(templateString);
     const toEmail = new sendgrid.Email(user.email);

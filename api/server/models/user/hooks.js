@@ -2,6 +2,7 @@ const uuidv4 = require('uuid/v4');
 
 const {
   validateEmail,
+  validateUsername,
   validatePassword,
   sortArrayByParam,
   isValidTFAOtp
@@ -54,22 +55,25 @@ module.exports = function (user) {
 
   /* before create
    * 1. validate email
-   * 2. validate password
-   * 3. validate TFA OTP if a super admin is creating admin
-   * 4. Transform username to lowerCase
+   * 2. validate password if not creating admin
+   * 3. validate TFA OTP if a super admin is creating admin and assign random username and password
+   * 4. validate username if not creating admin
+   * 5. If not creatingAdmin and no username or password is present, Throw a badRequest
+   * 6. Transform username to lowerCase
    */
   user.beforeRemote('create', async (context, _, next) => {
     try {
-      const { email, password: thizPassword } = context.args.data;
+      const { email, password: thizPassword, username } = context.args.data;
       const isEmailValid = validateEmail(email);
       const validPassword = validatePassword(thizPassword);
+      const { isCreatingAdmin } = context.args.data;
       if (!isEmailValid) {
         // 1
         return next(badRequest('Invalid Email'));
-      } else if (validPassword.error) {
+      } else if (validPassword.error && !isCreatingAdmin) {
         // 2
         return next(badRequest(validPassword.message));
-      } else if (context.args.data.isCreatingAdmin) {
+      } else if (isCreatingAdmin) {
         // 3
         if (!context.args.options.accessToken) {
           return next(unauthorized());
@@ -86,8 +90,21 @@ module.exports = function (user) {
         if (!isOtpValid) {
           return next(badRequest('Invalid OTP'));
         }
+        context.args.data.username = `__random__${uuidv4()}`;
+        context.args.data.password = uuidv4();
       }
-      // 4
+      if (!isCreatingAdmin) {
+        // 4
+        const validUsername = validateUsername(username);
+        if (!validUsername) {
+          return next(badRequest('Invalid username. username must only contain numbers and alphabets'));
+        }
+      }
+      // 5
+      if (!context.args.data.username || !context.args.data.password) {
+        return next(badRequest('Username or password is missing'));
+      }
+      // 6
       context.args.data.username = context.args.data.username.toLowerCase();
     } catch (error) {
       console.log('Error in user.beforeRemote create', error);

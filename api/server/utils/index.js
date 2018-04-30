@@ -7,6 +7,10 @@ module.exports = {
     const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
   },
+  validateUsername(username) {
+    const re = /^[a-zA-Z0-9]+$/;
+    return re.test(username);
+  },
   validatePassword(password) {
     const strongPassword = new RegExp('^(?=.*[0-9])^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#\$%\^&\*])(?=.{8,})');
     const eightLettersLength = new RegExp('^(?=.{8,})');
