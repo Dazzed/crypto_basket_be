@@ -10,7 +10,7 @@ module.exports = user => {
     accepts: [
       { arg: 'otp', type: 'number', required: true },
       { arg: 'twoFactorToken', type: 'string', required: true, description: 'temporary twoFactortoken received at login' },
-      { arg: 'type', type: 'string', required: false, description: '(login, withdrawal) Whether verifying OTP to enable TFA for login or withdrawal' }
+      { arg: 'type', type: 'string', required: false, description: '(login, withdrawal, creatingAdmin) Whether verifying OTP to enable TFA for login or withdrawal or creatingAdmin' }
     ],
     description: 'verify Two factor authentication for an user',
     httpOptions: {
@@ -36,8 +36,8 @@ module.exports = user => {
       if (!currentTemporarySecret && !currentUser.twoFactorSecret) {
         return next(badRequest('You have not opted for Two Factor authentication'));
       }
-      if (context.args.type && !['login', 'withdrawal'].includes(context.args.type)) {
-        return next(badRequest('type must be either login or withdrawal'));
+      if (context.args.type && !['login', 'withdrawal', 'creatingAdmin'].includes(context.args.type)) {
+        return next(badRequest('type must be either login or withdrawal or creatingAdmin'));
       }
       if (currentTemporarySecret) {
         context.args.request.currentTemporarySecret = currentTemporarySecret;
@@ -68,8 +68,10 @@ module.exports = user => {
       if (type) {
         if (type === 'login') {
           currentUser.twoFactorLoginEnabled = true;
-        } else {
+        } else if (type === 'withdrawal') {
           currentUser.twoFactorWithdrawalEnabled = true;
+        } else if (type === 'creatingAdmin') {
+          currentUser.twoFactorCreateAdminEnabled = true;
         }
         await currentUser.save();
       }
