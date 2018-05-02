@@ -8,7 +8,7 @@ module.exports = user => {
     model: user,
     name: 'verifyTwoFactor',
     accepts: [
-      { arg: 'otp', type: 'number', required: true },
+      { arg: 'otp', type: 'string', required: true },
       { arg: 'twoFactorToken', type: 'string', required: true, description: 'temporary twoFactortoken received at login' },
       { arg: 'type', type: 'string', required: false, description: '(login, withdrawal, creatingAdmin) Whether verifying OTP to enable TFA for login or withdrawal or creatingAdmin' }
     ],
@@ -77,7 +77,9 @@ module.exports = user => {
       }
       const thizToken = await currentUser.createAccessToken('1209600');
       return response.status(200).send({
-        ...currentUser.toJSON(),
+        user: await user.findById(currentUser.id, {
+          include: { roleMapping: 'role' }
+        }),
         accessToken: thizToken.toJSON()
       });
     } catch (error) {
