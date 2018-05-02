@@ -15,7 +15,7 @@ module.exports = user => {
       { arg: 'verificationToken', type: 'string', required: true, description: 'verificationToken that is received via email to confirm an user\'s email' },
       { arg: 'username', type: 'string', required: true },
       { arg: 'password', type: 'string', required: true },
-      { arg: 'otp', type: 'number', required: true }
+      { arg: 'otp', type: 'string', required: true }
     ],
     description: 'Complete admin onboarding process',
     httpOptions: {
