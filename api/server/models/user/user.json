@@ -119,6 +119,12 @@
         "columnName": "deletedAt"
       }
     },
+    "lastLogin": {
+      "type": "date",
+      "postgresql": {
+        "columnName": "lastLogin"
+      }
+    },
     "profilePictureUrl": {
       "type": "string",
       "postgresql": {
