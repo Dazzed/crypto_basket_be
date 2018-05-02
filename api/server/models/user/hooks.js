@@ -318,9 +318,10 @@ module.exports = function (user) {
       // 2
       const { authorizedRoles, accessToken: thizAccessToken } = context.args.options;
       const verificationStatusPresent = 'verificationStatus' in context.args.data;
-      if (verificationStatusPresent) {
+      const isPatchingEmail = 'email' in context.args.data;
+      if (verificationStatusPresent || isPatchingEmail) {
         if (authorizedRoles.$owner && await context.instance.isNonPriviledgedUser()) {
-          return next(unauthorized('verificationStatus cannot be changed by you'));
+          return next(unauthorized('verificationStatus or email cannot be changed by you'));
         }
       }
 
