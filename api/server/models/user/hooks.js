@@ -160,9 +160,14 @@ module.exports = function (user) {
             neq: context.result.id
           }
         });
+        const isLoggingInFirstTime = thizUser.lastLogin ? false : true;
+        await thizUser.updateAttribute('lastLogin', new Date());
         context.result = {
           ...context.result.toJSON(),
-          user: thizUser.toJSON()
+          user: {
+            ...thizUser.toJSON(),
+            isLoggingInFirstTime
+          }
         };
       }
     } catch (error) {
