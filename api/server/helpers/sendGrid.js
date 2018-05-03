@@ -36,7 +36,8 @@ module.exports = {
     const content = new sendgrid.Content(
       'text/html', template({
         user,
-        domain: `${config[process.env.NODE_ENV]}/user_register?confirm_token=${token}`
+        domain: `${config[process.env.NODE_ENV]}/user_register`,
+        token
       })
     );
     const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
@@ -117,7 +118,8 @@ module.exports = {
     const content = new sendgrid.Content(
       'text/html', template({
         user,
-        domain: `${config[process.env.NODE_ENV]}/admin_setup?token=${token}`
+        domain: `${config[process.env.NODE_ENV]}/admin_setup`,
+        token
       })
     );
     const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
