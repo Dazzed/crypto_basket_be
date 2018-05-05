@@ -2,7 +2,6 @@ FROM node:carbon
 
 WORKDIR /usr/src/app
 
-RUN npm i -g yarn
 COPY ./api/package.json /tmp/package.json
 RUN cd /tmp && yarn
 RUN cp -a /tmp/node_modules .
