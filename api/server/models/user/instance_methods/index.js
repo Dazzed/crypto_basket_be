@@ -37,6 +37,7 @@ module.exports = function (user) {
     });
     for (const thizWallet of thizWallets) {
       const thizBalance = Number(thizWallet.balance);
+      console.log('thizWallet.assetID', thizWallet.assetId);
       const [
         totalValueInUSD,
         totalValueInBTC,

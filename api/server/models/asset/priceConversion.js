@@ -1,5 +1,6 @@
 const app = require('../../server');
 const convert = async (amount, fromAsset, toAsset, method) => {
+  console.log('in convert', amount, fromAsset, toAsset, method);
   let invMethod = '';
   if (method) {
     if (method === 'buy') {
@@ -17,8 +18,13 @@ const convert = async (amount, fromAsset, toAsset, method) => {
     invMethod = 'price';
   }
   const fromAssetInstance = await app.models.asset.findOne({ where: { ticker: fromAsset } });
+  if(!fromAssetInstance){
+    throw("Invalid fromAsset please provide ticker like btc or eth");
+  }
   if (fromAssetInstance && fromAssetInstance.exchangeRates[toAsset]) {
+    console.log('from if');
     if (method === 'ask') {
+      console.log('ask if');
       return amount * fromAssetInstance.exchangeRates[toAsset][method];
     } else if (method === 'bid') {
       return amount / fromAssetInstance.exchangeRates[toAsset][invMethod];
@@ -27,8 +33,13 @@ const convert = async (amount, fromAsset, toAsset, method) => {
     }
   } else {
     const toAssetInstance = await app.models.asset.findOne({ where: { ticker: toAsset } });
+    if(!toAssetInstance){
+      throw("Invalid toAsset please provide ticker like btc or eth");
+    }
     if (toAssetInstance && toAssetInstance.exchangeRates[fromAsset]) {
+      console.log('to if');
       if (method === 'ask') {
+      console.log('ask if');
         return amount * toAssetInstance.exchangeRates[fromAsset][invMethod];
       } else if (method === 'bid') {
         return amount / toAssetInstance.exchangeRates[fromAsset][method];
@@ -54,7 +65,9 @@ const convert = async (amount, fromAsset, toAsset, method) => {
   return null;
 };
 const price = async (amount, fromAsset, toAsset) => {
-  return await convert(amount, fromAsset, toAsset, 'price');
+  const price = await convert(amount, fromAsset, toAsset, 'price');
+  console.log('got price', price);
+  return price; 
 };
 
 const buy = async (amount, fromAsset, toAsset) => {
