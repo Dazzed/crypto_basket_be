@@ -94,7 +94,7 @@ const BASE_ASSETS = [
   },
   {
     name: 'ZCash',
-    ticker: 'xmr',
+    ticker: 'zec',
     hidden: false,
     minPurchaseAmount: 0,
     minSaleAmount: 0,

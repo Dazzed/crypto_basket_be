@@ -134,6 +134,15 @@ module.exports = function (user) {
         await userInstance.promoteAdmin();
         adminWelcomeEmail(userInstance, verificationToken);
       } else {
+        await userInstance.wallets.create({assetId: 'btc'});
+        await userInstance.wallets.create({assetId: 'eth'});
+        await userInstance.wallets.create({assetId: 'xrp'});
+        await userInstance.wallets.create({assetId: 'bch'});
+        await userInstance.wallets.create({assetId: 'ltc'});
+        await userInstance.wallets.create({assetId: 'xlm'});
+        await userInstance.wallets.create({assetId: 'xmr'});
+        await userInstance.wallets.create({assetId: 'dash'});
+        await userInstance.wallets.create({assetId: 'ada'});
         postSignupEmail(userInstance, verificationToken);
       }
     } catch (error) {
