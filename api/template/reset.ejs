@@ -1,6 +1,11 @@
-<head><style>
+<head>
+<link href='http://fonts.googleapis.com/css?family=Lato:100,200,300,400,500,600,700,800,900' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+ <link href='http://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700,800,900' rel='stylesheet' type='text/css'>
+<style>
     .logo {
-  font-family: Montserrat-Regular;
+  font-family: Montserrat;
+  font-weight: normal;
   font-size: 20px;
   color: #00B34A;
   letter-spacing: 0;
@@ -11,7 +16,8 @@
 }
 
 .forgot {
-  font-family: Lato-Regular;
+  font-family: Lato;
+  font-weight: normal;
   font-size: 20px;
   color: #3A3A3A;
   letter-spacing: 0;
@@ -20,7 +26,8 @@
 }
 
 .name {
-  font-family: Lato-Bold;
+  font-family: Lato;
+  font-weight: bold;
   font-size: 16px;
   color: #3A3A3A;
   letter-spacing: 0;
@@ -29,7 +36,8 @@
 }
 
 .info {
-  font-family: Lato-Regular;
+  font-family: Lato;
+  font-weight: normal;
   font-size: 16px;
   color: #3A3A3A;
   letter-spacing: 0;
@@ -44,7 +52,8 @@
 .button{
   background: #00B34A;
   border-radius: 4px;
-  font-family: Lato-Regular;
+  font-family: Lato;
+  font-weight: normal;
   font-size: 14px;
   color: #FFFFFF;
   letter-spacing: 0;
@@ -54,7 +63,8 @@
 }
 .disclaimer{
   margin-top: 100px;
-  font-family: Lato-Regular;
+  font-family: Lato;
+  font-weight: normal;
   font-size: 12px;
   color: #ACB6B0;
   letter-spacing: 0;
@@ -67,7 +77,7 @@
 </head>
 <body>
 <div class="logo">
-  Melotic
+  MELOTIC
 </div>
 <div class="forgot">
   Forgot password?
@@ -81,11 +91,12 @@
    Go to reset password
   </button></a>
 </div>
-<div class="disclaimer">
-  © Melotic<br/>
-  This message was sent to <%= user.email %> and intended for <%= user.firstName %> <%= user.lastName %>. Melotic sends updates<br/>
-  like this to help you keep up with the latest on Melotic. You can unsubscribe from these<br/>
-  updates, or remove your email if this isn't your Melotic account. Unsubscribe your email<br/>
-  from this account.
+<div style="width:70%;margin:0 auto;  padding:10px 10px 100px 10px; ">
+    <p style="font-family: Lato;font-size: 12px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: normal;letter-spacing: normal;text-align: center;color: #acb6b0;">
+        @ Melotic
+    </p>
+    <p style="font-family: Lato;font-size: 12px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: normal;letter-spacing: normal;text-align: center;color: #acb6b0;">
+        This Message was sent to <u><%= user.email %></u> and intented for <%= `${user.firstName} ${user.lastName}` %>. Melotic sends updates like this to help you keep up with the latest on Melotic. You can unsubscribe from these updates, or remove your email if this isn't your Melotic account. Unsubscribe your email from this account. 
+    </p>
 </div>
 </body>
