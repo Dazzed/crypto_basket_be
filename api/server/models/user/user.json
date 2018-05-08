@@ -419,7 +419,8 @@
         "checkUsername",
         "verifyEmail",
         "initiateAdminOnboarding",
-        "completeAdminOnboarding"
+        "completeAdminOnboarding", 
+        "prototype.updateAttributes"
       ]
     }
   },

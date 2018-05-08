@@ -13,7 +13,7 @@ module.exports = user => {
       errorStatus: 400,
       path: '/archive/:userId',
       status: 200,
-      verb: 'delete',
+      verb: 'post',
     }
   });
 
@@ -34,7 +34,7 @@ module.exports = user => {
   user.archive = async (request, response, userId) => {
     try {
       const { targetUser } = request;
-      targetUser.isDeleted = true;
+      targetUser.isDeleted = !targetUser.isDeleted;
       targetUser.deletedAt = new Date();
       await targetUser.save();
       return response.status(200).send(targetUser);
