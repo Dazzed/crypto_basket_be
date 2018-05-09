@@ -170,6 +170,8 @@ module.exports = function (user) {
           }
         });
         const isLoggingInFirstTime = thizUser.lastLogin ? false : true;
+        if(thizUser.isDeleted)
+          return next(unauthorized("This account is archived and cannot be logged into at this time."));
         await thizUser.updateAttribute('lastLogin', new Date());
         context.result = {
           ...context.result.toJSON(),
