@@ -139,7 +139,7 @@ module.exports = Trade => {
         }
         const fromAsset = await Trade.app.models.asset.findOne({ where: { id: fromAssetId } });
         const toAsset = await Trade.app.models.asset.findOne({ where: { id: toAssetId } });
-
+        // console.log('fromAsset', fromAsset, 'toAsset', toAsset);
         if(fromAsset.hidden || toAsset.hidden){
           return response.status(400).send('One or both assets unavailable for trading');
         }

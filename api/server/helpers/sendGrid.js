@@ -132,7 +132,7 @@ module.exports = {
     const subject = 'Trade Completed!';
     const content = new sendgrid.Content(
       'text/html', template({
-        trade, fromAsset, toAsset, fromWallet, toWallet
+        user, trade, fromAsset, toAsset, fromWallet, toWallet
       })
     );
     const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
