@@ -35,9 +35,10 @@ module.exports = function (asset) {
       this.minPurchaseAmountETH = minPurchaseAmountETH;
       this.minPurchaseAmountUSD = minPurchaseAmountUSD;
     } catch (error) {
-      console.log('Error in asset.prototype.populateValueAndMinimumPurchase');
-      console.log(error);
-      throw error;
+      this.totalValueInUSD = null;
+      this.minPurchaseAmountBTC = null;
+      this.minPurchaseAmountETH = null;
+      this.minPurchaseAmountUSD = null;
     }
   };
 
@@ -79,9 +80,9 @@ module.exports = function (asset) {
         this.communityValueUSD = communityValueUSD;
       }
     } catch (error) {
-      console.log('Error in asset.prototype.populateCommunityValue');
-      console.log(error);
-      throw error;
+        this.communityValueBTC = null;
+        this.communityValueETH = null;
+        this.communityValueUSD = null;
     }
   };
 
@@ -138,9 +139,9 @@ module.exports = function (asset) {
       this.totalValueInBTC = totalValueInBTC;
       this.totalValueInETH = totalValueInETH;
     } catch (error) {
-      console.log('Error in asset.prototype.populatePrices');
-      console.log(error);
-      throw error;
+      this.totalValueInUSD = null;
+      this.totalValueInBTC = null;
+      this.totalValueInETH = null;
     }
   };
 };
