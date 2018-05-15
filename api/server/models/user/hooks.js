@@ -134,15 +134,19 @@ module.exports = function (user) {
         await userInstance.promoteAdmin();
         adminWelcomeEmail(userInstance, verificationToken);
       } else {
-        await userInstance.wallets.create({assetId: 'btc'});
-        await userInstance.wallets.create({assetId: 'eth'});
-        await userInstance.wallets.create({assetId: 'xrp'});
-        await userInstance.wallets.create({assetId: 'bch'});
-        await userInstance.wallets.create({assetId: 'ltc'});
-        await userInstance.wallets.create({assetId: 'xlm'});
-        await userInstance.wallets.create({assetId: 'xmr'});
-        await userInstance.wallets.create({assetId: 'dash'});
-        await userInstance.wallets.create({assetId: 'ada'});
+        const promises = [
+          userInstance.wallets.create({ assetId: 'btc' }),
+          userInstance.wallets.create({ assetId: 'eth' }),
+          userInstance.wallets.create({ assetId: 'xrp' }),
+          userInstance.wallets.create({ assetId: 'bch' }),
+          userInstance.wallets.create({ assetId: 'ltc' }),
+          userInstance.wallets.create({ assetId: 'xlm' }),
+          userInstance.wallets.create({ assetId: 'xmr' }),
+          userInstance.wallets.create({ assetId: 'dash' }),
+          userInstance.wallets.create({ assetId: 'ada' }),
+          userInstance.wallets.create({ assetId: 'zec' })
+        ];
+        await Promise.all(promises);
         postSignupEmail(userInstance, verificationToken);
       }
     } catch (error) {
@@ -154,7 +158,12 @@ module.exports = function (user) {
   user.afterRemote('login', async (context, tokenInstance, next) => {
     try {
       const thizUser = await user.findById(tokenInstance.userId, {
-        include: { roleMapping: 'role' }
+        include: [
+          { roleMapping: 'role' },
+          'wallets',
+          'trades',
+          'transfers'
+        ]
       });
       if (thizUser.twoFactorLoginEnabled) {
         context.result = {
@@ -162,7 +171,7 @@ module.exports = function (user) {
           twoFactorRequired: true
         };
       } else {
-        const {accessToken} = user.app.models;
+        const { accessToken } = user.app.models;
         await accessToken.destroyAll({
           userId: thizUser.id,
           id: {
@@ -170,16 +179,21 @@ module.exports = function (user) {
           }
         });
         const isLoggingInFirstTime = thizUser.lastLogin ? false : true;
-        if(thizUser.isDeleted)
-          return next(unauthorized("This account is archived and cannot be logged into at this time."));
+        if (thizUser.isDeleted)
+          return next(unauthorized('This account is archived and cannot be logged into at this time.'));
         await thizUser.updateAttribute('lastLogin', new Date());
+        const thizUserJson = thizUser.toJSON();
         context.result = {
           ...context.result.toJSON(),
           user: {
-            ...thizUser.toJSON(),
-            isLoggingInFirstTime
+            ...thizUserJson,
+            isLoggingInFirstTime,
+            wallets: thizUserJson.wallets || [],
+            trades: thizUserJson.trades || [],
+            transfers: thizUserJson.transfers || []
           }
         };
+        log(196, context.result)
       }
     } catch (error) {
       console.log('Error in user.afterRemote login', error);
