@@ -57,20 +57,26 @@ module.exports = function (user) {
    * 1. validate email
    * 2. validate password if not creating admin
    * 3. validate TFA OTP if a super admin is creating admin and assign random username and password
-   * 4. validate username if not creating admin
-   * 5. If not creatingAdmin and no username or password is present, Throw a badRequest
-   * 6. Transform username to lowerCase
+   * 4. validate username if not creating admin (username is not required for creating admin)
+   * 5. If adminCreatingUser, Then assign a random password
+   * 6. If not creatingAdmin and no username or password is present, Throw a badRequest
+   * 7. Transform username to lowerCase
    */
   user.beforeRemote('create', async (context, _, next) => {
     try {
       const { email, password: thizPassword, username } = context.args.data;
       const isEmailValid = validateEmail(email);
       const validPassword = validatePassword(thizPassword);
-      const { isCreatingAdmin } = context.args.data;
+      // isCreatingAdmin ~> If a super admin is creating an admin, pass this bool flag
+      // adminCreatingUser ~> If super admin or admin is creating an user, pass this bool flag
+      const { isCreatingAdmin, adminCreatingUser } = context.args.data;
+      if (isCreatingAdmin && adminCreatingUser) {
+        return next(badRequest('either pass isCreatingAdmin or adminCreatingUser'));
+      }
       if (!isEmailValid) {
         // 1
         return next(badRequest('Invalid Email'));
-      } else if (validPassword.error && !isCreatingAdmin) {
+      } else if (validPassword.error && !isCreatingAdmin && !adminCreatingUser) {
         // 2
         return next(badRequest(validPassword.message));
       } else if (isCreatingAdmin) {
@@ -101,10 +107,19 @@ module.exports = function (user) {
         }
       }
       // 5
+      if (adminCreatingUser) {
+        const currentUser = await context.args.options.accessToken.user.get();
+        if (await user.isAdmin(currentUser.id) || await user.isSuperAdmin(currentUser.id)) {
+          context.args.data.password = uuidv4();
+        } else {
+          return next(unauthorized());
+        }
+      }
+      // 6
       if (!context.args.data.username || !context.args.data.password) {
         return next(badRequest('Username or password is missing'));
       }
-      // 6
+      // 7
       context.args.data.username = context.args.data.username.toLowerCase();
     } catch (error) {
       console.log('Error in user.beforeRemote create', error);
@@ -146,8 +161,16 @@ module.exports = function (user) {
           userInstance.wallets.create({ assetId: 'ada' }),
           userInstance.wallets.create({ assetId: 'zec' })
         ];
-        await Promise.all(promises);
-        postSignupEmail(userInstance, verificationToken);
+        // non-blocking
+        Promise.all(promises);
+        // If admin is creating a new user, Do not send welcome email, Instead send reset password.
+        // setPassword automatically confirms the email address of an user regardless the case. (see setPassword)
+        if (userInstance.adminCreatingUser) {
+          await user.resetPassword({ email: userInstance.email });
+        } else {
+          // If a new user signs up himself, Send welcome email to confirm his email.
+          postSignupEmail(userInstance, verificationToken);
+        }
       }
     } catch (error) {
       console.log('Error in user.afterRemote create', error);
@@ -193,7 +216,6 @@ module.exports = function (user) {
             transfers: thizUserJson.transfers || []
           }
         };
-        log(196, context.result)
       }
     } catch (error) {
       console.log('Error in user.afterRemote login', error);
@@ -247,6 +269,11 @@ module.exports = function (user) {
 
   user.afterRemote('setPassword', async (context, _, next) => {
     await context.args.options.accessToken.destroy();
+    // see after create to understand why we do the below update
+    await user.updateAll({ id: context.args.id }, {
+      emailVerified: true,
+      verificationToken: null
+    });
     context.result = {};
   });
 
