@@ -21,4 +21,13 @@ module.exports = function (Transfer) {
     }
     next();
   });
+
+  Transfer.afterRemote('find', async (ctx, result, next) => {
+    let filter;
+    if (ctx.args && ctx.args.filter && ctx.args.filter.where) {
+      filter = ctx.args.filter.where;
+    }
+    const count = await Transfer.count(filter);
+    ctx.res.set('X-Total-Count', count);
+  });
 };
