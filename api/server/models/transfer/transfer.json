@@ -13,6 +13,10 @@
       "required": true,
       "type": "string"
     },
+    "txType": {
+      "required": true,
+      "type": "string"
+    },
     "createdAt": {
       "defaultFn": "now",
       "type": "date"

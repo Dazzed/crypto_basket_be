@@ -19,4 +19,6 @@ module.exports = function(transfer) {
   transfer.disableRemoteMethodByName('replaceById');
   transfer.disableRemoteMethodByName('updateAll');
   transfer.disableRemoteMethodByName('prototype.patchAttributes');
+
+  require('./remote_methods')(transfer);
 };

@@ -6,7 +6,8 @@ module.exports = properties => {
     accepts,
     description,
     httpOptions,
-    notes
+    notes,
+    returns
   } = properties;
   model.remoteMethod(name, {
     accepts: [
@@ -28,7 +29,8 @@ module.exports = properties => {
     ],
     description,
     http: httpOptions,
-    notes
+    notes,
+    ...(returns ? { returns } : null)
   });
 };
 
