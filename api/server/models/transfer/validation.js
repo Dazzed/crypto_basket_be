@@ -4,6 +4,9 @@ module.exports = function(transfer) {
   transfer.validatesInclusionOf('coin', {
     in: ['ETH', 'BTC'],
   });
+  transfer.validatesInclusionOf('txType', {
+    in: ['deposit', 'withdraw', 'refund']
+  });
   transfer.validatesPresenceOf('coin');
   transfer.validatesPresenceOf('txid');
   transfer.validatesPresenceOf('usdValue');

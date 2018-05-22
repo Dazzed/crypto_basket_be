@@ -40,10 +40,10 @@ module.exports = function (transfer) {
           }
         });
         const Wallet = await transfer.app.models.wallet.findOne({ where: { address: optRecieve.address } });
-        if(coin==='tbtc'){
-          transaction.value/=1e18;
-        }else if(coin === 'teth'){
-          transaction.value/=1e8;
+        if (coin === 'tbtc') {
+          transaction.value /= 1e18;
+        } else if (coin === 'teth') {
+          transaction.value /= 1e8;
         }
         const updatedWallet = await Wallet.updateAttribute('balance', parseFloat(Wallet.balance) + parseFloat(transaction.value));
         let data = {
