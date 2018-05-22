@@ -36,7 +36,7 @@ const convert = async (amount, fromAsset, toAsset, method) => {
       return null;
     }
     if(!toAssetInstance){
-      throw("Invalid toAsset please provide ticker like btc or eth");
+      return null;
     }
     if (toAssetInstance && toAssetInstance.exchangeRates[fromAsset]) {
       // console.log('to if');
