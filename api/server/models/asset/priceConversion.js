@@ -32,6 +32,9 @@ const convert = async (amount, fromAsset, toAsset, method) => {
     }
   } else {
     const toAssetInstance = await app.models.asset.findOne({ where: { ticker: toAsset } });
+    if ((!toAssetInstance || !fromAssetInstance.exchangeRates || !fromAssetInstance.exchangeRates[toAssetInstance.ticker]) && (!toAssetInstance || !toAssetInstance.exchangeRates || !toAssetInstance.exchangeRates[fromAssetInstance.ticker])){
+      return null;
+    }
     if(!toAssetInstance){
       throw("Invalid toAsset please provide ticker like btc or eth");
     }
