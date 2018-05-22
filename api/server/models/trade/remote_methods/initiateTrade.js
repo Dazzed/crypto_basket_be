@@ -14,11 +14,17 @@ module.exports = Trade => {
     }
     const fromAsset = await Trade.app.models.asset.findOne({ where: { id: fromAssetId } });
     const toAsset = await Trade.app.models.asset.findOne({ where: { id: toAssetId } });
-    if (!(fromAsset.ticker === 'btc' || fromAsset.ticker === 'eth' || toAsset.ticker === 'btc' || toAsset.ticker === 'eth')) {
-      return response.status(400).send({ message: 'At least one of the assets must be ETH or BTC' });
+    if(tradeType === 'buy' && !(fromAsset.ticker === 'btc' || fromAsset.ticker === 'eth')){
+      return response.status(400).send({ message: 'You can only buy using BTC or ETH.' });
+    }
+    if(tradeType === 'sell' && !(toAsset.ticker === 'btc' || toAsset.ticker === 'eth')){
+      return response.status(400).send({ message: 'You can only sell to BTC or ETH.' });
     }
     if (fromAsset.hidden || toAsset.hidden) {
       return response.status(400).send({ message: 'One or both assets unavailable for trading' });
+    }
+    if ((!fromAsset.exchangeRates || !fromAsset.exchangeRates[toAsset.ticker]) && (!toAsset.exchangeRates || !toAsset.exchangeRates[fromAsset.ticker])){
+      return response.status(400).send({ message: 'Exchange rates unavailable for asset pair, cannot trade at this time.' });
     }
     const fromWallet = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: fromAsset.ticker } });
     const toWallet = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: toAsset.ticker } });
@@ -42,13 +48,16 @@ module.exports = Trade => {
       }
     }
 
-    if (toAssetAmount > toAsset.maxPurchaseAmount) {
+    if (tradeType==='buy' && toAssetAmount > toAsset.maxPurchaseAmount) {
       return response.status(400).send({ message: 'Maximum purchase amount exceeded' });
-    } else if (toAssetAmount < toAsset.minPurchaseAmount) {
+    }
+    if (tradeType==='buy' && toAssetAmount < toAsset.minPurchaseAmount) {
       return response.status(400).send({ message: 'Minimum purchase amount not met' });
-    } else if (fromAssetAmount > toAsset.maxSaleAmount) {
+    }
+    if (tradeType==='sell' && fromAssetAmount > toAsset.maxSaleAmount) {
       return response.status(400).send({ message: 'Maximum sale amount exceeded' });
-    } else if (toAssetAmount < toAsset.minSaleAmount) {
+    }
+    if (tradeType==='sell' && toAssetAmount < toAsset.minSaleAmount) {
       return response.status(400).send({ message: 'Minimum sale amount not met' });
     }
 
