@@ -19,7 +19,7 @@ const loaded = async (context, Wallet) => {
       const address = await wallet.getAddress({ address: context.data.address });
       if (address.address) {
         context.data.address = address.address;
-        const update = await context.Model.update({address: address.address});
+        const update = await context.Model.update({id: context.data.id},{address: address.address});
       }
     }
   }catch(e){
