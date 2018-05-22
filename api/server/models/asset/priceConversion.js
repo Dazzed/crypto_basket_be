@@ -18,6 +18,7 @@ const convert = async (amount, fromAsset, toAsset, method) => {
   }
   const fromAssetInstance = await app.models.asset.findOne({ where: { ticker: fromAsset } });
   if(!fromAssetInstance){
+    console.log('fromAsset', fromAsset, 'toAsset', toAsset);
     throw("Invalid fromAsset please provide ticker like btc or eth");
   }
   if (fromAssetInstance && fromAssetInstance.exchangeRates[toAsset]) {
