@@ -73,5 +73,9 @@
       "principalId": "super_admin",
       "permission": "ALLOW"
     }],
+  "settings":{
+    "updateOnLoad": true
+  },
+  "updateOnLoad": true,
   "methods": {}
 }

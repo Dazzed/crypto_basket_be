@@ -13,17 +13,17 @@ const loaded = async (context, Wallet) => {
   if (!context.data.assetId) {
     return true;
   }
-
-  if (context.data.assetId === 'eth' && !context.data.address.startsWith('0x') && !!context.data.address && context.data.address !== "\"\"") {
-    const wallet = await bitgo.coin('teth').wallets().get({ id: process.env.ETH_WALLET });
-    const address = await wallet.getAddress({ address: context.data.address });
-    if (address.address) {
-      setTimeout(async () => {
-        const instance = await Wallet.findOne({ where: { id: context.data.id } });
-        await instance.updateAttribute('address', address.address);
-      }, 1000);
-      context.data.address = address.address;
+  try{
+    if (context.data.assetId === 'eth' && !context.data.address.startsWith('0x') && !!context.data.address && context.data.address !== "\"\"") {
+      const wallet = await bitgo.coin('teth').wallets().get({ id: process.env.ETH_WALLET });
+      const address = await wallet.getAddress({ address: context.data.address });
+      if (address.address) {
+        context.data.address = address.address;
+        const update = await context.Model.update({address: address.address});
+      }
     }
+  }catch(e){
+    console.log(e);
   }
   if (context.data.assetId === 'eth') {
     context.data.usdPrice = await priceConvert.price(context.data.balance, 'eth', 'usd');
@@ -42,6 +42,7 @@ const loaded = async (context, Wallet) => {
 };
 
 const observe = async (context, Wallet) => {
+  console.log('observe called');
   if (!context.query.where)
     context.query.where = {};
   if (context.options && context.options.accessToken) {
@@ -121,7 +122,7 @@ module.exports = function (Wallet) {
     if (context.options.skipAllHooks) {
       return next();
     } else {
-      return observe(context, Wallet).then(n => {
+      observe(context, Wallet).then(n => {
         return next();
       }).catch(e => {
         return next(e);
@@ -132,7 +133,7 @@ module.exports = function (Wallet) {
     if (context.options.skipAllHooks) {
       return next();
     } else {
-      return loaded(context, Wallet).then(n => {
+      loaded(context, Wallet).then(n => {
         return next();
       }).catch(e => {
         return next(e);
