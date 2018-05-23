@@ -420,7 +420,9 @@
         "verifyEmail",
         "initiateAdminOnboarding",
         "completeAdminOnboarding", 
-        "prototype.updateAttributes"
+        "prototype.updateAttributes",
+        "prototype.__get__transfers",
+        "prototype.__get__trades"
       ]
     }
   },

@@ -185,8 +185,8 @@ module.exports = function (user) {
         include: [
           { roleMapping: 'role' },
           'wallets',
-          'trades',
-          'transfers'
+          // 'trades',
+          // 'transfers'
         ]
       });
       if (thizUser.twoFactorLoginEnabled) {
@@ -451,5 +451,19 @@ module.exports = function (user) {
       console.log('Error in user.beforeRemote patchAttributes', error);
       return next(internalError());
     }
+  });
+
+  user.afterRemote('prototype.__get__transfers', async (ctx, _, next) => {
+    let filter = {};
+    const { transfer } = user.app.models;
+    if (ctx.args && ctx.args.filter && ctx.args.filter.where) {
+      filter = ctx.args.filter.where;
+    }
+    filter = {
+      ...filter,
+      userId: ctx.ctorArgs.id
+    };
+    const count = await transfer.count(filter);
+    ctx.res.set('X-Total-Count', count);
   });
 };
