@@ -1,11 +1,12 @@
 const uuidv4 = require('uuid/v4');
+const qrCodeLib = require('qrcode');
 
 const {
   validateEmail,
   validateUsername,
   validatePassword,
   sortArrayByParam,
-  isValidTFAOtp
+  isValidTFAOtp,
 } = require('../../utils');
 
 const {
@@ -184,8 +185,8 @@ module.exports = function (user) {
         include: [
           { roleMapping: 'role' },
           'wallets',
-          'trades',
-          'transfers'
+          // 'trades',
+          // 'transfers'
         ]
       });
       if (thizUser.twoFactorLoginEnabled) {
@@ -206,6 +207,17 @@ module.exports = function (user) {
           return next(unauthorized('This account is archived and cannot be logged into at this time.'));
         await thizUser.updateAttribute('lastLogin', new Date());
         const thizUserJson = thizUser.toJSON();
+        // provide btc and eth wallet qr code for regular users to deposit.
+        if (thizUserJson.wallets && thizUserJson.wallets.length) {
+          const btcWalletIndex = thizUserJson.wallets.findIndex(w => w.assetId === 'btc');
+          const ethWalletIndex = thizUserJson.wallets.findIndex(w => w.assetId === 'eth');
+          const [btcQr, ethQr] = await Promise.all([
+            qrCodeLib.toDataURL(thizUserJson.wallets[btcWalletIndex].address),
+            qrCodeLib.toDataURL(thizUserJson.wallets[ethWalletIndex].address)
+          ]);
+          thizUserJson.wallets[btcWalletIndex].qrCode = btcQr;
+          thizUserJson.wallets[ethWalletIndex].qrCode = ethQr;
+        }
         context.result = {
           ...context.result.toJSON(),
           user: {
@@ -439,5 +451,19 @@ module.exports = function (user) {
       console.log('Error in user.beforeRemote patchAttributes', error);
       return next(internalError());
     }
+  });
+
+  user.afterRemote('prototype.__get__transfers', async (ctx, _, next) => {
+    let filter = {};
+    const { transfer } = user.app.models;
+    if (ctx.args && ctx.args.filter && ctx.args.filter.where) {
+      filter = ctx.args.filter.where;
+    }
+    filter = {
+      ...filter,
+      userId: ctx.ctorArgs.id
+    };
+    const count = await transfer.count(filter);
+    ctx.res.set('X-Total-Count', count);
   });
 };
