@@ -3,6 +3,7 @@ const ejs = require('ejs');
 const fs = require('fs');
 const sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
 const sendgrid = require('sendgrid').mail;
+const moment = require('moment');
 
 const config = require('./config');
 const APPLICATION_TEMPLATE_PATH = `${__dirname}/../../template/application/`;
@@ -130,9 +131,10 @@ module.exports = {
     const template = ejs.compile(templateString);
     const toEmail = new sendgrid.Email(user.email);
     const subject = 'Trade Completed!';
+    const tradeCreatedAt = moment(trade.createdAt).format('YYYY-MM-DD hh:mm');
     const content = new sendgrid.Content(
       'text/html', template({
-        user, trade, fromAsset, toAsset, fromWallet, toWallet
+        user, trade, fromAsset, toAsset, fromWallet, toWallet, tradeCreatedAt
       })
     );
     const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
