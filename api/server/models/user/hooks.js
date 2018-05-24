@@ -211,12 +211,14 @@ module.exports = function (user) {
         if (thizUserJson.wallets && thizUserJson.wallets.length) {
           const btcWalletIndex = thizUserJson.wallets.findIndex(w => w.assetId === 'btc');
           const ethWalletIndex = thizUserJson.wallets.findIndex(w => w.assetId === 'eth');
-          const [btcQr, ethQr] = await Promise.all([
-            qrCodeLib.toDataURL(thizUserJson.wallets[btcWalletIndex].address),
-            qrCodeLib.toDataURL(thizUserJson.wallets[ethWalletIndex].address)
-          ]);
-          thizUserJson.wallets[btcWalletIndex].qrCode = btcQr;
-          thizUserJson.wallets[ethWalletIndex].qrCode = ethQr;
+          if(btcWalletIndex && ethWalletIndex){
+            const [btcQr, ethQr] = await Promise.all([
+              qrCodeLib.toDataURL(thizUserJson.wallets[btcWalletIndex].address),
+              qrCodeLib.toDataURL(thizUserJson.wallets[ethWalletIndex].address)
+            ]);
+            thizUserJson.wallets[btcWalletIndex].qrCode = btcQr;
+            thizUserJson.wallets[ethWalletIndex].qrCode = ethQr;
+          }
         }
         context.result = {
           ...context.result.toJSON(),
