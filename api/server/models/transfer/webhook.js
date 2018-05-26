@@ -69,6 +69,8 @@ module.exports = function (transfer) {
     };
     processWebhook().then(transfer => {
       console.log('transfer', transfer ? 'created/updated' : 'not created/updated');
+    }).catch(e =>{
+      console.log('Transfer failed', e);
     });
     ctx.res.status(200).send(null);
   };

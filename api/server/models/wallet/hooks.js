@@ -22,21 +22,23 @@ const loaded = async (context, Wallet) => {
         const update = await context.Model.update({id: context.data.id},{address: address.address});
       }
     }
+
+    if (context.data.assetId === 'eth') {
+      context.data.usdPrice = await priceConvert.price(context.data.balance, 'eth', 'usd');
+      context.data.btcPrice = await priceConvert.price(context.data.balance, 'eth', 'btc');
+      context.data.ethPrice = parseFloat(context.data.balance);
+    } else if (context.data.assetId === 'btc') {
+      context.data.usdPrice = await priceConvert.price(context.data.balance, 'btc', 'usd');
+      context.data.ethPrice = await priceConvert.price(context.data.balance, 'btc', 'eth');
+      context.data.btcPrice = parseFloat(context.data.balance);
+    } else {
+      context.data.btcPrice = await priceConvert.price(context.data.balance, context.data.assetId, 'btc');
+      context.data.ethPrice = await priceConvert.price(context.data.balance, context.data.assetId, 'eth');
+      context.data.usdPrice = await priceConvert.price(context.data.balance, context.data.assetId, 'usd');
+    }
+
   }catch(e){
     console.log(e);
-  }
-  if (context.data.assetId === 'eth') {
-    context.data.usdPrice = await priceConvert.price(context.data.balance, 'eth', 'usd');
-    context.data.btcPrice = await priceConvert.price(context.data.balance, 'eth', 'btc');
-    context.data.ethPrice = parseFloat(context.data.balance);
-  } else if (context.data.assetId === 'btc') {
-    context.data.usdPrice = await priceConvert.price(context.data.balance, 'btc', 'usd');
-    context.data.ethPrice = await priceConvert.price(context.data.balance, 'btc', 'eth');
-    context.data.btcPrice = parseFloat(context.data.balance);
-  } else {
-    context.data.btcPrice = await priceConvert.price(context.data.balance, context.data.assetId, 'btc');
-    context.data.ethPrice = await priceConvert.price(context.data.balance, context.data.assetId, 'eth');
-    context.data.usdPrice = await priceConvert.price(context.data.balance, context.data.assetId, 'usd');
   }
   return true;
 };
@@ -47,9 +49,13 @@ const observe = async (context, Wallet) => {
     context.query.where = {};
   if (context.options && context.options.accessToken) {
     const userID = context.options.accessToken.userId;
-    const user = await Wallet.app.models.user.findOne({ where: { id: userID } });
-    if (!(await user.isAdmin() || await user.isSuperAdmin())) {
-      context.query.where.userId = userID;
+    try{
+      const user = await Wallet.app.models.user.findOne({ where: { id: userID } });
+      if (!(await user.isAdmin() || await user.isSuperAdmin())) {
+        context.query.where.userId = userID;
+      }
+    }catch(e){
+      console.log('Promise rejection in observe');
     }
   }
   return true;
@@ -118,7 +124,7 @@ module.exports = function (Wallet) {
       .catch(() => next(internalError()));
   });
 
-  Wallet.observe('access', async (context, next) => {
+  Wallet.observe('access', (context, next) => {
     if (context.options.skipAllHooks) {
       return next();
     } else {
