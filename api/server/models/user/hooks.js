@@ -211,7 +211,7 @@ module.exports = function (user) {
         if (thizUserJson.wallets && thizUserJson.wallets.length) {
           const btcWalletIndex = thizUserJson.wallets.findIndex(w => w.assetId === 'btc');
           const ethWalletIndex = thizUserJson.wallets.findIndex(w => w.assetId === 'eth');
-          if(btcWalletIndex && ethWalletIndex){
+          if (btcWalletIndex && ethWalletIndex) {
             const [btcQr, ethQr] = await Promise.all([
               qrCodeLib.toDataURL(thizUserJson.wallets[btcWalletIndex].address),
               qrCodeLib.toDataURL(thizUserJson.wallets[ethWalletIndex].address)
@@ -360,6 +360,24 @@ module.exports = function (user) {
           }
         }
       }
+      const thizUserJson = thizUser.toJSON();
+      // provide btc and eth wallet qr code for regular users to deposit.
+      if (thizUserJson.wallets && thizUserJson.wallets.length) {
+        const btcWalletIndex = thizUserJson.wallets.findIndex(w => w.assetId === 'btc');
+        const ethWalletIndex = thizUserJson.wallets.findIndex(w => w.assetId === 'eth');
+        if (btcWalletIndex && ethWalletIndex) {
+          const [btcQr, ethQr] = await Promise.all([
+            qrCodeLib.toDataURL(thizUserJson.wallets[btcWalletIndex].address),
+            qrCodeLib.toDataURL(thizUserJson.wallets[ethWalletIndex].address)
+          ]);
+          thizUserJson.wallets[btcWalletIndex].qrCode = btcQr;
+          thizUserJson.wallets[ethWalletIndex].qrCode = ethQr;
+        }
+      }
+      context.result = {
+        ...context.result.toJSON(),
+        wallets: thizUserJson.wallets || []
+      };
     } catch (error) {
       console.log('Error in user.afterRemote findById', error);
       return next(internalError());
