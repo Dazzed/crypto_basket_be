@@ -58,7 +58,8 @@ module.exports = function (transfer) {
           value: transaction.value,
           usdValue: transaction.usd,
           userId: Wallet.userId,
-          confirmed: false
+          confirmed: false,
+          txType: 'deposit'
         };
         if (transaction.state === 'confirmed') {
           data.confirmedTime = new Date();
