@@ -40,11 +40,13 @@ module.exports = function (transfer) {
           }
         });
         const Wallet = await transfer.app.models.wallet.findOne({ where: { address: optRecieve.address } });
+        console.log('value before', transaction.value);
         if (coin === 'tbtc') {
           transaction.value /= 1e18;
         } else if (coin === 'teth') {
           transaction.value /= 1e8;
         }
+        console.log('value after', transaction.value);
         const updatedWallet = await Wallet.updateAttribute('balance', parseFloat(Wallet.balance) + parseFloat(transaction.value));
         let data = {
           coin: coin === 'tbtc' ? 'BTC' : 'ETH',
