@@ -15,6 +15,7 @@
     "db:update": "node database/update"
   },
   "dependencies": {
+    "bignumber.js": "^7.2.1",
     "binance-api-node": "^0.7.6",
     "bitgo": "^4.22.0",
     "body-parser": "^1.18.2",

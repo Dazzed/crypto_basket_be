@@ -11,14 +11,6 @@
       "type": "string",
       "required": true
     },
-    "balance": {
-      "type": "number",
-      "required": true,
-      "default": 0.0,
-      "postgresql": {
-        "dataType": "NUMERIC(20,5)"
-      }
-    },
     "address": {
       "type": "string",
       "default": "\"\""
@@ -27,6 +19,13 @@
       "type": "date",
       "required": true,
       "defaultFn": "now"
+    },
+    "indivisibleQuantity": {
+      "type": "number",
+      "default": 0.0,
+      "postgresql": {
+        "dataType": "NUMERIC(30)"
+      }
     }
   },
   "validations": [],

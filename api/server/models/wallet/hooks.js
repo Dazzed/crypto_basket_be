@@ -7,8 +7,14 @@ const BitGoJS = require('bitgo');
 const uuidv4 = require('uuid/v4');
 const loopback = require('loopback');
 const priceConvert = require('../asset/priceConversion');
+var BigNumber = require('bignumber.js');
+BigNumber.config({ RANGE: 500 });
 
 const loaded = async (context, Wallet) => {
+  const asset = await Wallet.app.models.asset.findOne({ where: { ticker: context.data.assetId }});
+  const invidQuant = BigNumber(context.data.indivisibleQuantity);
+  const scalar = BigNumber(asset.scalar);
+  context.data.balance = invidQuant.div(scalar).toNumber();
   var bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
   if (!context.data.assetId) {
     return true;

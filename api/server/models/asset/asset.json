@@ -33,7 +33,7 @@
       "default": 0.0,
       "postgresql": {
         "columnName": "minPurchaseAmount",
-        "dataType": "NUMERIC(10,2)"
+        "dataType": "NUMERIC(15,5)"
       }
     },
     "maxPurchaseAmount": {
@@ -42,7 +42,7 @@
       "default": 0.0,
       "postgresql": {
         "columnName": "maxPurchaseAmount",
-        "dataType": "NUMERIC(10,2)"
+        "dataType": "NUMERIC(15,5)"
       }
     },
     "minSaleAmount": {
@@ -51,7 +51,7 @@
       "default": 0.0,
       "postgresql": {
         "columnName": "minSaleAmount",
-        "dataType": "NUMERIC(10,2)"
+        "dataType": "NUMERIC(15,5)"
       }
     },
     "maxSaleAmount": {
@@ -60,7 +60,7 @@
       "default": 1000.0,
       "postgresql": {
         "columnName": "maxSaleAmount",
-        "dataType": "NUMERIC(10,2)"
+        "dataType": "NUMERIC(15,5)"
       }
     },
     "buyMargin": {
@@ -69,7 +69,7 @@
       "default": 0,
       "postgresql": {
         "columnName": "buyMargin",
-        "dataType": "NUMERIC(10,2)"
+        "dataType": "NUMERIC(10,5)"
       }
     },
     "saleMargin": {
@@ -78,15 +78,15 @@
       "default": 0,
       "postgresql": {
         "columnName": "saleMargin",
-        "dataType": "NUMERIC(10,2)"
+        "dataType": "NUMERIC(10,5)"
       }
     },
-    "quantity": {
+    "indivisibleQuantity": {
       "type": "number",
       "required": false,
       "default": 0,
       "postgresql": {
-        "dataType": "NUMERIC(10,2)"
+        "dataType": "NUMERIC(30)"
       }
     },
     "createdAt": {
@@ -108,6 +108,12 @@
       "type": "Object",
       "postgresql": {
         "columnName": "exchangeRates"
+      }
+    },
+    "scalar": {
+      "type": "number",
+      "postgresql": {
+        "dataType": "NUMERIC(30)"
       }
     }
   },

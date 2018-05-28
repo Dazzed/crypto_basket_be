@@ -6,7 +6,7 @@
       "type": "number",
       "postgresql": {
         "columnName": "fromAssetAmount",
-        "dataType": "NUMERIC(10,2)"
+        "dataType": "NUMERIC(15,5)"
       }
     },
     "toAssetAmount": {
@@ -14,7 +14,7 @@
       "type": "number",
       "postgresql": {
         "columnName": "toAssetAmount",
-        "dataType": "NUMERIC(10,2)"
+        "dataType": "NUMERIC(15,5)"
       }
     },
     "createdAt": {
