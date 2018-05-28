@@ -1,4 +1,6 @@
 const { price } = require('../priceConversion');
+var BigNumber = require('bignumber.js');
+BigNumber.config({ RANGE: 500 });
 
 module.exports = function (asset) {
   /**
@@ -60,18 +62,22 @@ module.exports = function (asset) {
         this.communityValueUSD = 0;
       } else {
         this.availableQuantityWithCommunity = thizWallets
-          .reduce((acc, thizWallet) => acc + Number(thizWallet.balance), 0);
+          .reduce((acc, thizWallet) => {
+            return acc.plus(thizWallet.indivisibleQuantity ? thizWallet.indivisibleQuantity : 0);
+          }, BigNumber(0));
         // 2
+        console.log('this.availableQuantityWithCommunity', this.availableQuantityWithCommunity.toNumber());
+        this.availableQuantityWithCommunity = BigNumber(this.availableQuantityWithCommunity).div(this.scalar).toNumber();
         const [
           communityValueBTC,
           communityValueETH,
           communityValueUSD
         ] = await Promise.all([
           this.ticker === 'btc' ?
-            Promise.resolve(Number(this.availableQuantityWithCommunity)) :
+            Promise.resolve(this.availableQuantityWithCommunity) :
             price(this.availableQuantityWithCommunity, this.ticker, 'btc'),
           this.ticker === 'eth' ?
-            Promise.resolve(Number(this.availableQuantityWithCommunity)) :
+            Promise.resolve(this.availableQuantityWithCommunity) :
             price(this.availableQuantityWithCommunity, this.ticker, 'eth'),
           price(this.availableQuantityWithCommunity, this.ticker, 'usd')
         ]);
@@ -96,12 +102,13 @@ module.exports = function (asset) {
   asset.prototype.populateCommunityQuantity = async function () {
     try {
       // 1
+      const scaledQuantity = BigNumber(this.indivisibleQuantity).div(this.scalar).toNumber();
       const thizWallets = await this.wallets.find({}, { skipAllHooks: true });
       if (thizWallets.length === 0) {
-        this.availableQuantityWithCommunity = -this.quantity;
+        this.availableQuantityWithCommunity = -scaledQuantity;
       } else {
-        this.availableQuantityWithCommunity = this.quantity - thizWallets
-          .reduce((acc, thizWallet) => acc + Number(thizWallet.balance), 0);
+        const reduced = thizWallets.reduce((acc, thizWallet) => acc.plus(thizWallet.indivisibleQuantity ? thizWallet.indivisibleQuantity : 0), BigNumber(0));
+        this.availableQuantityWithCommunity = scaledQuantity - reduced.div(this.scalar).toNumber()
       }
     } catch (error) {
       console.log('Error in asset.prototype.populateCommunityQuantity');
@@ -119,21 +126,22 @@ module.exports = function (asset) {
    */
   asset.prototype.populatePrices = async function () {
     try {
+      const scaledQuantity = BigNumber(this.indivisibleQuantity).div(this.scalar).toNumber();
       const [
         totalValueInUSD,
         totalValueInBTC,
         totalValueInETH,
       ] = await Promise.all([
         // 1
-        price(this.quantity, this.ticker, 'usd'),
+        price(scaledQuantity, this.ticker, 'usd'),
         // 2
         this.ticker === 'btc' ?
-          Promise.resolve(Number(this.quantity)) :
-          price(this.quantity, this.ticker, 'btc'),
+          Promise.resolve(scaledQuantity) :
+          price(scaledQuantity, this.ticker, 'btc'),
         // 3
         this.ticker === 'eth' ?
-          Promise.resolve(Number(this.quantity)) :
-          price(this.quantity, this.ticker, 'eth'),
+          Promise.resolve(scaledQuantity) :
+          price(scaledQuantity, this.ticker, 'eth'),
       ]);
       this.totalValueInUSD = totalValueInUSD;
       this.totalValueInBTC = totalValueInBTC;
