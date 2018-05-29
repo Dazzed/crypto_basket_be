@@ -1,5 +1,8 @@
 const BitGoJS = require('bitgo');
 const transfer = require('./transfer');
+var BigNumber = require('bignumber.js');
+BigNumber.config({ RANGE: 500 });
+
 module.exports = function (transfer) {
   transfer.webhook = function (ctx, walletId, hash, coin, cb) {
     console.log('in the webhook', walletId, hash);
@@ -40,11 +43,12 @@ module.exports = function (transfer) {
           }
         });
         const Wallet = await transfer.app.models.wallet.findOne({ where: { address: optRecieve.address } });
+        let dividedValue = 0;
         console.log('value before', transaction.value);
         if (coin === 'tbtc') {
-          transaction.value /= 1e18;
+          dividedValue = BigNumber(transaction.value).div("1e18").toString();
         } else if (coin === 'teth') {
-          transaction.value /= 1e8;
+          dividedValue = BigNumber(transaction.value).div("1e8").toString();
         }
         console.log('value after', transaction.value);
         const updatedWallet = await Wallet.updateAttribute('balance', parseFloat(Wallet.balance) + parseFloat(transaction.value));
@@ -55,7 +59,8 @@ module.exports = function (transfer) {
           wallet: Wallet,
           sourceAddress: optSend.address,
           destAddress: optRecieve.address,
-          value: transaction.value,
+          invidisibleValue: transaction.value,
+          value: dividedValue,
           usdValue: transaction.usd,
           userId: Wallet.userId,
           confirmed: false,

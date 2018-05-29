@@ -28,7 +28,7 @@
       "required": true,
       "type": "number",
       "postgresql": {
-        "dataType": "NUMERIC(10,2)"
+        "dataType": "NUMERIC(15,5)"
       }
     },
     "sourceAddress": {
@@ -54,6 +54,14 @@
       "required": false,
       "type": "boolean",
       "default": false
+    },
+    "invidisibleValue": {
+      "required": true,
+      "type": "number",
+      "postgresql": {
+        "dataType": "NUMERIC(30)",
+        "columnName": "invidisibleValue"
+      }
     }
   },
   "hidden": [],

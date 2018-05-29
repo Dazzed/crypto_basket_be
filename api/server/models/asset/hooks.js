@@ -1,3 +1,6 @@
+var BigNumber = require('bignumber.js');
+BigNumber.config({ RANGE: 500 });
+
 const {
   badRequest,
   unauthorized,
@@ -7,6 +10,13 @@ const {
 const {
   validateMinMaxValues
 } = require('./validations');
+
+const loaded = async (context) => {
+  const invidQuant = BigNumber(context.data.indivisibleQuantity);
+  const scalar = BigNumber(context.data.scalar);
+  context.data.quantity = invidQuant.div(scalar).toString();
+  return true;
+};
 
 module.exports = function (asset) {
   asset.afterRemote('find', async (context, assetInstances, next) => {
@@ -93,6 +103,18 @@ module.exports = function (asset) {
       console.log('Error in asset.beforeRemote prototype.patchAttributes');
       console.log(error);
       next(internalError());
+    }
+  });
+
+  asset.observe('loaded', (context, next) => {
+    if (context.options.skipAllHooks) {
+      return next();
+    } else {
+      loaded(context).then(n => {
+        return next();
+      }).catch(e => {
+        return next(e);
+      });
     }
   });
 };

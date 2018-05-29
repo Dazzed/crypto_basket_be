@@ -1,6 +1,8 @@
 const priceConvert = require('../../asset/priceConversion');
 const { tradeEmail } = require('../../../helpers/sendGrid');
 const _ = require('lodash');
+var BigNumber = require('bignumber.js');
+BigNumber.config({ RANGE: 500 });
 
 module.exports = Trade => {
   Trade.initiateTrade = async (context, request, response, fromAssetId, toAssetId, fromAssetAmount, toAssetAmount, tradeType) => {
@@ -33,14 +35,14 @@ module.exports = Trade => {
     if (!toWallet)
       return response.status(400).send({ message: 'You do not have a wallet for ' + toAsset.name });
     if (tradeType === 'buy') {
-      const truePrice = await priceConvert.buy((1 - parseFloat(toAsset.buyMargin)) * parseFloat(toAssetAmount), fromAsset.ticker, toAsset.ticker);
+      const truePrice = await priceConvert.buy((1 - parseFloat(toAsset.buyMargin)) * parseFloat(BigNumber(toAssetAmount).div(toAsset.scalar)), fromAsset.ticker, toAsset.ticker);
       if (Math.abs(truePrice - fromAssetAmount) / truePrice > 0.05) {
         return response.status(400).send({ message: 'Price has varied too drastically from original transaction price, please try transaction again and complete it in a timely fashion' });
       } else {
         fromAssetAmount = truePrice;
       }
     } else {
-      const truePrice = await priceConvert.sell((1 - parseFloat(fromAsset.saleMargin)) * parseFloat(fromAssetAmount), fromAsset.ticker, toAsset.ticker);
+      const truePrice = await priceConvert.sell((1 - parseFloat(fromAsset.saleMargin)) * parseFloat(BigNumber(fromAssetAmount).div(fromAsset.scalar)), fromAsset.ticker, toAsset.ticker);
       if (Math.abs(truePrice - toAssetAmount) / truePrice > 0.05) {
         return response.status(400).send({ message: 'Price has varied too drastically from original transaction price, please try transaction again and complete it in a timely fashion' });
       } else {
@@ -77,8 +79,8 @@ module.exports = Trade => {
     };
 
     const trade = await Trade.create(data);
-    await fromWallet.updateAttribute('balance', parseFloat(fromWallet.balance) - parseFloat(fromAssetAmount));
-    await toWallet.updateAttribute('balance', parseFloat(toWallet.balance) + parseFloat(toAssetAmount));
+    await fromWallet.updateAttribute('indivisibleQuantity', BigNumber(fromWallet.indivisibleQuantity).minus(BigNumber(fromAssetAmount).multipliedBy(toAsset.scalar)));
+    await toWallet.updateAttribute('indivisibleQuantity', BigNumber(toWallet.indivisibleQuantity).minus(BigNumber(toAssetAmount).multipliedBy(toAsset.scalar)));
     const fromWalletUpdated = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: fromAsset.ticker } });
     const toWalletUpdated = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: toAsset.ticker } });
     tradeEmail(user, trade, fromAsset, toAsset, fromWalletUpdated, toWalletUpdated);
@@ -159,10 +161,10 @@ module.exports = Trade => {
       return response.status(400).send({ message: 'You do not have a wallet for ' + toAsset.name });
 
     if (tradeType === 'buy') {
-      const truePrice = await priceConvert.buy((1 - parseFloat(toAsset.buyMargin)) * parseFloat(toAssetAmount), fromAsset.ticker, toAsset.ticker);
+      const truePrice = await priceConvert.buy((1 - parseFloat(toAsset.buyMargin)) * parseFloat(BigNumber(toAssetAmount).div(toAsset.scalar)), fromAsset.ticker, toAsset.ticker);
       fromAssetAmount = truePrice;
     } else {
-      const truePrice = await priceConvert.sell((1 - parseFloat(fromAsset.saleMargin)) * parseFloat(fromAssetAmount), fromAsset.ticker, toAsset.ticker);
+      const truePrice = await priceConvert.sell((1 - parseFloat(fromAsset.saleMargin)) * parseFloat(BigNumber(fromAssetAmount).div(fromAsset.scalar)), fromAsset.ticker, toAsset.ticker);
       toAssetAmount = truePrice;
     }
     if (Number(fromAssetAmount) > Number(fromWallet.balance)) {
