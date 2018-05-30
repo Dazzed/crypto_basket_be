@@ -16,7 +16,8 @@
       "./models/wallet",
       "./models/asset",
       "./models/twoFactorTemp",
-      "./models/trade"
+      "./models/trade",
+      "./models/document"
     ],
     "mixins": [
       "loopback/common/mixins",
@@ -74,7 +75,7 @@
     "dataSource": "postgresqlDs",
     "public": false
   },
-  "trade": {
+  "document": {
     "dataSource": "postgresqlDs",
     "public": true
   }
