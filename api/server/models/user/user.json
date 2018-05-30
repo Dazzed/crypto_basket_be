@@ -190,6 +190,11 @@
       "foreignKey": "userId",
       "model": "trade",
       "type": "hasMany"
+    },
+    "documents": {
+      "foreignKey": "userId",
+      "model": "document",
+      "type": "hasMany"
     }
   },
   "indexes": {
