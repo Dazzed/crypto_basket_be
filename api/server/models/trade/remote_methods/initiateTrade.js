@@ -8,6 +8,8 @@ module.exports = Trade => {
   Trade.initiateTrade = async (context, request, response, fromAssetId, toAssetId, fromAssetAmount, toAssetAmount, tradeType) => {
     const userId = request.accessToken.userId;
     const user = await Trade.app.models.user.findOne({ where: { id: userId } });
+    fromAssetAmount = parseFloat(fromAssetAmount);
+    toAssetAmount = parseFloat(toAssetAmount);
     if (fromAssetId === toAssetId) {
       return response.status(400).send({ message: 'Cannot trade asset for itself' });
     }
@@ -140,6 +142,8 @@ module.exports = Trade => {
   });
   Trade.estimateTrade = async (context, request, response, fromAssetId, toAssetId, fromAssetAmount, toAssetAmount, tradeType) => {
     const userId = request.accessToken.userId;
+    fromAssetAmount = parseFloat(fromAssetAmount);
+    toAssetAmount = parseFloat(toAssetAmount);
     if (fromAssetId === toAssetId) {
       return response.status(400).send({ message: 'Cannot trade asset for itself' });
     }
