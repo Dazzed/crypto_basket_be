@@ -63,7 +63,7 @@ module.exports = Trade => {
       return response.status(400).send({ message: 'Minimum sale amount not met' });
     }
 
-    if (fromAssetAmount > fromWallet.balance) {
+    if (fromAssetAmount > BigNumber(fromWallet.indivisibleQuantity).div(fromAsset.scalar).toNumber()) {
       return response.status(400).send({ message: 'Source wallet has insufficient balanace' });
     }
 
@@ -148,6 +148,12 @@ module.exports = Trade => {
     }
     const fromAsset = await Trade.app.models.asset.findOne({ where: { id: fromAssetId } });
     const toAsset = await Trade.app.models.asset.findOne({ where: { id: toAssetId } });
+    if(tradeType === 'buy' && !(fromAsset.ticker === 'btc' || fromAsset.ticker === 'eth')){
+      return response.status(400).send({ message: 'You can only buy using BTC or ETH.' });
+    }
+    if(tradeType === 'sell' && !(toAsset.ticker === 'btc' || toAsset.ticker === 'eth')){
+      return response.status(400).send({ message: 'You can only sell to BTC or ETH.' });
+    }
     // console.log('fromAsset', fromAsset, 'toAsset', toAsset);
     if (fromAsset.hidden || toAsset.hidden) {
       return response.status(400).send({ message: 'One or both assets unavailable for trading' });
@@ -167,7 +173,7 @@ module.exports = Trade => {
       const truePrice = await priceConvert.sell((1 - parseFloat(fromAsset.saleMargin)) * parseFloat(fromAssetAmount), fromAsset.ticker, toAsset.ticker);
       toAssetAmount = truePrice;
     }
-    if (Number(fromAssetAmount) > Number(fromWallet.balance)) {
+    if (Number(fromAssetAmount) > BigNumber(fromWallet.indivisibleQuantity).div(fromAsset.scalar).toNumber()) {
       return response.status(400).send({ message: 'Source wallet has insufficient balanace' });
     }
     const data = {
