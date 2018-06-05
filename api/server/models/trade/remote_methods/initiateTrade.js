@@ -173,6 +173,20 @@ module.exports = Trade => {
       const truePrice = await priceConvert.sell((1 - parseFloat(fromAsset.saleMargin)) * parseFloat(fromAssetAmount), fromAsset.ticker, toAsset.ticker);
       toAssetAmount = truePrice;
     }
+
+    if (tradeType==='buy' && toAssetAmount > toAsset.maxPurchaseAmount) {
+      return response.status(400).send({ message: 'Maximum purchase amount exceeded' });
+    }
+    if (tradeType==='buy' && toAssetAmount < toAsset.minPurchaseAmount) {
+      return response.status(400).send({ message: 'Minimum purchase amount not met' });
+    }
+    if (tradeType==='sell' && fromAssetAmount > toAsset.maxSaleAmount) {
+      return response.status(400).send({ message: 'Maximum sale amount exceeded' });
+    }
+    if (tradeType==='sell' && toAssetAmount < toAsset.minSaleAmount) {
+      return response.status(400).send({ message: 'Minimum sale amount not met' });
+    }
+
     if (Number(fromAssetAmount) > BigNumber(fromWallet.indivisibleQuantity).div(fromAsset.scalar).toNumber()) {
       return response.status(400).send({ message: 'Source wallet has insufficient balanace' });
     }
