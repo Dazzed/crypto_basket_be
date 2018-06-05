@@ -35,14 +35,14 @@ module.exports = Trade => {
     if (!toWallet)
       return response.status(400).send({ message: 'You do not have a wallet for ' + toAsset.name });
     if (tradeType === 'buy') {
-      const truePrice = await priceConvert.buy((1 - parseFloat(toAsset.buyMargin)) * parseFloat(BigNumber(toAssetAmount).div(toAsset.scalar)), fromAsset.ticker, toAsset.ticker);
+      const truePrice = await priceConvert.buy((1 - parseFloat(toAsset.buyMargin)) * parseFloat(toAssetAmount), fromAsset.ticker, toAsset.ticker);
       if (Math.abs(truePrice - fromAssetAmount) / truePrice > 0.05) {
         return response.status(400).send({ message: 'Price has varied too drastically from original transaction price, please try transaction again and complete it in a timely fashion' });
       } else {
         fromAssetAmount = truePrice;
       }
     } else {
-      const truePrice = await priceConvert.sell((1 - parseFloat(fromAsset.saleMargin)) * parseFloat(BigNumber(fromAssetAmount).div(fromAsset.scalar)), fromAsset.ticker, toAsset.ticker);
+      const truePrice = await priceConvert.sell((1 - parseFloat(fromAsset.saleMargin)) * parseFloat(fromAssetAmount), fromAsset.ticker, toAsset.ticker);
       if (Math.abs(truePrice - toAssetAmount) / truePrice > 0.05) {
         return response.status(400).send({ message: 'Price has varied too drastically from original transaction price, please try transaction again and complete it in a timely fashion' });
       } else {
