@@ -58,10 +58,10 @@ module.exports = Trade => {
     if (tradeType==='buy' && toAssetAmount < toAsset.minPurchaseAmount) {
       return response.status(400).send({ message: 'Minimum purchase amount not met' });
     }
-    if (tradeType==='sell' && fromAssetAmount > toAsset.maxSaleAmount) {
+    if (tradeType==='sell' && fromAssetAmount > fromAsset.maxSaleAmount) {
       return response.status(400).send({ message: 'Maximum sale amount exceeded' });
     }
-    if (tradeType==='sell' && fromAssetAmount < toAsset.minSaleAmount) {
+    if (tradeType==='sell' && fromAssetAmount < fromAsset.minSaleAmount) {
       return response.status(400).send({ message: 'Minimum sale amount not met' });
     }
 
@@ -184,10 +184,10 @@ module.exports = Trade => {
     if (tradeType==='buy' && toAssetAmount < toAsset.minPurchaseAmount) {
       return response.status(400).send({ message: 'Minimum purchase amount not met' });
     }
-    if (tradeType==='sell' && fromAssetAmount > toAsset.maxSaleAmount) {
+    if (tradeType==='sell' && fromAssetAmount > fromAsset.maxSaleAmount) {
       return response.status(400).send({ message: 'Maximum sale amount exceeded' });
     }
-    if (tradeType==='sell' && fromAssetAmount < toAsset.minSaleAmount) {
+    if (tradeType==='sell' && fromAssetAmount < fromAsset.minSaleAmount) {
       return response.status(400).send({ message: 'Minimum sale amount not met' });
     }
 
