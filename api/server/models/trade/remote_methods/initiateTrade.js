@@ -84,7 +84,7 @@ module.exports = Trade => {
     };
 
     const trade = await Trade.create(data);
-    await fromWallet.updateAttribute('indivisibleQuantity', BigNumber(fromWallet.indivisibleQuantity).minus(BigNumber(fromAssetAmount).multipliedBy(toAsset.scalar)));
+    await fromWallet.updateAttribute('indivisibleQuantity', BigNumber(fromWallet.indivisibleQuantity).plus(BigNumber(fromAssetAmount).multipliedBy(fromAsset.scalar)));
     await toWallet.updateAttribute('indivisibleQuantity', BigNumber(toWallet.indivisibleQuantity).minus(BigNumber(toAssetAmount).multipliedBy(toAsset.scalar)));
     const fromWalletUpdated = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: fromAsset.ticker } });
     const toWalletUpdated = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: toAsset.ticker } });
