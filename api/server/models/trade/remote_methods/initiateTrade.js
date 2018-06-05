@@ -18,6 +18,9 @@ module.exports = Trade => {
     }
     const fromAsset = await Trade.app.models.asset.findOne({ where: { id: fromAssetId } });
     const toAsset = await Trade.app.models.asset.findOne({ where: { id: toAssetId } });
+    if(!fromAsset || !toAsset){
+      return response.status(400).send({ message: 'You must provide both a selling and buying asset.' });
+    }
     if(tradeType === 'buy' && !(fromAsset.ticker === 'btc' || fromAsset.ticker === 'eth')){
       return response.status(400).send({ message: 'You can only buy using BTC or ETH.' });
     }
@@ -152,6 +155,9 @@ module.exports = Trade => {
     }
     const fromAsset = await Trade.app.models.asset.findOne({ where: { id: fromAssetId } });
     const toAsset = await Trade.app.models.asset.findOne({ where: { id: toAssetId } });
+    if(!fromAsset || !toAsset){
+      return response.status(400).send({ message: 'You must provide both a selling and buying asset.' });
+    }
     if(tradeType === 'buy' && !(fromAsset.ticker === 'btc' || fromAsset.ticker === 'eth')){
       return response.status(400).send({ message: 'You can only buy using BTC or ETH.' });
     }
