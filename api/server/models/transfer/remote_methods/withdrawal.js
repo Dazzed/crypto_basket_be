@@ -84,7 +84,7 @@ module.exports = transfer => {
         }
       },
       { arg: 'id', type: 'string', required: true, description: 'withdrawal ID' },
-      { arg: 'opt', type: 'string', required: true, description: 'Google Authenticator Code' }
+      { arg: 'otp', type: 'string', required: true, description: 'Google Authenticator Code' }
     ],
     description: 'Confirm Withdrawal with 2FA',
     httpOptions: {
@@ -96,7 +96,7 @@ module.exports = transfer => {
     returns: { root: true, type: 'object' }
   });
 
-  transfer.confirmWithdrawal = async function (request, response, id, opt, cb) {
+  transfer.confirmWithdrawal = async function (request, response, id, otp, cb) {
     // var bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
     const userId = request.accessToken.userId;
     const currentUser = await transfer.app.models.user.findOne({ where: { id: userId }});
@@ -107,7 +107,7 @@ module.exports = transfer => {
       const verified = speakeasy.totp.verify({
         secret: currentTemporarySecret.secret || currentUser.twoFactorSecret,
         encoding: 'base32',
-        token: opt
+        token: otp
       });
       if (!verified) {
         return response.status(400).send({ message: 'Invalid OTP' });
