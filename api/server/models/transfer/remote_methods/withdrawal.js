@@ -124,4 +124,46 @@ module.exports = transfer => {
       return response.status(500).send('Internal Server error');
     }
   };
+
+  createRemoteMethod({
+    model: transfer,
+    name: 'cancelWithdrawal',
+    accepts: [
+      {
+        arg: 'request',
+        type: 'object',
+        http: {
+          source: 'req'
+        }
+      },
+      {
+        arg: 'response',
+        type: 'object',
+        http: {
+          source: 'res'
+        }
+      },
+      { arg: 'id', type: 'string', required: true, description: 'withdrawal ID' }
+    ],
+    description: 'Confirm Withdrawal with 2FA',
+    httpOptions: {
+      errorStatus: 400,
+      path: '/cancelWithdrawal/:id',
+      status: 200,
+      verb: 'POST',
+    },
+    returns: { root: true, type: 'object' }
+  });
+
+  transfer.cancelWithdrawal = async function (request, response, id, cb) {
+    const userId = request.accessToken.userId;
+    const Transfer = await transfer.findOne({ where: { id: id } });
+    if(Transfer.userId === userId){
+        await Transfer.updateAttribute('state', 'canceled');
+        return response.status(200).('Transaction canceled');
+    }else{
+        return response.status(500).send('You cannot cancel a transfer that you didn\' make');
+    }
+    
+  };
 }

@@ -8,7 +8,7 @@ module.exports = function(transfer) {
     in: ['deposit', 'withdraw', 'refund']
   });
   transfer.validatesInclusionOf('state', {
-    in: ['initiated', 'pending', 'complete', 'failed']
+    in: ['initiated', 'pending', 'complete', 'failed', 'canceled']
   });
   transfer.validatesPresenceOf('coin');
   transfer.validatesPresenceOf('txid');
