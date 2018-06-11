@@ -7,6 +7,9 @@ module.exports = function(transfer) {
   transfer.validatesInclusionOf('txType', {
     in: ['deposit', 'withdraw', 'refund']
   });
+  transfer.validatesInclusionOf('state', {
+    in: ['initiated', 'pending', 'complete', 'failed']
+  });
   transfer.validatesPresenceOf('coin');
   transfer.validatesPresenceOf('txid');
   transfer.validatesPresenceOf('usdValue');

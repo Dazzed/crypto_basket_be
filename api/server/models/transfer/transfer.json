@@ -62,6 +62,11 @@
         "dataType": "NUMERIC(30)",
         "columnName": "invidisibleValue"
       }
+    },
+    "state":{
+      "required": false,
+      "type": "string",
+      "default": "initiated"
     }
   },
   "hidden": [],
