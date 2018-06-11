@@ -165,21 +165,144 @@ module.exports = transfer => {
                 await Transfer.updateAttribute('state', 'canceled');
                 return response.status(200).send('Transaction canceled');
             }else{
-                return response.status(500).send('You cannot cancel a transaction that is not in the \'initiated\' state.');
+                return response.status(400).send('You cannot cancel a transaction that is not in the \'initiated\' state.');
             }
         }else{
             if(Transfer.state === 'pending'){
                 await Transfer.updateAttribute('state', 'canceled');
                 return response.status(200).send('Transaction canceled');
             }else{
-                return response.status(500).send('You cannot cancel a transaction that is not in the \'pending\' state as an admin.');
+                return response.status(400).send('You cannot cancel a transaction that is not in the \'pending\' state as an admin.');
             }
 
         }
         await Transfer.updateAttribute('state', 'canceled');
         return response.status(200).send('Transaction canceled');
     }else{
-        return response.status(500).send('You cannot cancel a transfer that you didn\' make');
+        return response.status(400).send('You cannot cancel a transfer that you didn\' make');
+    }
+    
+  };
+
+  createRemoteMethod({
+    model: transfer,
+    name: 'cancelWithdrawal',
+    accepts: [
+      {
+        arg: 'request',
+        type: 'object',
+        http: {
+          source: 'req'
+        }
+      },
+      {
+        arg: 'response',
+        type: 'object',
+        http: {
+          source: 'res'
+        }
+      },
+      { arg: 'id', type: 'string', required: true, description: 'withdrawal ID' }
+    ],
+    description: 'Cancel withdrawal.',
+    httpOptions: {
+      errorStatus: 400,
+      path: '/cancelWithdrawal/:id',
+      status: 200,
+      verb: 'POST',
+    },
+    returns: { root: true, type: 'object' }
+  });
+
+  transfer.cancelWithdrawal = async function (request, response, id, cb) {
+    const userId = request.accessToken.userId;
+    const user = await transfer.app.models.user.findOne({ where: { id: userID } });
+    const Transfer = await transfer.findOne({ where: { id: id } });
+    if((Transfer.userId === userId || (await user.isAdmin() || await user.isSuperAdmin()))){
+        if(Transfer.userId === userId){
+            if(Transfer.state === 'initiated'){
+                await Transfer.updateAttribute('state', 'canceled');
+                return response.status(200).send('Transaction canceled');
+            }else{
+                return response.status(400).send('You cannot cancel a transaction that is not in the \'initiated\' state.');
+            }
+        }else{
+            if(Transfer.state === 'pending'){
+                await Transfer.updateAttribute('state', 'canceled');
+                return response.status(200).send('Transaction canceled');
+            }else{
+                return response.status(400).send('You cannot cancel a transaction that is not in the \'pending\' state as an admin.');
+            }
+
+        }
+        await Transfer.updateAttribute('state', 'canceled');
+        return response.status(200).send('Transaction canceled');
+    }else{
+        return response.status(400).send('You cannot cancel a transfer that you didn\'t make');
+    }
+    
+  };
+
+  createRemoteMethod({
+    model: transfer,
+    name: 'completeWithdrawal',
+    accepts: [
+      {
+        arg: 'request',
+        type: 'object',
+        http: {
+          source: 'req'
+        }
+      },
+      {
+        arg: 'response',
+        type: 'object',
+        http: {
+          source: 'res'
+        }
+      },
+      { arg: 'id', type: 'string', required: true, description: 'withdrawal ID' }
+    ],
+    description: 'Complete withdrawal.',
+    httpOptions: {
+      errorStatus: 400,
+      path: '/completeWithdrawal/:id',
+      status: 200,
+      verb: 'POST',
+    },
+    returns: { root: true, type: 'object' }
+  });
+
+  transfer.completeWithdrawal = async function (request, response, id, cb) {
+    const userId = request.accessToken.userId;
+    const user = await transfer.app.models.user.findOne({ where: { id: userID } });
+    if(!(await user.isAdmin() || await user.isSuperAdmin())){
+        return response.status(400).send('You must be an admin or superadmin to complete a withdrawal.');
+    }else{
+        const Transfer = await transfer.findOne({ where: { id: id } });
+        if(Transfer.state !== 'pending'){
+            return response.status(400).send('Withdrawal must be pending to complete.');
+        }
+
+        try{
+            var bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
+
+            const wallet = await bitgo.coin("t" + Transfer.coin.toLowerCase()).wallets().get({ id: Transfer.coin === 'BTC' ? process.env.BTC_WALLET : process.env.ETH_WALLET});
+
+            const params = {
+              amount: Transfer.invidisibleValue,
+              address: Transfer.destAddress,
+              walletPassphrase: Transfer.coin === 'BTC' ? process.env.BTC_WALLET_PASS : process.env.ETH_WALLET_PASS
+            };
+            const bitgoResponse = await wallet.send(params);
+            const Wallet = await Transfer.wallet();
+            const updatedWallet = await Wallet.updateAttribute('indivisibleQuantity', BigNumber(Wallet.indivisibleQuantity).minus(Transfer.invidisibleValue).toString());
+            const updatedTransfer = await Transfer.updateAttributes({txid: bitgoResponse.txid, txHash: bitgoResponse.txid, state: 'complete'});
+            return { transfer: updatedTransfer, wallet: Wallet};
+        }catch(e){
+            const updatedTransfer = await Transfer.updateAttributes({state: 'failed'});
+            return response.status(500).send('Withdrawal could not be completed');
+        }
     }
     
   };
