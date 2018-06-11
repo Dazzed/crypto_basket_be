@@ -152,5 +152,22 @@ module.exports = {
     );
     const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
     sendMail(mail);
-  }
+  },
+  feedbackEmail(user, feedback, adminEmail) {
+    const templateString = fs.readFileSync(__dirname + '/../../template/feedback_email.ejs', 'utf-8');
+    const template = ejs.compile(templateString);
+    const toEmail = new sendgrid.Email(adminEmail);
+    const subject = 'New Feedback';
+    const content = new sendgrid.Content(
+      'text/html', template({
+        fullName: `${user.firstName || ''} ${user.lastName || ''}`,
+        userEmail: user.email,
+        feedback,
+        adminEmail,
+        dateTime: moment().format('YYYY-MM-DD HH:MM')
+      })
+    );
+    const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
+    sendMail(mail);
+  },
 };

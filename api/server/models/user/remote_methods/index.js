@@ -9,4 +9,5 @@ module.exports = function (user) {
   require('./verifyEmail')(user);
   require('./initiateAdminOnboarding')(user);
   require('./completeAdminOnboarding')(user);
+  require('./sendFeedback')(user);
 };

@@ -1,5 +1,5 @@
 'use strict';
-process.setMaxListeners(0);
+require('events').EventEmitter.prototype._maxListeners = 100;
 
 require('dotenv').config();
 var loopback = require('loopback');
