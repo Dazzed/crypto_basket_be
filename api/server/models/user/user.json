@@ -408,6 +408,13 @@
       "principalType": "ROLE",
       "principalId": "$everyone",
       "permission": "ALLOW"
+    },
+    {
+      "property": "sendFeedback",
+      "accessType": "EXECUTE",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
     }
   ],
   "mixins": {
@@ -425,6 +432,7 @@
         "verifyEmail",
         "initiateAdminOnboarding",
         "completeAdminOnboarding", 
+        "sendFeedback",
         "prototype.updateAttributes",
         "prototype.__get__transfers",
         "prototype.__get__trades"
