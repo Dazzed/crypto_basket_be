@@ -151,7 +151,7 @@ module.exports = async function (app) {
   });
   for (const assetIndex in assets) {
     const currentAsset = assets[assetIndex];
-    if(!mergedData[currentAsset.ticker]){
+    if(!mergedData[currentAsset.ticker] && currentAsset.ticker !== 'btc' && currentAsset.ticker !== 'eth'){
       await currentAsset.updateAttribute('hidden', true);
     }else{
       const exchangeRates = currentAsset.exchangeRates;
