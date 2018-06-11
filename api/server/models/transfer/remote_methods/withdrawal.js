@@ -157,10 +157,27 @@ module.exports = transfer => {
 
   transfer.cancelWithdrawal = async function (request, response, id, cb) {
     const userId = request.accessToken.userId;
+    const user = await transfer.app.models.user.findOne({ where: { id: userID } });
     const Transfer = await transfer.findOne({ where: { id: id } });
-    if(Transfer.userId === userId){
+    if((Transfer.userId === userId || (await user.isAdmin() || await user.isSuperAdmin()))){
+        if(Transfer.userId === userId){
+            if(Transfer.state === 'initiated'){
+                await Transfer.updateAttribute('state', 'canceled');
+                return response.status(200).send('Transaction canceled');
+            }else{
+                return response.status(500).send('You cannot cancel a transaction that is not in the \'initiated\' state.');
+            }
+        }else{
+            if(Transfer.state === 'pending'){
+                await Transfer.updateAttribute('state', 'canceled');
+                return response.status(200).send('Transaction canceled');
+            }else{
+                return response.status(500).send('You cannot cancel a transaction that is not in the \'pending\' state as an admin.');
+            }
+
+        }
         await Transfer.updateAttribute('state', 'canceled');
-        return response.status(200).('Transaction canceled');
+        return response.status(200).send('Transaction canceled');
     }else{
         return response.status(500).send('You cannot cancel a transfer that you didn\' make');
     }
