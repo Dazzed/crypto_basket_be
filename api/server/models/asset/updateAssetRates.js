@@ -151,9 +151,13 @@ module.exports = async function (app) {
   });
   for (const assetIndex in assets) {
     const currentAsset = assets[assetIndex];
-    const exchangeRates = currentAsset.exchangeRates;
-    const newRates = _.merge(exchangeRates, mergedData[currentAsset.ticker]);
-    await currentAsset.updateAttribute('exchangeRates', newRates);
+    if(!mergedData[currentAsset.ticker]){
+      await currentAsset.updateAttribute('hidden', true);
+    }else{
+      const exchangeRates = currentAsset.exchangeRates;
+      const newRates = _.merge(exchangeRates, mergedData[currentAsset.ticker]);
+      await currentAsset.updateAttribute('exchangeRates', newRates);
+    }
   }
   console.log('updated assets');
 };
