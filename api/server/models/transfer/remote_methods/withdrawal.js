@@ -145,7 +145,7 @@ module.exports = transfer => {
       },
       { arg: 'id', type: 'string', required: true, description: 'withdrawal ID' }
     ],
-    description: 'Confirm Withdrawal with 2FA',
+    description: 'Cancel withdrawal.',
     httpOptions: {
       errorStatus: 400,
       path: '/cancelWithdrawal/:id',
