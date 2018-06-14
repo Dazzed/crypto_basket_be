@@ -453,7 +453,7 @@ module.exports = function (user) {
       }
 
       // 2
-      if (context.args.data.verificationStatus) {
+      if (context.args.data.verificationStatus && context.args.data.verificationStatus === 'fully_verified') {
         notifyVerificationStatusChange(userInstance);
       }
 
