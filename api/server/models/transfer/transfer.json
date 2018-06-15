@@ -116,6 +116,34 @@
       "principalType": "ROLE",
       "principalId": "$authenticated",
       "permission": "ALLOW"
+    },
+    {
+      "property": "completeWithdrawal",
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "initiateWithdrawal",
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "confirmWithdrawal",
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "cancelWithdrawal",
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
     }
   ],
   "mixins": {

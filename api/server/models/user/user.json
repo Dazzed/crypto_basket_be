@@ -143,6 +143,18 @@
         "columnName": "twoFactorToken"
       }
     },
+    "withdrawLimitBTC":{
+      "type":"number",
+      "postgresql":{
+        "columnName": "withdrawLimitBTC"
+      }
+    },
+    "withdrawLimitETH":{
+      "type":"number",
+      "postgresql":{
+        "columnName": "withdrawLimitETH"
+      }
+    },
     "realm": false
   },
   "hidden": [

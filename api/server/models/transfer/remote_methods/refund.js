@@ -8,20 +8,6 @@ module.exports = transfer => {
     model: transfer,
     name: 'refund',
     accepts: [
-      {
-        arg: 'request',
-        type: 'object',
-        http: {
-          source: 'req'
-        }
-      },
-      {
-        arg: 'response',
-        type: 'object',
-        http: {
-          source: 'res'
-        }
-      },
       { arg: 'userId', type: 'string', required: true, description: 'User ID' },
       { arg: 'coin', type: 'string', required: true, description: 'Cryptocurrency, BTC or ETH' },
       { arg: 'amount', type: 'string', required: true, description: 'Amount to refund' },
@@ -42,27 +28,47 @@ module.exports = transfer => {
     const currentUser = await transfer.app.models.user.findOne({ where: { id: selfId } });
     const Asset = await transfer.app.models.asset.findOne({ where: { ticker: coin.toLowerCase() } });
     const Wallet = await transfer.app.models.wallet.findOne({ where: { and: [{ userId: userId },{ assetId: coin.toLowerCase() }] } });
-    if(await currentUser.isSuperAdmin()){
-      const usdValue = 0;
-      let data = {
-        coin: coin,
-        txid: "",
-        txHash: "",
-        wallet: Wallet,
-        sourceAddress: "",
-        destAddress: "",
-        invidisibleValue: BigNumber(amount).multipliedBy(Asset.scalar).toString(),
-        value: amount,
-        usdValue: usdValue,
-        userId: userId,
-        confirmed: true,
-        txType: 'refund',
-        state: 'complete'
-      };
-      const createdTransfer = await transfer.create(data);
-      return createdTransfer;
-    }else{
+    try {
+      const currentTemporarySecret = await currentUser.temporaryTwoFactorSecret.get();
+      const verified = speakeasy.totp.verify({
+        secret: currentTemporarySecret.secret || currentUser.twoFactorSecret,
+        encoding: 'base32',
+        token: otp
+      });
+      if (!verified) {
+        return response.status(400).send({ message: 'Invalid OTP' });
+      }
+      if (currentTemporarySecret.secret) {
+        currentUser.twoFactorSecret = currentTemporarySecret.secret;
+        await currentUser.save();
+        await currentTemporarySecret.destroy();
+      }
+      if(await currentUser.isSuperAdmin()){
+        const usdValue = 0;
+        let data = {
+            coin: coin,
+            txid: "refund",
+            txHash: "refund",
+            wallet: Wallet,
+            sourceAddress: "refund",
+            destAddress: "refund",
+            invidisibleValue: BigNumber(amount).multipliedBy(Asset.scalar).toString(),
+            value: amount,
+            usdValue: usdValue,
+            userId: userId,
+            confirmed: true,
+            txType: 'refund',
+            state: 'complete'
+        };
+        const createdTransfer = await transfer.create(data);
+        await Wallet.updateAttribute('indivisibleQuantity', BigNumber(Wallet.indivisibleQuantity).div(Asset.scalar).plus(amount).multipliedBy(Asset.Scalar));
+        return createdTransfer;
+      }else{
         return response.status(400).send('You are not authorized to perform this action');
+      }
+    } catch (error) {
+      console.log('Error in remote method user.verifyTwoFactor ', error);
+      return response.status(500).send('Internal Server error');
     }
     
   };
