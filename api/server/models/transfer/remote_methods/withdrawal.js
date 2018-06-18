@@ -12,7 +12,8 @@ module.exports = transfer => {
     accepts: [
       { arg: 'coin', type: 'string', required: true, description: 'BTC or ETH' },
       { arg: 'amount', type: 'string', required: true, description: 'Amount of currency to withdraw.' },
-      { arg: 'address', type: 'string', required: true, description: 'Address to send currency to.' }
+      { arg: 'address', type: 'string', required: true, description: 'Address to send currency to.' },
+      { arg: 'otp', type: 'string', required: true, description: 'Google Authenticator Code' }
     ],
     description: 'Initiate withdrawal from ',
     httpOptions: {
@@ -24,7 +25,7 @@ module.exports = transfer => {
     returns: { root: true, type: 'object' }
   });
 
-  transfer.initiateWithdrawal = async function (request, response, coin, amount, address, cb) {
+  transfer.initiateWithdrawal = async function (request, response, coin, amount, address, otp, cb) {
     // var bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
     const userId = request.accessToken.userId;
     // const wallet = await bitgo.coin("t" + coin.toLowerCase()).wallets().get({ id: coin === 'BTC' ? process.env.BTC_WALLET : process.env.ETH_WALLET});
@@ -46,9 +47,30 @@ module.exports = transfer => {
       txType: 'withdraw',
       state: 'initiated'
     };
-
-    const createdTransfer = await transfer.create(data);
-    return createdTransfer;
+    const currentUser = await transfer.app.models.user.findOne({ where: { id: userId }});
+    // const wallet = await bitgo.coin("t" + coin.toLowerCase()).wallets().get({ id: coin === 'BTC' ? process.env.BTC_WALLET : process.env.ETH_WALLET});
+    try {
+      const currentTemporarySecret = await currentUser.temporaryTwoFactorSecret.get();
+      const verified = speakeasy.totp.verify({
+        secret: currentTemporarySecret.secret || currentUser.twoFactorSecret,
+        encoding: 'base32',
+        token: otp
+      });
+      if (!verified) {
+        return response.status(400).send({ message: 'Invalid OTP' });
+      }
+      if (currentTemporarySecret.secret) {
+        currentUser.twoFactorSecret = currentTemporarySecret.secret;
+        await currentUser.save();
+        await currentTemporarySecret.destroy();
+      }
+      const createdTransfer = await transfer.create(data);
+      return createdTransfer;
+    } catch (error) {
+      console.log('Error in remote method transfer.initiateWithdrawal ', error);
+      return response.status(500).send('Internal Server error');
+    }
+    
   };
 
   createRemoteMethod({
@@ -92,7 +114,7 @@ module.exports = transfer => {
       const updatedTransfer = await Transfer.updateAttribute('state', 'pending');
       return updatedTransfer;
     } catch (error) {
-      console.log('Error in remote method user.verifyTwoFactor ', error);
+      console.log('Error in remote method transfer.confirmWithdrawal ', error);
       return response.status(500).send('Internal Server error');
     }
   };
