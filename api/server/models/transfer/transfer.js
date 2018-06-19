@@ -4,7 +4,7 @@ const validation = require('./validation');
 const webhook = require('./webhook');
 
 module.exports = function(transfer) {
-  validation(transfer);
+  // validation(transfer);
   webhook(transfer);
 
   require('./hooks')(transfer);

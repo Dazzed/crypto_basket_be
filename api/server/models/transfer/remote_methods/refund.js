@@ -1,5 +1,6 @@
 var BigNumber = require('bignumber.js');
 const createRemoteMethod = require('../../../helpers/createRemoteMethod');
+const speakeasy = require('speakeasy');
 
 BigNumber.config({ RANGE: 500 });
 
@@ -8,7 +9,7 @@ module.exports = transfer => {
     model: transfer,
     name: 'refund',
     accepts: [
-      { arg: 'userId', type: 'string', required: true, description: 'User ID' },
+      { arg: 'userId', type: 'number', required: true, description: 'User ID' },
       { arg: 'coin', type: 'string', required: true, description: 'Cryptocurrency, BTC or ETH' },
       { arg: 'amount', type: 'string', required: true, description: 'Amount to refund' },
       { arg: 'otp', type: 'string', required: true, description: 'Two Factor Auth OTP' }
@@ -24,21 +25,23 @@ module.exports = transfer => {
   });
 
   transfer.refund = async function (request, response, userId, coin, amount, otp, cb) {
+    console.log('in refund', userId, coin, amount, otp);
     const selfId = request.accessToken.userId;
     const currentUser = await transfer.app.models.user.findOne({ where: { id: selfId } });
     const Asset = await transfer.app.models.asset.findOne({ where: { ticker: coin.toLowerCase() } });
     const Wallet = await transfer.app.models.wallet.findOne({ where: { and: [{ userId: userId },{ assetId: coin.toLowerCase() }] } });
     try {
       const currentTemporarySecret = await currentUser.temporaryTwoFactorSecret.get();
+      let secret = currentTemporarySecret && currentTemporarySecret.secret ? currentTemporarySecret.secret : currentUser.twoFactorSecret;
       const verified = speakeasy.totp.verify({
-        secret: currentTemporarySecret.secret || currentUser.twoFactorSecret,
+        secret: secret,
         encoding: 'base32',
         token: otp
       });
       if (!verified) {
         return response.status(400).send({ message: 'Invalid OTP' });
       }
-      if (currentTemporarySecret.secret) {
+      if (currentTemporarySecret && currentTemporarySecret.secret) {
         currentUser.twoFactorSecret = currentTemporarySecret.secret;
         await currentUser.save();
         await currentTemporarySecret.destroy();
