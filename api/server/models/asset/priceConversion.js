@@ -1,4 +1,5 @@
 const app = require('../../server');
+const BigNumber = require('bignumber.js');
 const convert = async (amount, fromAsset, toAsset, method) => {
   let invMethod = '';
   if (method) {
@@ -18,18 +19,15 @@ const convert = async (amount, fromAsset, toAsset, method) => {
   }
   const fromAssetInstance = await app.models.asset.findOne({ where: { ticker: fromAsset } });
   if(!fromAssetInstance){
-    console.log('fromAsset', fromAsset, 'toAsset', toAsset);
     throw("Invalid fromAsset please provide ticker like btc or eth");
   }
   if (fromAssetInstance && fromAssetInstance.exchangeRates[toAsset]) {
-    // console.log('from if');
     if (method === 'ask') {
-      // console.log('ask if');
-      return amount * fromAssetInstance.exchangeRates[toAsset][method];
+      return amount / fromAssetInstance.exchangeRates[toAsset][method];
     } else if (method === 'bid') {
-      return amount / fromAssetInstance.exchangeRates[toAsset][invMethod];
+      return amount * fromAssetInstance.exchangeRates[toAsset][invMethod];
     } else {
-      return amount * fromAssetInstance.exchangeRates[toAsset][method];
+      return amount / fromAssetInstance.exchangeRates[toAsset][method];
     }
   } else {
     const toAssetInstance = await app.models.asset.findOne({ where: { ticker: toAsset } });
@@ -40,14 +38,12 @@ const convert = async (amount, fromAsset, toAsset, method) => {
       return null;
     }
     if (toAssetInstance && toAssetInstance.exchangeRates[fromAsset]) {
-      // console.log('to if');
       if (method === 'ask') {
-      // console.log('ask if');
         return amount * toAssetInstance.exchangeRates[fromAsset][invMethod];
       } else if (method === 'bid') {
         return amount / toAssetInstance.exchangeRates[fromAsset][method];
       } else {
-        return amount / toAssetInstance.exchangeRates[fromAsset][method];
+        return amount * toAssetInstance.exchangeRates[fromAsset][method];
       }
     } else {
       const priceBTC = await convert(amount, fromAsset, 'btc', method);

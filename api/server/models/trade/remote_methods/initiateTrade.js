@@ -145,6 +145,7 @@ module.exports = Trade => {
   });
   Trade.estimateTrade = async (context, request, response, fromAssetId, toAssetId, fromAssetAmount, toAssetAmount, tradeType) => {
     const userId = request.accessToken.userId;
+    let errors = [];
     fromAssetAmount = parseFloat(fromAssetAmount);
     toAssetAmount = parseFloat(toAssetAmount);
     if (fromAssetId === toAssetId) {
@@ -164,9 +165,8 @@ module.exports = Trade => {
     if(tradeType === 'sell' && !(toAsset.ticker === 'btc' || toAsset.ticker === 'eth')){
       return response.status(400).send({ message: 'You can only sell to BTC or ETH.' });
     }
-    // console.log('fromAsset', fromAsset, 'toAsset', toAsset);
     if (fromAsset.hidden || toAsset.hidden) {
-      return response.status(400).send({ message: 'One or both assets unavailable for trading' });
+      errors.push('One or both assets unavailable for trading' );
     }
 
     const fromWallet = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: fromAsset.ticker } });
@@ -185,20 +185,20 @@ module.exports = Trade => {
     }
 
     if (tradeType==='buy' && toAssetAmount > toAsset.maxPurchaseAmount) {
-      return response.status(400).send({ message: 'Maximum purchase amount exceeded' });
+      errors.push('Maximum purchase amount exceeded');
     }
     if (tradeType==='buy' && toAssetAmount < toAsset.minPurchaseAmount) {
-      return response.status(400).send({ message: 'Minimum purchase amount not met' });
+      errors.push('Minimum purchase amount not met');
     }
     if (tradeType==='sell' && fromAssetAmount > fromAsset.maxSaleAmount) {
-      return response.status(400).send({ message: 'Maximum sale amount exceeded' });
+      errors.push('Maximum sale amount exceeded');
     }
     if (tradeType==='sell' && fromAssetAmount < fromAsset.minSaleAmount) {
-      return response.status(400).send({ message: 'Minimum sale amount not met' });
+      errors.push('Minimum sale amount not met');
     }
 
     if (Number(fromAssetAmount) > BigNumber(fromWallet.indivisibleQuantity).div(fromAsset.scalar).toNumber()) {
-      return response.status(400).send({ message: 'Source wallet has insufficient balanace' });
+      errors.push('Source wallet has insufficient balanace');
     }
     const data = {
       userId,
@@ -207,7 +207,8 @@ module.exports = Trade => {
       fromAssetAmount,
       toAssetAmount,
       fromAsset,
-      toAsset
+      toAsset,
+      errors: errors
     };
     return response.status(200).send({ message: data });
   };
