@@ -51,15 +51,16 @@ module.exports = transfer => {
     // const wallet = await bitgo.coin("t" + coin.toLowerCase()).wallets().get({ id: coin === 'BTC' ? process.env.BTC_WALLET : process.env.ETH_WALLET});
     try {
       const currentTemporarySecret = await currentUser.temporaryTwoFactorSecret.get();
+      let secret = currentTemporarySecret && currentTemporarySecret.secret ? currentTemporarySecret.secret : currentUser.twoFactorSecret;
       const verified = speakeasy.totp.verify({
-        secret: currentTemporarySecret.secret || currentUser.twoFactorSecret,
+        secret: secret,
         encoding: 'base32',
         token: otp
       });
       if (!verified) {
         return response.status(400).send({ message: 'Invalid OTP' });
       }
-      if (currentTemporarySecret.secret) {
+      if (currentTemporarySecret && currentTemporarySecret.secret) {
         currentUser.twoFactorSecret = currentTemporarySecret.secret;
         await currentUser.save();
         await currentTemporarySecret.destroy();
@@ -71,52 +72,6 @@ module.exports = transfer => {
       return response.status(500).send('Internal Server error');
     }
     
-  };
-
-  createRemoteMethod({
-    model: transfer,
-    name: 'confirmWithdrawal',
-    accepts: [
-      { arg: 'id', type: 'string', required: true, description: 'withdrawal ID' },
-      { arg: 'otp', type: 'string', required: true, description: 'Google Authenticator Code' }
-    ],
-    description: 'Confirm Withdrawal with 2FA',
-    httpOptions: {
-      errorStatus: 400,
-      path: '/confirmWithdrawal/:id',
-      status: 200,
-      verb: 'POST',
-    },
-    returns: { root: true, type: 'object' }
-  });
-
-  transfer.confirmWithdrawal = async function (request, response, id, otp, cb) {
-    // var bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
-    const userId = request.accessToken.userId;
-    const currentUser = await transfer.app.models.user.findOne({ where: { id: userId }});
-    // const wallet = await bitgo.coin("t" + coin.toLowerCase()).wallets().get({ id: coin === 'BTC' ? process.env.BTC_WALLET : process.env.ETH_WALLET});
-    const Transfer = await transfer.findOne({ where: { id: id } });
-    try {
-      const currentTemporarySecret = await currentUser.temporaryTwoFactorSecret.get();
-      const verified = speakeasy.totp.verify({
-        secret: currentTemporarySecret.secret || currentUser.twoFactorSecret,
-        encoding: 'base32',
-        token: otp
-      });
-      if (!verified) {
-        return response.status(400).send({ message: 'Invalid OTP' });
-      }
-      if (currentTemporarySecret.secret) {
-        currentUser.twoFactorSecret = currentTemporarySecret.secret;
-        await currentUser.save();
-        await currentTemporarySecret.destroy();
-      }
-      const updatedTransfer = await Transfer.updateAttribute('state', 'pending');
-      return updatedTransfer;
-    } catch (error) {
-      console.log('Error in remote method transfer.confirmWithdrawal ', error);
-      return response.status(500).send('Internal Server error');
-    }
   };
 
   createRemoteMethod({
