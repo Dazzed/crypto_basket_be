@@ -44,12 +44,11 @@ module.exports = function (transfer) {
         });
         // console.log('optRecieve', optRecieve);
         const Wallet = await transfer.app.models.wallet.findOne({ where: { address: optRecieve.address } });
-        // console.log('Wallet', Wallet);
         let dividedValue = 0;
         if (coin === 'tbtc') {
-          dividedValue = BigNumber(transaction.value).div("1e18").toString();
-        } else if (coin === 'teth') {
           dividedValue = BigNumber(transaction.value).div("1e8").toString();
+        } else if (coin === 'teth') {
+          dividedValue = BigNumber(transaction.value).div("1e18").toString();
         }
         const updatedWallet = await Wallet.updateAttribute('indivisibleQuantity', parseFloat(Wallet.indivisibleQuantity) + parseFloat(transaction.value));
         let data = {
