@@ -1,6 +1,7 @@
 var BigNumber = require('bignumber.js');
 const createRemoteMethod = require('../../../helpers/createRemoteMethod');
 const speakeasy = require('speakeasy');
+const priceConvert = require('../../asset/priceConversion');
 
 BigNumber.config({ RANGE: 500 });
 
@@ -47,7 +48,7 @@ module.exports = transfer => {
         await currentTemporarySecret.destroy();
       }
       if(await currentUser.isSuperAdmin()){
-        const usdValue = 0;
+        const usdValue = await priceConvert.price(amount, coin.toLowerCase(), 'usd');
         let data = {
             coin: coin,
             txid: "refund",
@@ -61,7 +62,8 @@ module.exports = transfer => {
             userId: userId,
             confirmed: true,
             txType: 'refund',
-            state: 'complete'
+            state: 'complete',
+            confirmedTime: new Date()
         };
         const createdTransfer = await transfer.create(data);
         const newAmount = Wallet.indivisibleQuantity && !isNaN(Wallet.indivisibleQuantity) ? BigNumber(Wallet.indivisibleQuantity).div(Asset.scalar).plus(amount).multipliedBy(Asset.scalar).toString() : BigNumber(amount).multipliedBy(Asset.scalar).toString();

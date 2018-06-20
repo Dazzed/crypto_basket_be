@@ -11,7 +11,7 @@ module.exports = function (transfer) {
     const processWebhook = async () => {
       const existingTransf = await transfer.findOne({ where: { txHash: hash } });
       if (existingTransf) {
-        await existingTransf.updateAttributes({ 'confirmedTime': new Date(), confirmed: true });
+        await existingTransf.updateAttributes({ 'confirmedTime': new Date(), confirmed: true, state: 'complete'});
         return true;
       } else {
         const wallet = await bitgo.coin(coin).wallets().get({ id: walletId });
@@ -63,7 +63,8 @@ module.exports = function (transfer) {
           usdValue: transaction.usd,
           userId: Wallet.userId,
           confirmed: false,
-          txType: 'deposit'
+          txType: 'deposit',
+          state: 'pending'
         };
         if (transaction.state === 'confirmed') {
           data.confirmedTime = new Date();

@@ -48,7 +48,8 @@ module.exports = transfer => {
       userId: userId,
       confirmed: false,
       txType: 'withdraw',
-      state: 'initiated'
+      state: 'initiated',
+      confirmedTime: new Date()
     };
     const currentUser = await transfer.app.models.user.findOne({ where: { id: userId }});
     try {
