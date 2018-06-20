@@ -39,6 +39,11 @@
       "primaryKey": "ticker",
       "model": "asset",
       "type": "belongsTo"
+    },
+    "transfer":{
+      "primaryKey": "id",
+      "model": "transfer",
+      "type": "hasMany"
     }
   },
   "acls": [

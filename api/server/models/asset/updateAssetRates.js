@@ -4,6 +4,7 @@ const KrakenClient = require('kraken-api');
 const kraken = new KrakenClient(key, secret);
 const Binance = require('binance-api-node').default;
 const binanceClient = Binance();
+const priceConvert = require('./priceConversion');
 const _ = require('lodash');
 // Ethereum
 // Ripple
@@ -159,5 +160,4 @@ module.exports = async function (app) {
       await currentAsset.updateAttribute('exchangeRates', newRates);
     }
   }
-  console.log('updated assets');
 };

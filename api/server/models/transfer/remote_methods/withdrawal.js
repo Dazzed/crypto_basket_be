@@ -2,7 +2,7 @@ const BitGoJS = require('bitgo');
 const speakeasy = require('speakeasy');
 var BigNumber = require('bignumber.js');
 const createRemoteMethod = require('../../../helpers/createRemoteMethod');
-
+const priceConvert = require('../../asset/priceConversion');
 BigNumber.config({ RANGE: 500 });
 
 module.exports = transfer => {
@@ -26,12 +26,15 @@ module.exports = transfer => {
   });
 
   transfer.initiateWithdrawal = async function (request, response, coin, amount, address, otp, cb) {
-    // var bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
     const userId = request.accessToken.userId;
-    // const wallet = await bitgo.coin("t" + coin.toLowerCase()).wallets().get({ id: coin === 'BTC' ? process.env.BTC_WALLET : process.env.ETH_WALLET});
     const Wallet = await transfer.app.models.wallet.findOne({ where: { and: [{ userId: userId },{ assetId: coin.toLowerCase() }] } });
+
     const Asset = await transfer.app.models.asset.findOne({ where: { ticker: coin.toLowerCase() } });
-    const usdValue = 0;
+
+    if(amount > BigNumber(Wallet.indivisibleQuantity).div(Asset.scalar))
+      return response.status(400).send('Insufficient funds'); 
+
+    const usdValue = await priceConvert.price(amount, coin.toLowerCase(), 'usd');
     let data = {
       coin: coin,
       txid: "withdrawal",
@@ -48,7 +51,6 @@ module.exports = transfer => {
       state: 'initiated'
     };
     const currentUser = await transfer.app.models.user.findOne({ where: { id: userId }});
-    // const wallet = await bitgo.coin("t" + coin.toLowerCase()).wallets().get({ id: coin === 'BTC' ? process.env.BTC_WALLET : process.env.ETH_WALLET});
     try {
       const currentTemporarySecret = await currentUser.temporaryTwoFactorSecret.get();
       let secret = currentTemporarySecret && currentTemporarySecret.secret ? currentTemporarySecret.secret : currentUser.twoFactorSecret;
@@ -92,7 +94,7 @@ module.exports = transfer => {
 
   transfer.cancelWithdrawal = async function (request, response, id, cb) {
     const userId = request.accessToken.userId;
-    const user = await transfer.app.models.user.findOne({ where: { id: userID } });
+    const user = await transfer.app.models.user.findOne({ where: { id: userId } });
     const Transfer = await transfer.findOne({ where: { id: id } });
     if((Transfer.userId === userId || (await user.isAdmin() || await user.isSuperAdmin()))){
         if(Transfer.userId === userId){
@@ -103,7 +105,7 @@ module.exports = transfer => {
                 return response.status(400).send('You cannot cancel a transaction that is not in the \'initiated\' state.');
             }
         }else{
-            if(Transfer.state === 'pending'){
+            if(Transfer.state === 'pending' || Transfer.state === 'initiated'){
                 await Transfer.updateAttribute('state', 'canceled');
                 return response.status(200).send('Transaction canceled');
             }else{
@@ -137,31 +139,29 @@ module.exports = transfer => {
 
   transfer.completeWithdrawal = async function (request, response, id, cb) {
     const userId = request.accessToken.userId;
-    const user = await transfer.app.models.user.findOne({ where: { id: userID } });
+    const user = await transfer.app.models.user.findOne({ where: { id: userId } });
     if(!(await user.isAdmin() || await user.isSuperAdmin())){
         return response.status(400).send('You must be an admin or superadmin to complete a withdrawal.');
     }else{
         const Transfer = await transfer.findOne({ where: { id: id } });
-        if(Transfer.state !== 'pending'){
-            return response.status(400).send('Withdrawal must be pending to complete.');
+        if(Transfer.state !== 'initiated'){
+            return response.status(400).send('Withdrawal must be intiated to complete.');
         }
-
         try{
             var bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
-
             const wallet = await bitgo.coin("t" + Transfer.coin.toLowerCase()).wallets().get({ id: Transfer.coin === 'BTC' ? process.env.BTC_WALLET : process.env.ETH_WALLET});
-
             const params = {
               amount: Transfer.invidisibleValue,
               address: Transfer.destAddress,
               walletPassphrase: Transfer.coin === 'BTC' ? process.env.BTC_WALLET_PASS : process.env.ETH_WALLET_PASS
             };
             const bitgoResponse = await wallet.send(params);
-            const Wallet = await Transfer.wallet();
+            const Wallet = await transfer.app.models.wallet.findOne({ where: { id: Transfer.walletId }});
             const updatedWallet = await Wallet.updateAttribute('indivisibleQuantity', BigNumber(Wallet.indivisibleQuantity).minus(Transfer.invidisibleValue).toString());
             const updatedTransfer = await Transfer.updateAttributes({txid: bitgoResponse.txid, txHash: bitgoResponse.txid, state: 'complete'});
             return { transfer: updatedTransfer, wallet: Wallet};
         }catch(e){
+            console.log('error', e);
             const updatedTransfer = await Transfer.updateAttributes({state: 'failed'});
             return response.status(500).send('Withdrawal could not be completed');
         }

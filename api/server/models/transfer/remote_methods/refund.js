@@ -64,7 +64,8 @@ module.exports = transfer => {
             state: 'complete'
         };
         const createdTransfer = await transfer.create(data);
-        await Wallet.updateAttribute('indivisibleQuantity', BigNumber(Wallet.indivisibleQuantity).div(Asset.scalar).plus(amount).multipliedBy(Asset.Scalar));
+        const newAmount = Wallet.indivisibleQuantity && !isNaN(Wallet.indivisibleQuantity) ? BigNumber(Wallet.indivisibleQuantity).div(Asset.scalar).plus(amount).multipliedBy(Asset.scalar).toString() : BigNumber(amount).multipliedBy(Asset.scalar).toString();
+        await Wallet.updateAttribute('indivisibleQuantity', newAmount);
         return createdTransfer;
       }else{
         return response.status(400).send('You are not authorized to perform this action');

@@ -22,12 +22,16 @@ const convert = async (amount, fromAsset, toAsset, method) => {
     throw("Invalid fromAsset please provide ticker like btc or eth");
   }
   if (fromAssetInstance && fromAssetInstance.exchangeRates[toAsset]) {
+    // console.log('in from asset if');
     if (method === 'ask') {
-      return amount / fromAssetInstance.exchangeRates[toAsset][method];
+      // console.log('in from asset ask');
+      return amount * fromAssetInstance.exchangeRates[toAsset][method];
     } else if (method === 'bid') {
+      // console.log('in from asset bid');
       return amount * fromAssetInstance.exchangeRates[toAsset][invMethod];
     } else {
-      return amount / fromAssetInstance.exchangeRates[toAsset][method];
+      // console.log('in from asset other');
+      return amount * fromAssetInstance.exchangeRates[toAsset][method];
     }
   } else {
     const toAssetInstance = await app.models.asset.findOne({ where: { ticker: toAsset } });
@@ -38,12 +42,16 @@ const convert = async (amount, fromAsset, toAsset, method) => {
       return null;
     }
     if (toAssetInstance && toAssetInstance.exchangeRates[fromAsset]) {
+      // console.log('in to asset if');
       if (method === 'ask') {
-        return amount * toAssetInstance.exchangeRates[fromAsset][invMethod];
+        // console.log('in to asset ask');
+        return amount / toAssetInstance.exchangeRates[fromAsset][invMethod];
       } else if (method === 'bid') {
+        // console.log('in to asset bid');
         return amount / toAssetInstance.exchangeRates[fromAsset][method];
       } else {
-        return amount * toAssetInstance.exchangeRates[fromAsset][method];
+        // console.log('in to asset else');
+        return amount / toAssetInstance.exchangeRates[fromAsset][method];
       }
     } else {
       const priceBTC = await convert(amount, fromAsset, 'btc', method);
