@@ -17,10 +17,12 @@ const convert = async (amount, fromAsset, toAsset, method) => {
     method = 'price';
     invMethod = 'price';
   }
+  // console.log('before everything');
   const fromAssetInstance = await app.models.asset.findOne({ where: { ticker: fromAsset } });
   if(!fromAssetInstance){
     throw("Invalid fromAsset please provide ticker like btc or eth");
   }
+  // console.log('index', fromAssetInstance);
   if (fromAssetInstance && fromAssetInstance.exchangeRates[toAsset]) {
     // console.log('in from asset if');
     if (method === 'ask') {
@@ -34,13 +36,15 @@ const convert = async (amount, fromAsset, toAsset, method) => {
       return amount * fromAssetInstance.exchangeRates[toAsset][method];
     }
   } else {
+    // console.log('in else');
     const toAssetInstance = await app.models.asset.findOne({ where: { ticker: toAsset } });
-    if ((!toAssetInstance || !fromAssetInstance.exchangeRates || !fromAssetInstance.exchangeRates[toAssetInstance.ticker]) && (!toAssetInstance || !toAssetInstance.exchangeRates || !toAssetInstance.exchangeRates[fromAssetInstance.ticker])){
+    if ((!toAssetInstance || !fromAssetInstance.exchangeRates || !fromAssetInstance.exchangeRates[toAssetInstance.ticker]) && (!toAssetInstance || !toAssetInstance.exchangeRates)){
       return null;
     }
     if(!toAssetInstance){
       return null;
     }
+    // console.log('before toasset');
     if (toAssetInstance && toAssetInstance.exchangeRates[fromAsset]) {
       // console.log('in to asset if');
       if (method === 'ask') {
@@ -54,6 +58,7 @@ const convert = async (amount, fromAsset, toAsset, method) => {
         return amount / toAssetInstance.exchangeRates[fromAsset][method];
       }
     } else {
+      // console.log('in else');
       const priceBTC = await convert(amount, fromAsset, 'btc', method);
       const priceToAsset = await convert(priceBTC, 'btc', toAsset, method);
       if (priceBTC!==null && priceToAsset!==null) {
@@ -69,6 +74,7 @@ const convert = async (amount, fromAsset, toAsset, method) => {
       }
     }
   }
+  console.log('totally outside');
   return null;
 };
 const price = async (amount, fromAsset, toAsset) => {
