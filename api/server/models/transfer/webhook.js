@@ -51,7 +51,7 @@ module.exports = function (transfer) {
           dividedValue = BigNumber(transaction.value).div("1e18").toString();
         }
         const updatedWallet = await Wallet.updateAttribute('indivisibleQuantity', parseFloat(Wallet.indivisibleQuantity) + parseFloat(transaction.value));
-        let data = {
+        const data = {
           coin: coin === 'tbtc' ? 'BTC' : 'ETH',
           txid: transaction.id,
           txHash: hash,

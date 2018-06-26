@@ -18,19 +18,19 @@ module.exports = Trade => {
     }
     const fromAsset = await Trade.app.models.asset.findOne({ where: { id: fromAssetId } });
     const toAsset = await Trade.app.models.asset.findOne({ where: { id: toAssetId } });
-    if(!fromAsset || !toAsset){
+    if (!fromAsset || !toAsset) {
       return response.status(400).send({ message: 'You must provide both a selling and buying asset.' });
     }
-    if(tradeType === 'buy' && !(fromAsset.ticker === 'btc' || fromAsset.ticker === 'eth')){
+    if (tradeType === 'buy' && !(fromAsset.ticker === 'btc' || fromAsset.ticker === 'eth')) {
       return response.status(400).send({ message: 'You can only buy using BTC or ETH.' });
     }
-    if(tradeType === 'sell' && !(toAsset.ticker === 'btc' || toAsset.ticker === 'eth')){
+    if (tradeType === 'sell' && !(toAsset.ticker === 'btc' || toAsset.ticker === 'eth')) {
       return response.status(400).send({ message: 'You can only sell to BTC or ETH.' });
     }
     if (fromAsset.hidden || toAsset.hidden) {
       return response.status(400).send({ message: 'One or both assets unavailable for trading' });
     }
-    if ((!fromAsset.exchangeRates || !fromAsset.exchangeRates[toAsset.ticker]) && (!toAsset.exchangeRates || !toAsset.exchangeRates[fromAsset.ticker])){
+    if ((!fromAsset.exchangeRates || !fromAsset.exchangeRates[toAsset.ticker]) && (!toAsset.exchangeRates || !toAsset.exchangeRates[fromAsset.ticker])) {
       return response.status(400).send({ message: 'Exchange rates unavailable for asset pair, cannot trade at this time.' });
     }
     const fromWallet = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: fromAsset.ticker } });
@@ -55,16 +55,16 @@ module.exports = Trade => {
       }
     }
 
-    if (tradeType==='buy' && toAssetAmount > toAsset.maxPurchaseAmount) {
+    if (tradeType === 'buy' && toAssetAmount > toAsset.maxPurchaseAmount) {
       return response.status(400).send({ message: 'Maximum purchase amount exceeded' });
     }
-    if (tradeType==='buy' && toAssetAmount < toAsset.minPurchaseAmount) {
+    if (tradeType === 'buy' && toAssetAmount < toAsset.minPurchaseAmount) {
       return response.status(400).send({ message: 'Minimum purchase amount not met' });
     }
-    if (tradeType==='sell' && fromAssetAmount > fromAsset.maxSaleAmount) {
+    if (tradeType === 'sell' && fromAssetAmount > fromAsset.maxSaleAmount) {
       return response.status(400).send({ message: 'Maximum sale amount exceeded' });
     }
-    if (tradeType==='sell' && fromAssetAmount < fromAsset.minSaleAmount) {
+    if (tradeType === 'sell' && fromAssetAmount < fromAsset.minSaleAmount) {
       return response.status(400).send({ message: 'Minimum sale amount not met' });
     }
 
@@ -145,7 +145,7 @@ module.exports = Trade => {
   });
   Trade.estimateTrade = async (context, request, response, fromAssetId, toAssetId, fromAssetAmount, toAssetAmount, tradeType) => {
     const userId = request.accessToken.userId;
-    let errors = [];
+    const errors = [];
     fromAssetAmount = parseFloat(fromAssetAmount);
     toAssetAmount = parseFloat(toAssetAmount);
     if (fromAssetId === toAssetId) {
@@ -156,17 +156,17 @@ module.exports = Trade => {
     }
     const fromAsset = await Trade.app.models.asset.findOne({ where: { id: fromAssetId } });
     const toAsset = await Trade.app.models.asset.findOne({ where: { id: toAssetId } });
-    if(!fromAsset || !toAsset){
+    if (!fromAsset || !toAsset) {
       return response.status(400).send({ message: 'You must provide both a selling and buying asset.' });
     }
-    if(tradeType === 'buy' && !(fromAsset.ticker === 'btc' || fromAsset.ticker === 'eth')){
+    if (tradeType === 'buy' && !(fromAsset.ticker === 'btc' || fromAsset.ticker === 'eth')) {
       return response.status(400).send({ message: 'You can only buy using BTC or ETH.' });
     }
-    if(tradeType === 'sell' && !(toAsset.ticker === 'btc' || toAsset.ticker === 'eth')){
+    if (tradeType === 'sell' && !(toAsset.ticker === 'btc' || toAsset.ticker === 'eth')) {
       return response.status(400).send({ message: 'You can only sell to BTC or ETH.' });
     }
     if (fromAsset.hidden || toAsset.hidden) {
-      errors.push('One or both assets unavailable for trading' );
+      errors.push('One or both assets unavailable for trading');
     }
 
     const fromWallet = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: fromAsset.ticker } });
@@ -184,16 +184,16 @@ module.exports = Trade => {
       toAssetAmount = truePrice;
     }
 
-    if (tradeType==='buy' && toAssetAmount > toAsset.maxPurchaseAmount) {
+    if (tradeType === 'buy' && toAssetAmount > toAsset.maxPurchaseAmount) {
       errors.push('Maximum purchase amount exceeded');
     }
-    if (tradeType==='buy' && toAssetAmount < toAsset.minPurchaseAmount) {
+    if (tradeType === 'buy' && toAssetAmount < toAsset.minPurchaseAmount) {
       errors.push('Minimum purchase amount not met');
     }
-    if (tradeType==='sell' && fromAssetAmount > fromAsset.maxSaleAmount) {
+    if (tradeType === 'sell' && fromAssetAmount > fromAsset.maxSaleAmount) {
       errors.push('Maximum sale amount exceeded');
     }
-    if (tradeType==='sell' && fromAssetAmount < fromAsset.minSaleAmount) {
+    if (tradeType === 'sell' && fromAssetAmount < fromAsset.minSaleAmount) {
       errors.push('Minimum sale amount not met');
     }
 

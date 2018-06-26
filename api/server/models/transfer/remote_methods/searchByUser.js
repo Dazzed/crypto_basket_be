@@ -25,7 +25,7 @@ module.exports = transfer => {
       filter.where = filter.where || {};
       const term = originalTerm.toLowerCase();
       const matches = () => new Promise((resolve, reject) => {
-        let sql = `\
+        const sql = `\
 select U.email, T.*, T.createdat as "createdAt", T.confirmedtime as "confirmedTime", \
 T.userid as "userId", T.txtype as "txType" \
 from public.user U right join public.transfer T on U.id=T.userid \
@@ -41,7 +41,7 @@ or LOWER(U."lastName") like '%${term}%') order by T.id limit 10 offset ${filter.
       });
 
       const countResult = () => new Promise((resolve, reject) => {
-        let sql = `\
+        const sql = `\
 select count(*) from public.user U right join public.transfer T on U.id=T.userid where T.txtype='${filter.where.txType || 'deposit'}' and (LOWER(U.email) like '%${term}%' or LOWER(U."firstName") like '%${term}%' or LOWER(U."lastName") like '%${term}%')`;
         ds.connector.query(sql, function (err, data) {
           if (err) {
