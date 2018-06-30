@@ -227,6 +227,7 @@ module.exports = function (user) {
         include: [
           { roleMapping: 'role' },
           'wallets',
+          'documents'
           // 'trades',
           // 'transfers'
         ]
