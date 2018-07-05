@@ -144,7 +144,8 @@
         "find",
         "findOne",
         "estimateTrade",
-        "search"
+        "search",
+        "searchByUser"
       ]
     }
   }

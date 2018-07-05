@@ -24,6 +24,11 @@ module.exports = transfer => {
       const ds = transfer.dataSource;
       filter.where = filter.where || {};
       const term = originalTerm.toLowerCase();
+      let dateString = '';
+      if (filter.custom_filter) {
+        const { custom_filter: { start_range, end_range } } = filter;
+        dateString = ` and (T.createdat between '${start_range} 00:00:00' and '${end_range} 23:59:59')`;
+      }
       const matches = () => new Promise((resolve, reject) => {
         const sql = `\
 select U.email, T.*, T.createdat as "createdAt", T.confirmedtime as "confirmedTime", \
@@ -31,7 +36,7 @@ T.userid as "userId", T.txtype as "txType" \
 from public.user U right join public.transfer T on U.id=T.userid \
 where T.txtype='${filter.where.txType || 'deposit'}' and \
 (LOWER(U.email) like '%${term}%' or LOWER(U."firstName") like '%${term}%' \
-or LOWER(U."lastName") like '%${term}%') order by T.id limit 10 offset ${filter.offset || 0};`;
+or LOWER(U."lastName") like '%${term}%')${dateString} order by T.id DESC limit 10 offset ${filter.offset || 0};`;
         ds.connector.query(sql, function (err, data) {
           if (err) {
             return reject(err);
@@ -42,7 +47,7 @@ or LOWER(U."lastName") like '%${term}%') order by T.id limit 10 offset ${filter.
 
       const countResult = () => new Promise((resolve, reject) => {
         const sql = `\
-select count(*) from public.user U right join public.transfer T on U.id=T.userid where T.txtype='${filter.where.txType || 'deposit'}' and (LOWER(U.email) like '%${term}%' or LOWER(U."firstName") like '%${term}%' or LOWER(U."lastName") like '%${term}%')`;
+select count(*) from public.user U right join public.transfer T on U.id=T.userid where T.txtype='${filter.where.txType || 'deposit'}' and (LOWER(U.email) like '%${term}%' or LOWER(U."firstName") like '%${term}%' or LOWER(U."lastName") like '%${term}%')${dateString}`;
         ds.connector.query(sql, function (err, data) {
           if (err) {
             return reject(err);
