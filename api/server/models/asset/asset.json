@@ -115,6 +115,14 @@
       "postgresql": {
         "dataType": "NUMERIC(30)"
       }
+    },
+    "consumedIndivisibleQuantity": {
+      "type": "number",
+      "required": false,
+      "default": 0,
+      "postgresql": {
+        "dataType": "NUMERIC(30)"
+      }
     }
   },
   "validations": [],

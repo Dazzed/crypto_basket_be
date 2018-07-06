@@ -4,6 +4,20 @@ const _ = require('lodash');
 var BigNumber = require('bignumber.js');
 BigNumber.config({ RANGE: 500 });
 
+const completeTrade = async (trade) => {
+    await fromWallet.updateAttribute('indivisibleQuantity', BigNumber(fromWallet.indivisibleQuantity).minus(BigNumber(fromAssetAmount).multipliedBy(fromAsset.scalar)));
+    await toWallet.updateAttribute('indivisibleQuantity', BigNumber(toWallet.indivisibleQuantity).plus(BigNumber(toAssetAmount).multipliedBy(toAsset.scalar)));
+    //consumedIndivisibleQuantity
+    if(tradeType === 'buy'){
+      await toAsset.updateAttribute('consumedIndivisibleQuantity', BigNumber(toAsset.consumedIndivisibleQuantity).plus(BigNumber(toAssetAmount).multipliedBy(toAsset.scalar)));
+    }else{
+      await toAsset.updateAttribute('consumedIndivisibleQuantity', BigNumber(fromAsset.consumedIndivisibleQuantity).minus(BigNumber(fromAssetAmount).multipliedBy(fromAsset.scalar)));
+    }
+    const fromWalletUpdated = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: fromAsset.ticker } });
+    const toWalletUpdated = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: toAsset.ticker } });
+    tradeEmail(user, trade, fromAsset, toAsset, fromWalletUpdated, toWalletUpdated);
+}
+
 module.exports = Trade => {
   Trade.initiateTrade = async (context, request, response, fromAssetId, toAssetId, fromAssetAmount, toAssetAmount, tradeType) => {
     const userId = request.accessToken.userId;
@@ -83,12 +97,17 @@ module.exports = Trade => {
       isBuy: tradeType === 'buy'
     };
 
-    const trade = await Trade.create(data);
-    await fromWallet.updateAttribute('indivisibleQuantity', BigNumber(fromWallet.indivisibleQuantity).minus(BigNumber(fromAssetAmount).multipliedBy(fromAsset.scalar)));
-    await toWallet.updateAttribute('indivisibleQuantity', BigNumber(toWallet.indivisibleQuantity).plus(BigNumber(toAssetAmount).multipliedBy(toAsset.scalar)));
-    const fromWalletUpdated = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: fromAsset.ticker } });
-    const toWalletUpdated = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: toAsset.ticker } });
-    tradeEmail(user, trade, fromAsset, toAsset, fromWalletUpdated, toWalletUpdated);
+    const available = BigNumber(toAsset.indivisibleQuantity).minus(toAsset.consumedIndivisibleQuantity).div(toAsset.scalar);
+    
+    if(available.gte(toAssetAmount)){
+      data.state = 'completed';
+      const trade = await Trade.create(data);
+      await completeTrade(trade);
+    }else{
+      data.state = 'pending';
+      const trade = await Trade.create(data);
+    }
+    
     const myWallets = await user.wallets.find();
     return response.status(200).send({ message: trade, myWallets });
   };
@@ -255,6 +274,155 @@ module.exports = Trade => {
       {
         arg: 'tradeType',
         type: 'string'
+      }
+    ],
+    returns: [],
+    http: {
+      status: 200,
+      verb: 'post'
+    }
+  });
+
+  Trade.cancelTrade = async (context, request, response, id) => {
+    const userId = request.accessToken.userId;
+    const user = await Trade.app.models.user.findOne({where: {id: userId}});
+    const tradeInstance = await Trade.findOne({where: { id: id }});
+    if((userId !== tradeInstance.userId) && !(await user.isAdmin() || await user.isSuperAdmin())){
+      return response.status(403).send("You do not have permissions to perform this action.");
+    }
+    if(tradeInstance.state !== 'pending'){
+      return response.status(403).send("You cannot cancel a trade that is not currently pending.");
+    }
+    const updatedTrade = await tradeInstance.updateAttribute('state', 'canceled');
+    return updatedTrade;
+  }
+
+  Trade.remoteMethod('cancelTrade', {
+    accepts: [
+      {
+        arg: 'context',
+        type: 'object',
+        http: {
+          source: 'context'
+        }
+      },
+      {
+        arg: 'request',
+        type: 'object',
+        http: {
+          source: 'req'
+        }
+      },
+      {
+        arg: 'response',
+        type: 'object',
+        http: {
+          source: 'res'
+        }
+      },
+      {
+        arg: 'id',
+        type: 'number'
+      }
+    ],
+    returns: [],
+    http: {
+      status: 200,
+      verb: 'post'
+    }
+  });
+
+  Trade.confirmTrade = async (context, request, response, id) => {
+    const userId = request.accessToken.userId;
+    const user = await Trade.app.models.user.findOne({where: {id: userId}});
+    const tradeInstance = await Trade.findOne({where: { id: id }});
+    if(!(await user.isAdmin() || await user.isSuperAdmin())){
+      return response.status(403).send("You do not have permissions to perform this action.");
+    }
+    if(tradeInstance.state !== 'pending'){
+      return response.status(403).send("You cannot confirm a trade that is not currently pending.");
+    }
+    const updatedTrade = await tradeInstance.updateAttribute('state', 'confirmed');
+    return updatedTrade;
+  }
+
+  Trade.remoteMethod('confirmTrade', {
+    accepts: [
+      {
+        arg: 'context',
+        type: 'object',
+        http: {
+          source: 'context'
+        }
+      },
+      {
+        arg: 'request',
+        type: 'object',
+        http: {
+          source: 'req'
+        }
+      },
+      {
+        arg: 'response',
+        type: 'object',
+        http: {
+          source: 'res'
+        }
+      },
+      {
+        arg: 'id',
+        type: 'number'
+      }
+    ],
+    returns: [],
+    http: {
+      status: 200,
+      verb: 'post'
+    }
+  });
+
+
+  Trade.completeTrade = async (context, request, response, id) => {
+    const userId = request.accessToken.userId;
+    const user = await Trade.app.models.user.findOne({where: {id: userId}});
+    const tradeInstance = await Trade.findOne({where: { id: id }});
+    if(!(await user.isAdmin() || await user.isSuperAdmin())){
+      return response.status(403).send("You do not have permissions to perform this action.");
+    }
+    if(tradeInstance.state !== 'confirmed'){
+      return response.status(403).send("You cannot complete a trade that is not currently confirmed.");
+    }
+    await completeTrade(tradeInstance);
+    const updatedTrade = await tradeInstance.updateAttribute('state', 'completed');
+    return updatedTrade;
+  }
+
+  Trade.remoteMethod('completeTrade', {
+    accepts: [
+      {
+        arg: 'context',
+        type: 'object',
+        http: {
+          source: 'context'
+        }
+      },
+      {
+        arg: 'request',
+        type: 'object',
+        http: {
+          source: 'req'
+        }
+      },
+      {
+        arg: 'response',
+        type: 'object',
+        http: {
+          source: 'res'
+        }
+      },
+      {
+        arg: 'id',
+        type: 'number'
       }
     ],
     returns: [],
