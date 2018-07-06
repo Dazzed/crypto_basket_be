@@ -43,7 +43,8 @@ module.exports = Document => {
       const { Location, ETag, Bucket, Key } = await uploadFileToS3(file, {}, process.env.AWS_S3_DOCUMENTS_BUCKET);
       const thizDocument = await targetUser.documents.create({
         type: 'proof',
-        url: Location
+        url: Location,
+        originalFilename: file.originalFilename
       });
       return { link: Location, fileName: file.originalFilename, data: thizDocument };
     } catch (error) {

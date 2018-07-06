@@ -179,12 +179,55 @@ module.exports = function (user) {
     }
   });
 
+  /* After findById
+     * 1. As a user I can view the total overall value of all the assets in my asset portfolio (BTC, USD, ETH)
+    */
+  user.afterRemote('findById', async (context, thizUser, next) => {
+    try {
+      const { filter } = context.args;
+      if (filter && thizUser) {
+        // 1
+        const { custom_include } = filter;
+        if (custom_include) {
+          if (!Array.isArray(custom_include)) {
+            return next(badRequest('custom_include must be an Array'));
+          }
+          if (custom_include.includes('populateAssetValue')) {
+            await thizUser.populateAssetValue();
+          }
+        }
+      }
+      const thizUserJson = thizUser.toJSON();
+      // provide btc and eth wallet qr code for regular users to deposit.
+      if (thizUserJson.wallets && thizUserJson.wallets.length) {
+        const btcWalletIndex = thizUserJson.wallets.findIndex(w => w.assetId === 'btc');
+        const ethWalletIndex = thizUserJson.wallets.findIndex(w => w.assetId === 'eth');
+        if (btcWalletIndex && ethWalletIndex) {
+          const [btcQr, ethQr] = await Promise.all([
+            qrCodeLib.toDataURL(thizUserJson.wallets[btcWalletIndex].address),
+            qrCodeLib.toDataURL(thizUserJson.wallets[ethWalletIndex].address)
+          ]);
+          thizUserJson.wallets[btcWalletIndex].qrCode = btcQr;
+          thizUserJson.wallets[ethWalletIndex].qrCode = ethQr;
+        }
+      }
+      context.result = {
+        ...context.result.toJSON(),
+        wallets: thizUserJson.wallets || []
+      };
+    } catch (error) {
+      console.log('Error in user.afterRemote findById', error);
+      return next(internalError());
+    }
+  });
+
   user.afterRemote('login', async (context, tokenInstance, next) => {
     try {
       const thizUser = await user.findById(tokenInstance.userId, {
         include: [
           { roleMapping: 'role' },
           'wallets',
+          'documents'
           // 'trades',
           // 'transfers'
         ]
@@ -338,48 +381,6 @@ module.exports = function (user) {
       }
     } catch (error) {
       console.log('Error in user.afterRemote find', error);
-      return next(internalError());
-    }
-  });
-
-  /* before findById
-   * 1. As a user I can view the total overall value of all the assets in my asset portfolio (BTC, USD, ETH)
-  */
-  user.afterRemote('findById', async (context, thizUser, next) => {
-    try {
-      const { filter } = context.args;
-      if (filter && thizUser) {
-        // 1
-        const { custom_include } = filter;
-        if (custom_include) {
-          if (!Array.isArray(custom_include)) {
-            return next(badRequest('custom_include must be an Array'));
-          }
-          if (custom_include.includes('populateAssetValue')) {
-            await thizUser.populateAssetValue();
-          }
-        }
-      }
-      const thizUserJson = thizUser.toJSON();
-      // provide btc and eth wallet qr code for regular users to deposit.
-      if (thizUserJson.wallets && thizUserJson.wallets.length) {
-        const btcWalletIndex = thizUserJson.wallets.findIndex(w => w.assetId === 'btc');
-        const ethWalletIndex = thizUserJson.wallets.findIndex(w => w.assetId === 'eth');
-        if (btcWalletIndex && ethWalletIndex) {
-          const [btcQr, ethQr] = await Promise.all([
-            qrCodeLib.toDataURL(thizUserJson.wallets[btcWalletIndex].address),
-            qrCodeLib.toDataURL(thizUserJson.wallets[ethWalletIndex].address)
-          ]);
-          thizUserJson.wallets[btcWalletIndex].qrCode = btcQr;
-          thizUserJson.wallets[ethWalletIndex].qrCode = ethQr;
-        }
-      }
-      context.result = {
-        ...context.result.toJSON(),
-        wallets: thizUserJson.wallets || []
-      };
-    } catch (error) {
-      console.log('Error in user.afterRemote findById', error);
       return next(internalError());
     }
   });

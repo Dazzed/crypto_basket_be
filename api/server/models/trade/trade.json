@@ -151,7 +151,8 @@
         "search",
         "cancelTrade",
         "confirmTrade",
-        "completeTrade"
+        "completeTrade",
+        "searchByUser"
       ]
     }
   }

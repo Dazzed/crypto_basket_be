@@ -17,6 +17,9 @@
     "createdAt": {
       "type": "date",
       "defaultFn": "now"
+    },
+    "originalFilename": {
+      "type": "string"
     }
   },
   "validations": [],

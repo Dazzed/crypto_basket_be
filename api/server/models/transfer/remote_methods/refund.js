@@ -6,7 +6,7 @@ const priceConvert = require('../../asset/priceConversion');
 BigNumber.config({ RANGE: 500 });
 
 module.exports = transfer => {
-      createRemoteMethod({
+  createRemoteMethod({
     model: transfer,
     name: 'refund',
     accepts: [
@@ -30,12 +30,12 @@ module.exports = transfer => {
     const selfId = request.accessToken.userId;
     const currentUser = await transfer.app.models.user.findOne({ where: { id: selfId } });
     const Asset = await transfer.app.models.asset.findOne({ where: { ticker: coin.toLowerCase() } });
-    const Wallet = await transfer.app.models.wallet.findOne({ where: { and: [{ userId: userId },{ assetId: coin.toLowerCase() }] } });
+    const Wallet = await transfer.app.models.wallet.findOne({ where: { and: [{ userId: userId }, { assetId: coin.toLowerCase() }] } });
     try {
       const currentTemporarySecret = await currentUser.temporaryTwoFactorSecret.get();
-      let secret = currentTemporarySecret && currentTemporarySecret.secret ? currentTemporarySecret.secret : currentUser.twoFactorSecret;
+      const secret = currentTemporarySecret && currentTemporarySecret.secret ? currentTemporarySecret.secret : currentUser.twoFactorSecret;
       const verified = speakeasy.totp.verify({
-        secret: secret,
+        secret,
         encoding: 'base32',
         token: otp
       });
@@ -47,35 +47,34 @@ module.exports = transfer => {
         await currentUser.save();
         await currentTemporarySecret.destroy();
       }
-      if(await currentUser.isSuperAdmin()){
+      if (await currentUser.isSuperAdmin()) {
         const usdValue = await priceConvert.price(amount, coin.toLowerCase(), 'usd');
-        let data = {
-            coin: coin,
-            txid: "refund",
-            txHash: "refund",
-            wallet: Wallet,
-            sourceAddress: "refund",
-            destAddress: "refund",
-            invidisibleValue: BigNumber(amount).multipliedBy(Asset.scalar).toString(),
-            value: amount,
-            usdValue: usdValue,
-            userId: userId,
-            confirmed: true,
-            txType: 'refund',
-            state: 'complete',
-            confirmedTime: new Date()
+        const data = {
+          coin: coin,
+          txid: "refund",
+          txHash: "refund",
+          wallet: Wallet,
+          sourceAddress: "refund",
+          destAddress: "refund",
+          invidisibleValue: BigNumber(amount).multipliedBy(Asset.scalar).toString(),
+          value: amount,
+          usdValue: usdValue,
+          userId: userId,
+          confirmed: true,
+          txType: 'refund',
+          state: 'complete',
+          confirmedTime: new Date()
         };
         const createdTransfer = await transfer.create(data);
         const newAmount = Wallet.indivisibleQuantity && !isNaN(Wallet.indivisibleQuantity) ? BigNumber(Wallet.indivisibleQuantity).div(Asset.scalar).plus(amount).multipliedBy(Asset.scalar).toString() : BigNumber(amount).multipliedBy(Asset.scalar).toString();
         await Wallet.updateAttribute('indivisibleQuantity', newAmount);
         return createdTransfer;
-      }else{
+      } else {
         return response.status(400).send('You are not authorized to perform this action');
       }
     } catch (error) {
       console.log('Error in remote method user.verifyTwoFactor ', error);
       return response.status(500).send('Internal Server error');
     }
-    
   };
 }
