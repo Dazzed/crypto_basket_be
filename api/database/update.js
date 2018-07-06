@@ -3,6 +3,7 @@
 /*
  * @see http://apidocs.strongloop.com/loopback-datasource-juggler/#datasource-prototype-autoupdate
  */
+global.isUpdatingDataBase = true;
 const server = require('../server/server.js');
 
 // datasources names is provided by the gig.yaml

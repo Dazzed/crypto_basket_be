@@ -10,9 +10,9 @@ var updateAssets = require('./models/asset/updateAssetRates');
 global.log = console.log;
 global.sleep = millis => new Promise(resolve => setTimeout(resolve.bind(null, millis), millis));
 
-app.start = function() {
+app.start = function () {
   // start the web server
-  return app.listen(function() {
+  return app.listen(function () {
     app.emit('started');
     var baseUrl = app.get('url').replace(/\/$/, '');
     console.log('Web server listening at: %s', baseUrl);
@@ -25,15 +25,15 @@ app.start = function() {
 
 // Bootstrap the application, configure models, datasources and middleware.
 // Sub-apps like REST API are mounted via boot scripts.
-boot(app, __dirname, function(err) {
+boot(app, __dirname, function (err) {
   if (err) throw err;
   require('./server-passport')(app);
   if (app.get('webEnabled')) require('./server-web')(app);
 
   // start the server if `$ node server.js`
-  if (require.main === module){
+  if (require.main === module && global.isUpdatingDataBase === false) {
     app.start();
-    var j = schedule.scheduleJob('*/30 * * * * *', async function(){
+    var j = schedule.scheduleJob('*/30 * * * * *', async function () {
       await updateAssets(app);
     });
   }

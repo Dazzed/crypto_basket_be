@@ -7,6 +7,9 @@ const APP_ROLES = [
 
 module.exports = async server => {
   try {
+    if (global.isUpdatingDataBase) {
+      return;
+    }
     const {roleMapping, role} = server.models;
     const totalRoleCount = await role.count();
     if (totalRoleCount === 0) {

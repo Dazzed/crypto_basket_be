@@ -134,6 +134,9 @@ const BASE_ASSETS = [
 ];
 
 module.exports = async server => {
+  if (global.isUpdatingDataBase) {
+    return;
+  }
   try {
     const { asset } = server.models;
     for (const index in BASE_ASSETS) {
