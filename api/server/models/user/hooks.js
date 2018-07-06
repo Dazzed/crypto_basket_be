@@ -416,16 +416,26 @@ module.exports = function (user) {
       }
 
       // 4
+      const currentUser = await context.args.options.accessToken.user.get();
       if ('twoFactorLoginEnabled' in context.args.data || 'twoFactorWithdrawalEnabled' in context.args.data) {
         const { otp } = context.args.data;
         if (otp) {
-          const currentUser = await context.args.options.accessToken.user.get();
+          
           const isOtpValid = isValidTFAOtp(otp, currentUser.twoFactorSecret);
           if (!isOtpValid) {
             return next(badRequest('Invalid OTP'));
           }
         } else {
           return next(badRequest('otp is needed when patching twoFactorLoginEnabled or twoFactorWithdrawalEnabled'));
+        }
+      }
+
+      if('verificationStatus' in context.args.data){
+        if(currentUser.verificationStatus !== 'fully_verified' && context.args.data.verificationStatus === 'fully_verified'){
+          context.args.data.withdrawLimitBTC = 20;
+          context.args.data.withdrawLimitETH = 20;
+          context.args.data.withdrawMinimumBTC = 1;
+          context.args.data.withdrawMinimumETH = 1;
         }
       }
     } catch (error) {

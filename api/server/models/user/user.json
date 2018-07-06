@@ -145,14 +145,30 @@
     },
     "withdrawLimitBTC":{
       "type":"number",
+      "default": 1,
       "postgresql":{
         "columnName": "withdrawLimitBTC"
       }
     },
     "withdrawLimitETH":{
       "type":"number",
+      "default": 1,
       "postgresql":{
         "columnName": "withdrawLimitETH"
+      }
+    },
+    "withdrawMinimumBTC":{
+      "type":"number",
+      "default": 1,
+      "postgresql":{
+        "columnName": "withdrawMinimumBTC"
+      }
+    },
+    "withdrawMinimumETH":{
+      "type":"number",
+      "default": 1,
+      "postgresql":{
+        "columnName": "withdrawMinimumETH"
       }
     },
     "realm": false
