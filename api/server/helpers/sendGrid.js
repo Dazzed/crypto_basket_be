@@ -98,6 +98,19 @@ module.exports = {
     const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
     sendMail(mail);
   },
+  notifyVerificationPendingChange(user) {
+    const templateString = fs.readFileSync(__dirname + '/../../template/notify_verification_pending.ejs', 'utf-8');
+    const template = ejs.compile(templateString);
+    const toEmail = new sendgrid.Email(user.email);
+    const subject = 'Your Melotic verification status updated';
+    const content = new sendgrid.Content(
+      'text/html', template({
+        user
+      })
+    );
+    const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
+    sendMail(mail);
+  },
   notifyVerificationStatusChange(user) {
     const templateString = fs.readFileSync(__dirname + '/../../template/notify_verification_status_change.ejs', 'utf-8');
     const template = ejs.compile(templateString);

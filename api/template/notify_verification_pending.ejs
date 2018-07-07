@@ -1,0 +1,125 @@
+<head>
+<link href='http://fonts.googleapis.com/css?family=Lato:100,200,300,400,500,600,700,800,900' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+ <link href='http://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700,800,900' rel='stylesheet' type='text/css'>
+ <link href='http://fonts.googleapis.com/css?family=Courier:100,200,300,400,500,600,700,800,900' rel='stylesheet' type='text/css'>
+ <style>
+.logo {
+  font-family: Montserrat;
+  font-weight: normal;
+  font-size: 20px;
+  color: #00B34A;
+  letter-spacing: 0;
+  width: 100%;
+  border-bottom: 1px solid #F6F8F7;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.forgot {
+  font-family: Lato;
+  font-weight: normal;
+  font-size: 20px;
+  color: #3A3A3A;
+  letter-spacing: 0;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.name {
+  font-family: Lato-Bold;
+  font-weight: bold;
+  font-size: 16px;
+  color: #3A3A3A;
+  letter-spacing: 0;
+  text-align: center;
+  margin-top: 30px;
+}
+
+.info {
+  font-family: Lato;
+  font-weight: normal;
+  font-size: 16px;
+  color: #3A3A3A;
+  letter-spacing: 0;
+  text-align: center;
+  line-height: 26px;
+  margin-top: 10px;
+}
+.align{
+  text-align: center;
+  margin-top: 30px;
+}
+.button{
+  background: #00B34A;
+  border-radius: 4px;
+  font-family: Lato;
+  font-weight: normal;
+  font-size: 14px;
+  color: #FFFFFF;
+  letter-spacing: 0;
+  text-align: center;
+  width: 283px;
+  height: 44px;
+}
+.table-wrapper{
+  width: 80%;
+  margin: 0 auto;
+} 
+table{
+    width: 100%;
+    font-family: Lato;
+    font-weight: bold;
+    font-size: 14px;
+    color: #76837B;
+    letter-spacing: 0;
+    border-top: 1px solid #F6F8F7;
+    margin-top: 30px;
+}
+
+table tr{
+}
+   
+table td {
+  border-bottom: 1px solid #F6F8F7;
+  width: 40%;
+  margin: 0;
+  height: 40px;
+}
+
+floatLeft {
+  float: left;
+}
+floatRight {
+  float: right;
+  font-family: Courier;
+  font-weight: normal;
+  font-size: 16px;
+  color: #76837B;
+  letter-spacing: 0;
+  text-align: right;
+}
+</style>
+</head>
+<body>
+<div class="logo">
+  MELOTIC
+</div>
+<div class="forgot">
+  Your Verification status has been updated. Your documents have been uploaded successfully. Your account is now in pending verfication.
+</div>
+</div>
+<div class="align">
+  <a href='https://melotic-web-staging.aws.gigsternetwork.com/user_login'><button class="button">
+   Go to sign in to Melotic
+  </button></a>
+</div>
+<div style="width:70%;margin:0 auto;  padding:10px 10px 100px 10px; ">
+    <p style="font-family: Lato;font-size: 12px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: normal;letter-spacing: normal;text-align: center;color: #acb6b0;">
+        @ Melotic
+    </p>
+    <p style="font-family: Lato;font-size: 12px;font-weight: normal;font-style: normal;font-stretch: normal;line-height: normal;letter-spacing: normal;text-align: center;color: #acb6b0;">
+        This Message was sent to <u><%= user.email %></u> and intented for <%= `${user.firstName} ${user.lastName}` %>. Melotic sends updates like this to help you keep up with the latest on Melotic. You can unsubscribe from these updates, or remove your email if this isn't your Melotic account. Unsubscribe your email from this account. 
+    </p>
+</div>
+</body>

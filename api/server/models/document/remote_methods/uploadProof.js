@@ -2,6 +2,9 @@ const createRemoteMethod = require('../../../helpers/createRemoteMethod');
 const { badRequest, unauthorized, internalError } = require('../../../helpers/errorFormatter');
 const { uploadFileToS3, deleteObjectInS3 } = require('../../../helpers/S3');
 const getFileFromRequest = require('../../../helpers/getFileFromRequest');
+const {
+  notifyVerificationPendingChange
+} = require('../../../helpers/sendGrid');
 
 module.exports = Document => {
   createRemoteMethod({
@@ -25,6 +28,10 @@ module.exports = Document => {
       const targetUser = await user.findById(currentUserId, { include: 'documents' });
       if (!targetUser) {
         return callback(badRequest('Invalid accessToken supplied'));
+      } else if (targetUser.verificationStatus === 'fully_verified') {
+        return callback(badRequest({
+          message: 'You cannot upload documents when you are verified'
+        }));
       }
 
       // extract the file from the request object
@@ -46,7 +53,25 @@ module.exports = Document => {
         url: Location,
         originalFilename: file.originalFilename
       });
-      return { link: Location, fileName: file.originalFilename, data: thizDocument };
+      let shouldChangeVerificationStatusToPending = false;
+      const existingIdentityDocument = await Document.findOne({
+        where: {
+          userId: targetUser.id,
+          type: 'identity'
+        }
+      });
+      if (existingIdentityDocument && targetUser.verificationStatus === 'unverified') {
+        await targetUser.updateAttribute('verificationStatus', 'verification_pending');
+        notifyVerificationPendingChange(targetUser);
+        shouldChangeVerificationStatusToPending = true;
+      }
+      return {
+        link: Location,
+        fileName: file.originalFilename,
+        data: thizDocument,
+        shouldChangeVerificationStatusToPending,
+        newVerificationStatus: shouldChangeVerificationStatusToPending ? 'verification_pending' : null
+      };
     } catch (error) {
       console.log('Error in Document.uploadResume', error);
       callback(internalError());
