@@ -31,7 +31,7 @@ boot(app, __dirname, function (err) {
   if (app.get('webEnabled')) require('./server-web')(app);
 
   // start the server if `$ node server.js`
-  if (require.main === module && global.isUpdatingDataBase === false) {
+  if (require.main === module && global.isUpdatingDataBase !== true) {
     app.start();
     var j = schedule.scheduleJob('*/30 * * * * *', async function () {
       await updateAssets(app);
