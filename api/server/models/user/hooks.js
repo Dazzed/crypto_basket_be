@@ -167,7 +167,7 @@ module.exports = function (user) {
         // If admin is creating a new user, Do not send welcome email, Instead send reset password.
         // setPassword automatically confirms the email address of an user regardless the case. (see setPassword)
         if (userInstance.adminCreatingUser) {
-          await user.resetPassword({ email: userInstance.email });
+          await user.resetPassword({ email: userInstance.email, adminCreatingUser: true });
         } else {
           // If a new user signs up himself, Send welcome email to confirm his email.
           postSignupEmail(userInstance, verificationToken);

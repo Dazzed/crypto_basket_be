@@ -58,6 +58,20 @@ module.exports = {
     const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
     sendMail(mail);
   },
+  regularUserOnboardEmail(user, accessToken) {
+    const templateString = fs.readFileSync(__dirname + '/../../template/regular_user_onboard.ejs', 'utf-8');
+    const template = ejs.compile(templateString);
+    const toEmail = new sendgrid.Email(user.email);
+    const subject = 'Welcome to Melotic';
+    const content = new sendgrid.Content(
+      'text/html', template({
+        user,
+        domain: `${config[process.env.NODE_ENV]}/reset_password?access_token=${accessToken}`
+      })
+    );
+    const mail = new sendgrid.Mail(fromEmail, subject, toEmail, content);
+    sendMail(mail);
+  },
   postNotifyChangePassword(user) {
     const templateString = fs.readFileSync(__dirname + '/../../template/post_change_password_notification.ejs', 'utf-8');
     const template = ejs.compile(templateString);

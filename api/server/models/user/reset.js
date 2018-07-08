@@ -1,7 +1,7 @@
-const {resetPasswordEmail} = require('../../helpers/sendGrid');
+const { resetPasswordEmail, regularUserOnboardEmail } = require('../../helpers/sendGrid');
 
-module.exports = function(user) {
-    // send password reset link when requested
+module.exports = function (user) {
+  // send password reset link when requested
   // User.on('resetPasswordRequest', function(info) {
   //   const templateFilePath = path.join(__dirname, '../../../template/reset.ejs');
 
@@ -23,9 +23,13 @@ module.exports = function(user) {
   //   });
   // });
 
-  user.on('resetPasswordRequest', info => {
+  user.on('resetPasswordRequest', (info) => {
     info.accessToken.user(function (err, user) {
-      resetPasswordEmail(user, info.accessToken.id);
+      if (info.options.adminCreatingUser) {
+        regularUserOnboardEmail(user, info.accessToken.id);
+      } else {
+        resetPasswordEmail(user, info.accessToken.id);
+      }
     });
   });
 };
