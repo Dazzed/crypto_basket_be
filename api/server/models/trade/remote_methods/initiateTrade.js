@@ -18,7 +18,7 @@ const completeTrade = async (trade, Trade) => {
     await fromWallet.updateAttribute('indivisibleQuantity', BigNumber(fromWallet.indivisibleQuantity).minus(BigNumber(fromAssetAmount).multipliedBy(fromAsset.scalar)));
     await toWallet.updateAttribute('indivisibleQuantity', BigNumber(toWallet.indivisibleQuantity).plus(BigNumber(toAssetAmount).multipliedBy(toAsset.scalar)));
     //consumedIndivisibleQuantity
-    if(tradeType === 'buy'){
+    if(trade.isBuy){
       await toAsset.updateAttribute('consumedIndivisibleQuantity', BigNumber(toAsset.consumedIndivisibleQuantity).plus(BigNumber(toAssetAmount).multipliedBy(toAsset.scalar)));
     }else{
       await toAsset.updateAttribute('consumedIndivisibleQuantity', BigNumber(fromAsset.consumedIndivisibleQuantity).minus(BigNumber(fromAssetAmount).multipliedBy(fromAsset.scalar)));
