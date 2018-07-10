@@ -9,6 +9,10 @@ const completeTrade = async (trade, Trade) => {
     const toWallet = await Trade.app.models.wallet.findOne({ where: { id: trade.toWalletId } });
     const fromAsset = await Trade.app.models.asset.findOne({ where: { id: trade.fromAssetId } });
     const toAsset = await Trade.app.models.asset.findOne({ where: { id: trade.toAssetId } });
+    const fromAssetAmount = trade.fromAssetAmount;
+    const toAssetAmount = trade.toAssetAmount;
+    const userId = fromWallet.userId;
+    const user = await Trade.app.models.user.findOne({ where: { id: userId } });
     console.log('trade', trade, 'fromWallet', fromWallet, 'toWallet', toWallet, 'fromAsset', fromAsset, 'toAsset', toAsset);
 
     await fromWallet.updateAttribute('indivisibleQuantity', BigNumber(fromWallet.indivisibleQuantity).minus(BigNumber(fromAssetAmount).multipliedBy(fromAsset.scalar)));
