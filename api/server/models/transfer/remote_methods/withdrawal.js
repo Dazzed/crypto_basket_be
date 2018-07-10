@@ -100,23 +100,23 @@ module.exports = transfer => {
       if (Transfer.userId === userId) {
         if (Transfer.state === 'initiated') {
           await Transfer.updateAttribute('state', 'canceled');
-          return response.status(200).send('Transaction canceled');
+          return response.status(200).send({ message: 'Transaction canceled'});
         } else {
-          return response.status(400).send('You cannot cancel a transaction that is not in the \'initiated\' state.');
+          return response.status(400).send({ message: 'You cannot cancel a transaction that is not in the \'initiated\' state.'});
         }
       } else {
         if (Transfer.state === 'pending' || Transfer.state === 'initiated') {
           await Transfer.updateAttribute('state', 'canceled');
-          return response.status(200).send('Transaction canceled');
+          return response.status(200).send({ message: 'Transaction canceled'});
         } else {
-          return response.status(400).send('You cannot cancel a transaction that is not in the \'pending\' state as an admin.');
+          return response.status(400).send({ message: 'You cannot cancel a transaction that is not in the \'pending\' state as an admin.'});
         }
 
       }
       await Transfer.updateAttribute('state', 'canceled');
-      return response.status(200).send('Transaction canceled');
+      return response.status(200).send({ message: 'Transaction canceled'});
     } else {
-      return response.status(400).send('You cannot cancel a transfer that you didn\' make');
+      return response.status(400).send({ message: 'You cannot cancel a transfer that you didn\' make'});
     }
 
   };
@@ -141,11 +141,11 @@ module.exports = transfer => {
     const userId = request.accessToken.userId;
     const user = await transfer.app.models.user.findOne({ where: { id: userId } });
     if (!(await user.isAdmin() || await user.isSuperAdmin())) {
-      return response.status(400).send('You must be an admin or superadmin to complete a withdrawal.');
+      return response.status(400).send({ message: 'You must be an admin or superadmin to complete a withdrawal.'});
     } else {
       const Transfer = await transfer.findOne({ where: { id: id } });
       if (Transfer.state !== 'initiated') {
-        return response.status(400).send('Withdrawal must be intiated to complete.');
+        return response.status(400).send({ message: 'Withdrawal must be intiated to complete.'});
       }
       try {
         const bitgo = new BitGoJS.BitGo({ env: 'test', accessToken: process.env.BITGO_API_KEY });
@@ -163,7 +163,7 @@ module.exports = transfer => {
       } catch (e) {
         console.log('error in transfer.completeWithdrawal', e);
         const updatedTransfer = await Transfer.updateAttributes({ state: 'failed' });
-        return response.status(500).send('Withdrawal could not be completed');
+        return response.status(500).send({ message: 'Withdrawal could not be completed'});
       }
     }
   };
