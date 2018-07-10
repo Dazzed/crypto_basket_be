@@ -9,6 +9,7 @@ const completeTrade = async (trade) => {
     const toWallet = await trade.toWallet();
     const fromAsset = await trade.fromAsset();
     const toAsset = await trade.toAsset();
+    console.log('trade', trade, 'fromWallet', fromWallet, 'toWallet', toWallet, 'fromAsset', fromAsset, 'toAsset', toAsset);
 
     await fromWallet.updateAttribute('indivisibleQuantity', BigNumber(fromWallet.indivisibleQuantity).minus(BigNumber(fromAssetAmount).multipliedBy(fromAsset.scalar)));
     await toWallet.updateAttribute('indivisibleQuantity', BigNumber(toWallet.indivisibleQuantity).plus(BigNumber(toAssetAmount).multipliedBy(toAsset.scalar)));
