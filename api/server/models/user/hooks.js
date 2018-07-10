@@ -420,7 +420,7 @@ module.exports = function (user) {
       if ('twoFactorLoginEnabled' in context.args.data || 'twoFactorWithdrawalEnabled' in context.args.data) {
         const { otp } = context.args.data;
         if (otp) {
-          
+
           const isOtpValid = isValidTFAOtp(otp, currentUser.twoFactorSecret);
           if (!isOtpValid) {
             return next(badRequest('Invalid OTP'));
@@ -430,8 +430,8 @@ module.exports = function (user) {
         }
       }
 
-      if('verificationStatus' in context.args.data){
-        if(currentUser.verificationStatus !== 'fully_verified' && context.args.data.verificationStatus === 'fully_verified'){
+      if ('verificationStatus' in context.args.data) {
+        if (currentUser.verificationStatus !== 'fully_verified' && context.args.data.verificationStatus === 'fully_verified') {
           context.args.data.withdrawLimitBTC = 20;
           context.args.data.withdrawLimitETH = 20;
           context.args.data.withdrawMinimumBTC = 1;
