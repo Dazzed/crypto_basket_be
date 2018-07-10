@@ -17,7 +17,7 @@ const convert = async (amount, fromAsset, toAsset, method) => {
     method = 'price';
     invMethod = 'price';
   }
-  // console.log('before everything');
+  // console.log('before everything', method, invMethod);
   const fromAssetInstance = await app.models.asset.findOne({ where: { ticker: fromAsset } });
   if(!fromAssetInstance){
     throw("Invalid fromAsset please provide ticker like btc or eth");
@@ -27,7 +27,7 @@ const convert = async (amount, fromAsset, toAsset, method) => {
     // console.log('in from asset if');
     if (method === 'ask') {
       // console.log('in from asset ask');
-      return amount * fromAssetInstance.exchangeRates[toAsset][method];
+      return amount / fromAssetInstance.exchangeRates[toAsset][method];
     } else if (method === 'bid') {
       // console.log('in from asset bid');
       return amount * fromAssetInstance.exchangeRates[toAsset][invMethod];
@@ -49,7 +49,7 @@ const convert = async (amount, fromAsset, toAsset, method) => {
       // console.log('in to asset if');
       if (method === 'ask') {
         // console.log('in to asset ask');
-        return amount / toAssetInstance.exchangeRates[fromAsset][invMethod];
+        return amount * toAssetInstance.exchangeRates[fromAsset][invMethod];
       } else if (method === 'bid') {
         // console.log('in to asset bid');
         return amount / toAssetInstance.exchangeRates[fromAsset][method];
@@ -74,7 +74,6 @@ const convert = async (amount, fromAsset, toAsset, method) => {
       }
     }
   }
-  console.log('totally outside');
   return null;
 };
 const price = async (amount, fromAsset, toAsset) => {

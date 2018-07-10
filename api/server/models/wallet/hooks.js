@@ -103,7 +103,9 @@ module.exports = function (Wallet) {
     const assetId = context.args.data.assetId;
     const userId = context.args.options.accessToken.userId;
     context.args.data.userId = userId;
+    // console.log('assetId', assetId);
     const foundWallet = await Wallet.findOne({ where: { userId: userId, assetId: assetId } });
+    // console.log('foundWallet', foundWallet);
     if (foundWallet) {
       return next(badRequest('Already have a wallet of this type.'));
     }
