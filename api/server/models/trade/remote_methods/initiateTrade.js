@@ -4,11 +4,11 @@ const _ = require('lodash');
 var BigNumber = require('bignumber.js');
 BigNumber.config({ RANGE: 500 });
 
-const completeTrade = async (trade) => {
-    const fromWallet = await trade.fromWallet();
-    const toWallet = await trade.toWallet();
-    const fromAsset = await trade.fromAsset();
-    const toAsset = await trade.toAsset();
+const completeTrade = async (trade, Trade) => {
+    const fromWallet = await Trade.app.models.wallet.findOne({ where: { id: trade.fromWalletId } });
+    const toWallet = await Trade.app.models.wallet.findOne({ where: { id: trade.toWalletId } });
+    const fromAsset = await Trade.app.models.asset.findOne({ where: { id: trade.fromAssetId } });
+    const toAsset = await Trade.app.models.asset.findOne({ where: { id: trade.toAssetId } });
     console.log('trade', trade, 'fromWallet', fromWallet, 'toWallet', toWallet, 'fromAsset', fromAsset, 'toAsset', toAsset);
 
     await fromWallet.updateAttribute('indivisibleQuantity', BigNumber(fromWallet.indivisibleQuantity).minus(BigNumber(fromAssetAmount).multipliedBy(fromAsset.scalar)));
@@ -107,7 +107,7 @@ module.exports = Trade => {
     data.state = available.gte(toAssetAmount) ? 'completed' : 'pending';
     const trade = await Trade.create(data);
     if(data.state === 'completed'){
-      await completeTrade(trade);
+      await completeTrade(trade, Trade);
     }
     const myWallets = await user.wallets.find();
     return response.status(200).send({ message: trade, myWallets });
@@ -393,7 +393,7 @@ module.exports = Trade => {
     if(tradeInstance.state !== 'confirmed'){
       return response.status(403).send("You cannot complete a trade that is not currently confirmed.");
     }
-    await completeTrade(tradeInstance);
+    await completeTrade(tradeInstance, Trade);
     const updatedTrade = await tradeInstance.updateAttribute('state', 'completed');
     return updatedTrade;
   }
