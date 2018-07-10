@@ -5,6 +5,11 @@ var BigNumber = require('bignumber.js');
 BigNumber.config({ RANGE: 500 });
 
 const completeTrade = async (trade) => {
+    const fromWallet = await trade.fromWallet();
+    const toWallet = await trade.toWallet();
+    const fromAsset = await trade.fromAsset();
+    const toAsset = await trade.toAsset();
+
     await fromWallet.updateAttribute('indivisibleQuantity', BigNumber(fromWallet.indivisibleQuantity).minus(BigNumber(fromAssetAmount).multipliedBy(fromAsset.scalar)));
     await toWallet.updateAttribute('indivisibleQuantity', BigNumber(toWallet.indivisibleQuantity).plus(BigNumber(toAssetAmount).multipliedBy(toAsset.scalar)));
     //consumedIndivisibleQuantity
@@ -98,16 +103,11 @@ module.exports = Trade => {
     };
 
     const available = BigNumber(toAsset.indivisibleQuantity).minus(toAsset.consumedIndivisibleQuantity).div(toAsset.scalar);
-    
-    if(available.gte(toAssetAmount)){
-      data.state = 'completed';
-      const trade = await Trade.create(data);
+    data.state = available.gte(toAssetAmount) ? 'completed' : 'pending';
+    const trade = await Trade.create(data);
+    if(data.state === 'completed'){
       await completeTrade(trade);
-    }else{
-      data.state = 'pending';
-      const trade = await Trade.create(data);
     }
-    
     const myWallets = await user.wallets.find();
     return response.status(200).send({ message: trade, myWallets });
   };
