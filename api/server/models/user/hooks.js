@@ -434,8 +434,8 @@ module.exports = function (user) {
         if (currentUser.verificationStatus !== 'fully_verified' && context.args.data.verificationStatus === 'fully_verified') {
           context.args.data.withdrawLimitBTC = 20;
           context.args.data.withdrawLimitETH = 20;
-          context.args.data.withdrawMinimumBTC = 1;
-          context.args.data.withdrawMinimumETH = 1;
+          context.args.data.withdrawMinimumBTC = 0.01;
+          context.args.data.withdrawMinimumETH = 0.1;
         }
       }
     } catch (error) {

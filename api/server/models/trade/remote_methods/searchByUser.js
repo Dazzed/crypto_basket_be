@@ -31,6 +31,15 @@ module.exports = Trade => {
         dateString = ` and (T."createdAt" between '${start_range} 00:00:00' and '${end_range} 23:59:59')`;
       }
       const matches = () => new Promise((resolve, reject) => {
+        const orderByClause = (() => {
+          return `\
+            ORDER BY \
+              CASE T.state \
+                WHEN 'pending' then 1 \
+                WHEN 'initiated' then 2 \
+              END\
+            `;
+        })();
         const sql = `\
 select U.email, T."isBuy", T."createdAt", T."updatedAt", T."fromAssetAmount", T."toAssetAmount", \
 FA.name as "fromAssetName", FA.ticker as "fromAssetTicker", TA.name as "toAssetName", TA.ticker as "toAssetTicker" \
@@ -38,8 +47,9 @@ from public.user U left join public.trade T on U.id=T.userid \
 left join asset FA on T.fromassetid=FA.id \
 left join asset TA on T.toassetid=TA.id \
 where T."isBuy"=${filter.where.isBuy || false} and \
+${filter.where.state ? `T.state='${filter.where.state}' and` : ''} \
 (LOWER(U.email) like '%${term}%' or LOWER(U."firstName") like '%${term}%' \
-or LOWER(U."lastName") like '%${term}%') ${dateString} order by T.id DESC limit 10 offset ${filter.offset || 0};`;
+or LOWER(U."lastName") like '%${term}%') ${dateString} ${orderByClause}, T."createdAt" DESC limit ${filter.limit || 10} offset ${filter.offset || 0};`;
 
         ds.connector.query(sql, function (err, data) {
           if (err) {

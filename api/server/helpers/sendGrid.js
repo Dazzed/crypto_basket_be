@@ -158,7 +158,7 @@ module.exports = {
     const template = ejs.compile(templateString);
     const toEmail = new sendgrid.Email(user.email);
     const subject = 'Trade Completed!';
-    const tradeCreatedAt = moment(trade.createdAt).format('YYYY-MM-DD hh:mm');
+    const tradeCreatedAt = `${moment(trade.createdAt).format('YYYY-MM-DD hh:mm')} (UTC)`;
     const content = new sendgrid.Content(
       'text/html', template({
         user, trade, fromAsset, toAsset, fromWallet, toWallet, tradeCreatedAt

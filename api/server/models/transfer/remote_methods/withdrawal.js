@@ -32,9 +32,11 @@ module.exports = transfer => {
     const Asset = await transfer.app.models.asset.findOne({ where: { ticker: coin.toLowerCase() } });
 
     if (amount > BigNumber(Wallet.indivisibleQuantity).div(Asset.scalar))
-      return response.status(400).send('Insufficient funds');
+      return response.status(400).send({ message: 'Insufficient funds'});
 
     const usdValue = await priceConvert.price(amount, coin.toLowerCase(), 'usd');
+    const ethValue = coin === 'BTC' ? await priceConvert.price(amount, coin.toLowerCase(), 'eth') : amount;
+    const btcValue = coin === 'ETH' ? await priceConvert.price(amount, coin.toLowerCase(), 'btc') : amount;
     const data = {
       coin: coin,
       txid: "withdrawal",
@@ -45,11 +47,12 @@ module.exports = transfer => {
       invidisibleValue: BigNumber(amount).multipliedBy(Asset.scalar).toString(),
       value: amount,
       usdValue: usdValue,
+      ethValue: ethValue,
+      btcValue: btcValue,
       userId: userId,
       confirmed: false,
       txType: 'withdraw',
-      state: 'initiated',
-      confirmedTime: new Date()
+      state: 'initiated'
     };
     const currentUser = await transfer.app.models.user.findOne({ where: { id: userId } });
     try {
@@ -62,6 +65,21 @@ module.exports = transfer => {
       });
       if (!verified) {
         return response.status(400).send({ message: 'Invalid OTP' });
+      }
+      if(coin === 'BTC'){
+        if(amount>currentUser.withdrawLimitBTC){
+          return response.status(400).send({ message: 'Withdrawal limit exceeded.' });
+        }
+        if(amount<currentUser.withdrawMinimumBTC){
+          return response.status(400).send({ message: 'Withdrawal minimum not met.' });
+        }
+      }else{
+        if(amount>currentUser.withdrawLimitETH){
+          return response.status(400).send({ message: 'Withdrawal limit exceeded.' });
+        }
+        if(amount<currentUser.withdrawMinimumETH){
+          return response.status(400).send({ message: 'Withdrawal minimum not met.' });
+        }
       }
       if (currentTemporarySecret && currentTemporarySecret.secret) {
         currentUser.twoFactorSecret = currentTemporarySecret.secret;
@@ -96,27 +114,28 @@ module.exports = transfer => {
     const userId = request.accessToken.userId;
     const user = await transfer.app.models.user.findOne({ where: { id: userId } });
     const Transfer = await transfer.findOne({ where: { id: id } });
+    const userTransf = await transfer.app.models.user.findOne({ where: { id: Transfer.userId } });
     if ((Transfer.userId === userId || (await user.isAdmin() || await user.isSuperAdmin()))) {
       if (Transfer.userId === userId) {
         if (Transfer.state === 'initiated') {
-          await Transfer.updateAttribute('state', 'canceled');
-          return response.status(200).send({ message: 'Transaction canceled'});
+          const updatedTransfer = await Transfer.updateAttribute('state', 'canceled');
+      return response.status(200).send({ ...updatedTransfer.__data, user: userTransf });
         } else {
           return response.status(400).send({ message: 'You cannot cancel a transaction that is not in the \'initiated\' state.'});
         }
       } else {
         if (Transfer.state === 'pending' || Transfer.state === 'initiated') {
-          await Transfer.updateAttribute('state', 'canceled');
-          return response.status(200).send({ message: 'Transaction canceled'});
+          const updatedTransfer = await Transfer.updateAttribute('state', 'canceled');
+      return response.status(200).send({ ...updatedTransfer.__data, user: userTransf });
         } else {
           return response.status(400).send({ message: 'You cannot cancel a transaction that is not in the \'pending\' state as an admin.'});
         }
 
       }
-      await Transfer.updateAttribute('state', 'canceled');
-      return response.status(200).send({ message: 'Transaction canceled'});
+      const updatedTransfer = await Transfer.updateAttribute('state', 'canceled');
+      return response.status(200).send({ ...updatedTransfer.__data, user: userTransf });
     } else {
-      return response.status(400).send({ message: 'You cannot cancel a transfer that you didn\' make'});
+      return response.status(400).send({ message: 'You cannot cancel a transfer that you didn\'t make'});
     }
 
   };
@@ -140,10 +159,11 @@ module.exports = transfer => {
   transfer.completeWithdrawal = async function (request, response, id, cb) {
     const userId = request.accessToken.userId;
     const user = await transfer.app.models.user.findOne({ where: { id: userId } });
+    const Transfer = await transfer.findOne({ where: { id: id } });
+    const userTransf = await transfer.app.models.user.findOne({ where: { id: Transfer.userId } });
     if (!(await user.isAdmin() || await user.isSuperAdmin())) {
       return response.status(400).send({ message: 'You must be an admin or superadmin to complete a withdrawal.'});
     } else {
-      const Transfer = await transfer.findOne({ where: { id: id } });
       if (Transfer.state !== 'initiated') {
         return response.status(400).send({ message: 'Withdrawal must be intiated to complete.'});
       }
@@ -158,12 +178,12 @@ module.exports = transfer => {
         const bitgoResponse = await wallet.send(params);
         const Wallet = await transfer.app.models.wallet.findOne({ where: { id: Transfer.walletId } });
         const updatedWallet = await Wallet.updateAttribute('indivisibleQuantity', BigNumber(Wallet.indivisibleQuantity).minus(Transfer.invidisibleValue).toString());
-        const updatedTransfer = await Transfer.updateAttributes({ txid: bitgoResponse.txid, txHash: bitgoResponse.txid, state: 'complete' });
-        return { transfer: updatedTransfer, wallet: Wallet };
+        const updatedTransfer = await Transfer.updateAttributes({ txid: bitgoResponse.txid, txHash: bitgoResponse.txid, state: 'complete', confirmedTime: new Date()});
+        return response.status(200).send({ ...updatedTransfer.__data, user: userTransf });
       } catch (e) {
         console.log('error in transfer.completeWithdrawal', e);
         const updatedTransfer = await Transfer.updateAttributes({ state: 'failed' });
-        return response.status(500).send({ message: 'Withdrawal could not be completed'});
+        return response.status(200).send({ ...updatedTransfer.__data, user: userTransf });
       }
     }
   };

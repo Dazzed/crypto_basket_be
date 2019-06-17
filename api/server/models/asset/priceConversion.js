@@ -17,6 +17,9 @@ const convert = async (amount, fromAsset, toAsset, method) => {
     method = 'price';
     invMethod = 'price';
   }
+  if(fromAsset === toAsset){
+    return amount;
+  }
   // console.log('before everything', method, invMethod);
   const fromAssetInstance = await app.models.asset.findOne({ where: { ticker: fromAsset } });
   if(!fromAssetInstance){

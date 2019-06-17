@@ -16,24 +16,37 @@ module.exports = user => {
       path: '/search/:query',
       status: 200,
       verb: 'get',
-    }
+    },
+    returns: { root: true, type: 'array' }
   });
 
-  user.search = async (request, response, query, filter) => {
+  user.search = async (request, response, query, filter, callback) => {
     try {
-      const { roleMapping } = user.app.models;
-      // ignore privledged users in search
-      const privledgedIds = await roleMapping.find({ fields: 'principalId' })
-        .map(({ principalId }) => principalId);
       const fields = ['firstName', 'lastName', 'email', 'username'];
+      // ignore privledged users in search
+      // const privledgedIds = await roleMapping.find({ fields: 'principalId' })
+      //   .map(({ principalId }) => principalId);
+      // const filterBase = {
+      //   where: {
+      //     and: [
+      //       {
+      //         id: {
+      //           nin: privledgedIds
+      //         },
+      //       },
+      //       {
+      //         or: fields.map(field => ({
+      //           [field]: {
+      //             ilike: `%${query}%`
+      //           }
+      //         }))
+      //       }
+      //     ],
+      //   }
+      // };
       const filterBase = {
         where: {
           and: [
-            {
-              id: {
-                nin: privledgedIds
-              },
-            },
             {
               or: fields.map(field => ({
                 [field]: {
@@ -41,18 +54,18 @@ module.exports = user => {
                 }
               }))
             }
-          ],
+          ]
         }
       };
-      let filterQuery = _.assign({}, filter, filterBase);
-      if(filter){
+      const filterQuery = _.assign({}, filter, filterBase);
+      if (filter && filter.where) {
         filterQuery.where.and.push(filter.where);
       }
-      const results = await user.find(filterQuery);
-      return response.status(200).send(results);
+
+      return await user.find(filterQuery);
     } catch (error) {
       console.log('Error in remote method user.search ', error);
-      return response.status(500).send('Internal Server error');
+      return callback(internalError());
     }
   };
 };

@@ -67,6 +67,18 @@
       "required": false,
       "type": "string",
       "default": "initiated"
+    },
+    "ethValue": {
+      "type": "number",
+      "postgresql": {
+        "dataType": "NUMERIC(15,5)"
+      }
+    },
+    "btcValue": {
+      "type": "number",
+      "postgresql": {
+        "dataType": "NUMERIC(15,5)"
+      }
     }
   },
   "hidden": [],
@@ -141,6 +153,13 @@
     {
       "property": "cancelWithdrawal",
       "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW"
+    },
+    {
+      "property": "custom_find",
+      "accessType": "READ",
       "principalType": "ROLE",
       "principalId": "$authenticated",
       "permission": "ALLOW"

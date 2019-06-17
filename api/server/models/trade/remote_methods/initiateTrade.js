@@ -25,6 +25,8 @@ const completeTrade = async (trade, Trade) => {
     }
     const fromWalletUpdated = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: fromAsset.ticker } });
     const toWalletUpdated = await Trade.app.models.wallet.findOne({ where: { userId: userId, assetId: toAsset.ticker } });
+    await trade.updateAttribute('state', 'completed');
+    await trade.updateAttribute('updatedAt', new Date());
     tradeEmail(user, trade, fromAsset, toAsset, fromWalletUpdated, toWalletUpdated);
 }
 
@@ -95,6 +97,9 @@ module.exports = Trade => {
     if (fromAssetAmount > BigNumber(fromWallet.indivisibleQuantity).div(fromAsset.scalar).toNumber()) {
       return response.status(400).send({ message: 'Source wallet has insufficient balanace' });
     }
+    const usdValue = await priceConvert.price(parseFloat(toAssetAmount), toAsset.ticker, 'usd');
+    const ethValue = await priceConvert.price(parseFloat(toAssetAmount), toAsset.ticker, 'eth');
+    const btcValue = await priceConvert.price(parseFloat(toAssetAmount), toAsset.ticker, 'btc');
 
     const data = {
       userId: userId,
@@ -104,13 +109,15 @@ module.exports = Trade => {
       toWalletId: toWallet.id,
       fromAssetAmount: fromAssetAmount,
       toAssetAmount: toAssetAmount,
-      isBuy: tradeType === 'buy'
+      isBuy: tradeType === 'buy',
+      state: 'pending',
+      usdValue: usdValue,
+      ethValue: ethValue,
+      btcValue: btcValue
     };
-
     const available = BigNumber(toAsset.indivisibleQuantity).minus(toAsset.consumedIndivisibleQuantity).div(toAsset.scalar);
-    data.state = available.gte(toAssetAmount) ? 'completed' : 'pending';
     const trade = await Trade.create(data);
-    if(data.state === 'completed'){
+    if(available.gte(toAssetAmount)){
       await completeTrade(trade, Trade);
     }
     const myWallets = await user.wallets.find();
@@ -290,16 +297,31 @@ module.exports = Trade => {
 
   Trade.cancelTrade = async (context, request, response, id) => {
     const userId = request.accessToken.userId;
+
     const user = await Trade.app.models.user.findOne({where: {id: userId}});
+
     const tradeInstance = await Trade.findOne({where: { id: id }});
+
+    const fromAsset = await Trade.app.models.asset.findOne({ where: { id: tradeInstance.fromAssetId } });
+
+    const toAsset = await Trade.app.models.asset.findOne({ where: { id: tradeInstance.toAssetId } });
+
     if((userId !== tradeInstance.userId) && !(await user.isAdmin() || await user.isSuperAdmin())){
       return response.status(403).send("You do not have permissions to perform this action.");
     }
-    if(tradeInstance.state !== 'pending'){
+    if(tradeInstance.state !== 'pending' && tradeInstance.state !== 'confirmed'){
       return response.status(403).send("You cannot cancel a trade that is not currently pending.");
     }
     const updatedTrade = await tradeInstance.updateAttribute('state', 'canceled');
-    return updatedTrade;
+    const fullTrade = {
+      ...updatedTrade.__data,
+      fromAsset: fromAsset,
+      toAsset: toAsset,
+      user: user
+    };
+    // console.log('fullTrade', fullTrade);
+    return response.status(200).send(fullTrade);
+    // return updatedTrade;
   }
 
   Trade.remoteMethod('cancelTrade', {
@@ -341,6 +363,9 @@ module.exports = Trade => {
     const userId = request.accessToken.userId;
     const user = await Trade.app.models.user.findOne({where: {id: userId}});
     const tradeInstance = await Trade.findOne({where: { id: id }});
+    console.log('tradeInstance', tradeInstance);
+    const fromAsset = await Trade.app.models.asset.findOne({ where: { id: tradeInstance.fromAssetId } });
+    const toAsset = await Trade.app.models.asset.findOne({ where: { id: tradeInstance.toAssetId } });
     if(!(await user.isAdmin() || await user.isSuperAdmin())){
       return response.status(403).send("You do not have permissions to perform this action.");
     }
@@ -348,7 +373,14 @@ module.exports = Trade => {
       return response.status(403).send("You cannot confirm a trade that is not currently pending.");
     }
     const updatedTrade = await tradeInstance.updateAttribute('state', 'confirmed');
-    return updatedTrade;
+    const fullTrade = {
+      ...updatedTrade.__data,
+      fromAsset: fromAsset,
+      toAsset: toAsset,
+      user: user
+    };
+    // console.log('fullTrade', fullTrade);
+    return response.status(200).send(fullTrade);
   }
 
   Trade.remoteMethod('confirmTrade', {
@@ -391,6 +423,8 @@ module.exports = Trade => {
     const userId = request.accessToken.userId;
     const user = await Trade.app.models.user.findOne({where: {id: userId}});
     const tradeInstance = await Trade.findOne({where: { id: id }});
+    const fromAsset = await Trade.app.models.asset.findOne({ where: { id: tradeInstance.fromAssetId } });
+    const toAsset = await Trade.app.models.asset.findOne({ where: { id: tradeInstance.toAssetId } });
     if(!(await user.isAdmin() || await user.isSuperAdmin())){
       return response.status(403).send("You do not have permissions to perform this action.");
     }
@@ -399,7 +433,14 @@ module.exports = Trade => {
     }
     await completeTrade(tradeInstance, Trade);
     const updatedTrade = await tradeInstance.updateAttribute('state', 'completed');
-    return updatedTrade;
+    const fullTrade = {
+      ...updatedTrade.__data,
+      fromAsset: fromAsset,
+      toAsset: toAsset,
+      user: user
+    };
+    // console.log('fullTrade', fullTrade);
+    return response.status(200).send(fullTrade);
   }
 
   Trade.remoteMethod('completeTrade', {

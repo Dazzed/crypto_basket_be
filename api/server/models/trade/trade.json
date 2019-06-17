@@ -41,6 +41,30 @@
     "state":{
       "type": "string",
       "default": "initiated"
+    },
+    "usdValue":{
+      "type": "number",
+      "default": 0,
+      "postgresql": {
+        "columnName": "usdValue",
+        "dataType": "NUMERIC(15,5)"
+      }
+    },
+    "ethValue":{
+      "type": "number",
+      "default": 0,
+      "postgresql": {
+        "columnName": "ethValue",
+        "dataType": "NUMERIC(15,5)"
+      }
+    },
+    "btcValue":{
+      "type": "number",
+      "default": 0,
+      "postgresql": {
+        "columnName": "btcValue",
+        "dataType": "NUMERIC(15,5)"
+      }
     }
   },
   "hidden": [],
@@ -135,6 +159,20 @@
       "property": "estimateTrade"
     },
     {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "cancelTrade"
+    },
+    {
+      "accessType": "*",
+      "principalType": "ROLE",
+      "principalId": "$authenticated",
+      "permission": "ALLOW",
+      "property": "completeTrade"
+    },
+    {
       "accessType": "READ",
       "principalType": "ROLE",
       "principalId": "$authenticated",
@@ -152,7 +190,8 @@
         "cancelTrade",
         "confirmTrade",
         "completeTrade",
-        "searchByUser"
+        "searchByUser",
+        "custom_find"
       ]
     }
   }
