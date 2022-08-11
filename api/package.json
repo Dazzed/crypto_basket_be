@@ -37,7 +37,7 @@
     "loopback-boot": "^2.26.2",
     "loopback-component-explorer": "^5.2.0",
     "loopback-component-passport": "^2.3.0",
-    "loopback-connector-postgresql": "^3.4.0",
+    "loopback-connector-postgresql": "^5.5.1",
     "loopback-setup-remote-methods-mixin": "^1.0.4",
     "multiparty": "^4.1.4",
     "node-binance-api": "^0.8.1",
