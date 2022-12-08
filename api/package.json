@@ -18,7 +18,7 @@
     "aws-sdk": "^2.248.1",
     "bignumber.js": "^7.2.1",
     "binance-api-node": "^0.7.6",
-    "bitgo": "^4.32.0",
+    "bitgo": "^16.1.1",
     "body-parser": "^1.18.2",
     "compression": "^1.0.3",
     "connect-ensure-login": "^0.1.1",
